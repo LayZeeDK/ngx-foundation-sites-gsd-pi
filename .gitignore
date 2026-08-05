@@ -43,3 +43,11 @@ vendor/
 coverage/
 .cache/
 tmp/
+
+# ── Nx / Angular workspace ──
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+.angular/
+__screenshots__/
+/typings
