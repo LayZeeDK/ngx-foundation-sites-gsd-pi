@@ -1,0 +1,53 @@
+{
+  "name": "nfs-demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/nfs-demo/src",
+  "prefix": "app",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/nfs-demo",
+        "index": "apps/nfs-demo/src/index.html",
+        "browser": "apps/nfs-demo/src/main.ts",
+        "polyfills": [],
+        "tsConfig": "apps/nfs-demo/tsconfig.app.json",
+        "assets": [],
+        "styles": [],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kB",
+              "maximumError": "1MB"
+            }
+          ]
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "nfs-demo:build:production"
+        },
+        "development": {
+          "buildTarget": "nfs-demo:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    }
+  }
+}
