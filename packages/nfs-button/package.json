@@ -4,5 +4,8 @@
   "peerDependencies": {
     "@angular/core": "^22.0.0"
   },
+  "dependencies": {
+    "@ngx-foundation-sites/nfs-style-loader": "^0.0.1"
+  },
   "sideEffects": false
 }

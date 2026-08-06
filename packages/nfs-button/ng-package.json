@@ -1,6 +1,7 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/packages/nfs-button",
+  "allowedNonPeerDependencies": ["@ngx-foundation-sites/nfs-style-loader"],
   "lib": {
     "entryFile": "src/index.ts"
   }
