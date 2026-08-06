@@ -6,6 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
+import { NfsStyleExtractor } from '../nfs-style-extractor';
 import { NfsStyleLoader } from '../nfs-style-loader';
 import { NFS_BUTTON_STYLES } from './nfs-button.styles';
 
@@ -36,10 +37,12 @@ export class NfsButton implements OnDestroy {
 
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly styleLoader = inject(NfsStyleLoader);
+  private readonly styleExtractor = inject(NfsStyleExtractor);
 
   protected readonly isAnchor = this.elementRef.nativeElement.tagName === 'A';
 
   constructor() {
+    this.styleExtractor.extractStyles(NFS_BUTTON_STYLE_ID, NFS_BUTTON_STYLES);
     this.styleLoader.load(NFS_BUTTON_STYLE_ID, NFS_BUTTON_STYLES);
   }
 

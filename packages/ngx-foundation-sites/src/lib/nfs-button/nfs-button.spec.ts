@@ -54,7 +54,7 @@ describe('NfsButton', () => {
 
   afterEach(() => {
     document
-      .querySelectorAll('style[data-nfs-style-id]')
+      .querySelectorAll('style[data-nfs-style-id], style[data-nfs-critical-css]')
       .forEach((element) => element.remove());
   });
 
@@ -272,6 +272,38 @@ describe('NfsButton', () => {
         'style[data-nfs-style-id="nfs-button"]',
       );
       expect(element).toBeNull();
+    });
+  });
+
+  describe('NfsStyleExtractor integration', () => {
+    it('does not inject critical CSS on the browser platform', async () => {
+      const fixture = TestBed.createComponent(ButtonHostComponent);
+      await fixture.whenStable();
+
+      const element = document.head.querySelector(
+        'style[data-nfs-critical-css="nfs-button"]',
+      );
+      expect(element).toBeNull();
+    });
+
+    it('injects critical CSS on the server platform without touching NfsStyleLoader behavior', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+      });
+
+      const fixture = TestBed.createComponent(ButtonHostComponent);
+      await fixture.whenStable();
+
+      const criticalCssElement = document.head.querySelector(
+        'style[data-nfs-critical-css="nfs-button"]',
+      );
+      expect(criticalCssElement).not.toBeNull();
+
+      const styleLoaderElement = document.head.querySelector(
+        'style[data-nfs-style-id="nfs-button"]',
+      );
+      expect(styleLoaderElement).toBeNull();
     });
   });
 });
