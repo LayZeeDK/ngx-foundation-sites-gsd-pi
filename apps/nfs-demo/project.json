@@ -39,6 +39,11 @@
     },
     "serve": {
       "executor": "@angular/build:dev-server",
+      "options": {
+        "prebundle": {
+          "exclude": ["ngx-foundation-sites"]
+        }
+      },
       "configurations": {
         "production": {
           "buildTarget": "nfs-demo:build:production"
