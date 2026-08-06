@@ -15,8 +15,7 @@
     "skipDefaultLibCheck": true,
     "strict": false,
     "paths": {
-      "@ngx-foundation-sites/nfs-button": ["./packages/nfs-button/src/index.ts"],
-      "@ngx-foundation-sites/nfs-style-loader": ["./packages/nfs-style-loader/src/index.ts"]
+      "ngx-foundation-sites": ["./packages/ngx-foundation-sites/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

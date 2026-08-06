@@ -6,7 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { NfsStyleLoader } from '@ngx-foundation-sites/nfs-style-loader';
+import { NfsStyleLoader } from '../nfs-style-loader';
 import { NFS_BUTTON_STYLES } from './nfs-button.styles';
 
 const NFS_BUTTON_STYLE_ID = 'nfs-button';

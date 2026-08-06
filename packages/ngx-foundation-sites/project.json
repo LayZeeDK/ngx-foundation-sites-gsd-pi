@@ -1,7 +1,7 @@
 {
-  "name": "nfs-button",
+  "name": "ngx-foundation-sites",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/nfs-button/src",
+  "sourceRoot": "packages/ngx-foundation-sites/src",
   "prefix": "lib",
   "projectType": "library",
   "release": {
@@ -18,12 +18,12 @@
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "defaultConfiguration": "production",
       "options": {
-        "project": "packages/nfs-button/ng-package.json",
-        "tsConfig": "packages/nfs-button/tsconfig.lib.json"
+        "project": "packages/ngx-foundation-sites/ng-package.json",
+        "tsConfig": "packages/ngx-foundation-sites/tsconfig.lib.json"
       },
       "configurations": {
         "production": {
-          "tsConfig": "packages/nfs-button/tsconfig.lib.prod.json"
+          "tsConfig": "packages/ngx-foundation-sites/tsconfig.lib.prod.json"
         },
         "development": {}
       }
@@ -46,8 +46,8 @@
       "executor": "@storybook/angular:start-storybook",
       "options": {
         "port": 4400,
-        "configDir": "packages/nfs-button/.storybook",
-        "browserTarget": "nfs-button:build-storybook",
+        "configDir": "packages/ngx-foundation-sites/.storybook",
+        "browserTarget": "ngx-foundation-sites:build-storybook",
         "compodoc": false
       },
       "configurations": {
@@ -60,9 +60,9 @@
       "executor": "@storybook/angular:build-storybook",
       "outputs": ["{options.outputDir}"],
       "options": {
-        "outputDir": "dist/storybook/nfs-button",
-        "configDir": "packages/nfs-button/.storybook",
-        "browserTarget": "nfs-button:build-storybook",
+        "outputDir": "dist/storybook/ngx-foundation-sites",
+        "configDir": "packages/ngx-foundation-sites/.storybook",
+        "browserTarget": "ngx-foundation-sites:build-storybook",
         "compodoc": false
       },
       "configurations": {
@@ -74,20 +74,20 @@
     "test-storybook": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "test-storybook -c packages/nfs-button/.storybook --url=http://localhost:4400"
+        "command": "test-storybook -c packages/ngx-foundation-sites/.storybook --url=http://localhost:4400"
       }
     },
     "static-storybook": {
       "executor": "@nx/web:file-server",
       "dependsOn": ["build-storybook"],
       "options": {
-        "buildTarget": "nfs-button:build-storybook",
-        "staticFilePath": "dist/storybook/nfs-button",
+        "buildTarget": "ngx-foundation-sites:build-storybook",
+        "staticFilePath": "dist/storybook/ngx-foundation-sites",
         "spa": true
       },
       "configurations": {
         "ci": {
-          "buildTarget": "nfs-button:build-storybook:ci"
+          "buildTarget": "ngx-foundation-sites:build-storybook:ci"
         }
       }
     }
