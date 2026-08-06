@@ -1,6 +1,14 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/packages/ngx-foundation-sites",
+  "deleteDestPath": false,
+  "assets": [
+    {
+      "glob": "**/*",
+      "input": "src/scss",
+      "output": "scss"
+    }
+  ],
   "lib": {
     "entryFile": "src/index.ts"
   }

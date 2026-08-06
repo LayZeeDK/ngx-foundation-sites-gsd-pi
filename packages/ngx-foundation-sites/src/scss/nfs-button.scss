@@ -1,0 +1,105 @@
+// NfsButton default theme.
+//
+// Concrete CSS rules (not Foundation's @include mixins) so the precompiled
+// bundle stays deterministic and decoupled from Foundation mixin API changes
+// (D009). Selector structure mirrors nfs-button.styles.ts (S03) — the
+// TS-template-literal file stays the runtime source fed to NfsStyleLoader and
+// is not modified by this pipeline.
+@use 'sass:color';
+@use 'sass:map';
+@forward 'settings';
+@use 'settings' as *;
+
+.button {
+  display: inline-block;
+  vertical-align: middle;
+  margin: $button-margin;
+  padding: $button-padding;
+  border: $button-border;
+  border-radius: $button-radius;
+  transition: $button-transition;
+  font-size: map.get($button-sizes, default);
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  appearance: none;
+  background-color: $button-background;
+  color: $button-color;
+}
+
+.button:hover,
+.button:focus {
+  background-color: $button-background-hover;
+  color: $button-color;
+}
+
+.button.secondary {
+  background-color: $secondary-color;
+  color: $button-color;
+}
+
+.button.secondary:hover,
+.button.secondary:focus {
+  background-color: color.scale(
+    $secondary-color,
+    $lightness: $button-background-hover-lightness
+  );
+  color: $button-color;
+}
+
+.button.hollow {
+  border: $button-hollow-border-width solid $button-background;
+  background-color: transparent;
+  color: $button-background;
+}
+
+.button.hollow:hover,
+.button.hollow:focus {
+  border-color: color.scale(
+    $button-background,
+    $lightness: $button-hollow-hover-lightness
+  );
+  color: color.scale(
+    $button-background,
+    $lightness: $button-hollow-hover-lightness
+  );
+}
+
+.button.hollow.secondary {
+  border-color: $secondary-color;
+  color: $secondary-color;
+}
+
+.button.hollow.secondary:hover,
+.button.hollow.secondary:focus {
+  border-color: color.scale(
+    $secondary-color,
+    $lightness: $button-hollow-hover-lightness
+  );
+  color: color.scale(
+    $secondary-color,
+    $lightness: $button-hollow-hover-lightness
+  );
+}
+
+.button.tiny {
+  padding: $button-padding-tiny;
+  font-size: map.get($button-sizes, tiny);
+}
+
+.button.small {
+  padding: $button-padding-small;
+  font-size: map.get($button-sizes, small);
+}
+
+.button.large {
+  padding: $button-padding-large;
+  font-size: map.get($button-sizes, large);
+}
+
+.button[disabled],
+.button.disabled {
+  opacity: $button-opacity-disabled;
+  cursor: not-allowed;
+  pointer-events: none;
+}

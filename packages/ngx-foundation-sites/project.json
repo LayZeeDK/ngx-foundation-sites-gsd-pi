@@ -17,6 +17,7 @@
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "defaultConfiguration": "production",
+      "dependsOn": ["compile-default-css"],
       "options": {
         "project": "packages/ngx-foundation-sites/ng-package.json",
         "tsConfig": "packages/ngx-foundation-sites/tsconfig.lib.json"
@@ -26,6 +27,19 @@
           "tsConfig": "packages/ngx-foundation-sites/tsconfig.lib.prod.json"
         },
         "development": {}
+      }
+    },
+    "compile-default-css": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}/css"],
+      "options": {
+        "commands": [
+          "node -e \"require('fs').mkdirSync('dist/packages/ngx-foundation-sites/css', { recursive: true })\"",
+          "npx sass --load-path=node_modules/foundation-sites/scss --no-source-map packages/ngx-foundation-sites/src/scss/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css",
+          "npx rtlcss --config packages/ngx-foundation-sites/.rtlcssrc.json dist/packages/ngx-foundation-sites/css/nfs-button.css dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css"
+        ],
+        "parallel": false,
+        "cwd": "{workspaceRoot}"
       }
     },
     "nx-release-publish": {
