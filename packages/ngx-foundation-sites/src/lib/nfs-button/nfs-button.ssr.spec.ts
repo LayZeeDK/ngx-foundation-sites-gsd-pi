@@ -1,29 +1,70 @@
-import { Component } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
+import { ApplicationRef, Component } from '@angular/core';
+import {
+  bootstrapApplication,
+  provideClientHydration,
+} from '@angular/platform-browser';
 import { provideServerRendering, renderApplication } from '@angular/platform-server';
+import { vi } from 'vitest';
 import { NfsButton } from './nfs-button';
 import { NFS_BUTTON_STYLES } from './nfs-button.styles';
 
 @Component({
-  selector: 'nfs-button-ssr-host',
+  selector: 'lib-nfs-button-ssr-host',
   imports: [NfsButton],
   template: `<button libNfsButton>Button</button>`,
 })
 class NfsButtonSsrHostComponent {}
 
 const SSR_DOCUMENT =
-  '<!doctype html><html><head></head><body><nfs-button-ssr-host></nfs-button-ssr-host></body></html>';
+  '<!doctype html><html><head></head><body><lib-nfs-button-ssr-host></lib-nfs-button-ssr-host></body></html>';
 
 async function serverRenderNfsButton(): Promise<string> {
   return renderApplication(
     (context) =>
       bootstrapApplication(
         NfsButtonSsrHostComponent,
-        { providers: [provideServerRendering()] },
+        { providers: [provideServerRendering(), provideClientHydration()] },
         context,
       ),
     { document: SSR_DOCUMENT },
   );
+}
+
+interface HydrationResult {
+  appRef: ApplicationRef;
+  consoleMessages: string[];
+  preHydrationButton: Element | null;
+}
+
+async function hydrateNfsButton(ssrHtml: string): Promise<HydrationResult> {
+  const parsedDocument = new DOMParser().parseFromString(ssrHtml, 'text/html');
+  document.head.innerHTML = parsedDocument.head.innerHTML;
+  document.body.innerHTML = parsedDocument.body.innerHTML;
+
+  const preHydrationButton = document.querySelector('button');
+
+  const consoleMessages: string[] = [];
+  const errorSpy = vi
+    .spyOn(console, 'error')
+    .mockImplementation((...args: unknown[]) => {
+      consoleMessages.push(args.map(String).join(' '));
+    });
+  const warnSpy = vi
+    .spyOn(console, 'warn')
+    .mockImplementation((...args: unknown[]) => {
+      consoleMessages.push(args.map(String).join(' '));
+    });
+
+  try {
+    const appRef = await bootstrapApplication(NfsButtonSsrHostComponent, {
+      providers: [provideClientHydration()],
+    });
+    await appRef.whenStable();
+    return { appRef, consoleMessages, preHydrationButton };
+  } finally {
+    errorSpy.mockRestore();
+    warnSpy.mockRestore();
+  }
 }
 
 describe('NfsButton SSR (renderApplication)', () => {
@@ -56,5 +97,48 @@ describe('NfsButton SSR (renderApplication)', () => {
       'style[data-nfs-style-id="nfs-button"]',
     );
     expect(styleLoaderElement).toBeNull();
+  });
+});
+
+describe('NfsButton hydration (bootstrapApplication + provideClientHydration)', () => {
+  let appRef: ApplicationRef | undefined;
+
+  afterEach(() => {
+    appRef?.destroy();
+    appRef = undefined;
+    document.head.innerHTML = '';
+    document.body.innerHTML = '';
+  });
+
+  it('hydrates the server-rendered markup with zero console errors or warnings', async () => {
+    const html = await serverRenderNfsButton();
+    const result = await hydrateNfsButton(html);
+    appRef = result.appRef;
+
+    expect(result.consoleMessages).toEqual([]);
+  });
+
+  it('reuses the server-rendered button element instead of creating a duplicate', async () => {
+    const html = await serverRenderNfsButton();
+    const result = await hydrateNfsButton(html);
+    appRef = result.appRef;
+
+    const hosts = document.querySelectorAll('lib-nfs-button-ssr-host');
+    const buttons = document.querySelectorAll('button');
+    expect(hosts.length).toBe(1);
+    expect(buttons.length).toBe(1);
+    expect(buttons[0]).toBe(result.preHydrationButton);
+  });
+
+  it('preserves the pre-hydration critical CSS style element in the document head', async () => {
+    const html = await serverRenderNfsButton();
+    const result = await hydrateNfsButton(html);
+    appRef = result.appRef;
+
+    const criticalCssElements = document.querySelectorAll(
+      'style[data-nfs-critical-css="nfs-button"]',
+    );
+    expect(criticalCssElements.length).toBe(1);
+    expect(criticalCssElements[0].textContent).toBe(NFS_BUTTON_STYLES);
   });
 });
