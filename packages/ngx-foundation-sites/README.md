@@ -68,22 +68,42 @@ export class AppComponent {
 
 ## Theming
 
-Component styles are hand-matched to Foundation for Sites' default Sass settings (`$primary-color: #1779ba`, `$secondary-color: #767676`, `$global-radius: 0`, `$button-opacity-disabled: 0.25`). There is currently no CSS custom property or Sass token API for overriding these — this is tracked as a follow-up.
+Component styles are hand-matched to Foundation for Sites' default Sass settings (`$primary-color: #1779ba`, `$secondary-color: #767676`, `$global-radius: 0`, `$button-opacity-disabled: 0.25`). `NfsButton` always injects its own default styles at runtime (via `NfsStyleLoader`/`NfsStyleExtractor`) — there is no CSS custom property API for overriding these on the fly. There are two supported ways to theme the button.
 
-In the meantime, override the rendered classes with your own stylesheet at a higher specificity or later source order:
+### Option 1: Precompiled CSS (zero build step)
 
-```css
-/* app.css — loaded after ngx-foundation-sites' injected styles */
-.button {
-  --my-brand-color: #2a5db0;
-  background-color: var(--my-brand-color);
-}
+The package ships ready-to-use CSS that mirrors the same rules `NfsButton` injects at runtime, useful for critical-CSS preloading, static analysis, or apps that don't run a Sass build:
 
-.button:hover,
-.button:focus {
-  background-color: #1e4482;
-}
+```ts
+// angular.json "styles" array, or any global stylesheet
+import 'ngx-foundation-sites/css/nfs-button.css';
 ```
+
+An RTL variant is also published for right-to-left layouts:
+
+```ts
+import 'ngx-foundation-sites/css/nfs-button.rtl.css';
+```
+
+These files are unthemed — they reflect Foundation's own default variable values. Use Option 2 to change colors, radius, spacing, etc.
+
+### Option 2: SCSS override (recompile with your own variables)
+
+The package also publishes its Sass source (`scss/nfs-button.scss` and `scss/_settings.scss`), where every themeable variable is declared `!default`. Override them by `@use`-ing the package's SCSS with a `with (...)` configuration in your own stylesheet:
+
+```scss
+// your app's global stylesheet, e.g. src/styles.scss
+@use 'ngx-foundation-sites/scss/nfs-button' with (
+  $primary-color: #2a5db0,
+  $secondary-color: #4a4a4a,
+  $global-radius: 4px,
+  $button-opacity-disabled: 0.4
+);
+```
+
+Compile this with your app's normal Sass build — no extra `--load-path` is needed, since `nfs-button.scss` only depends on its own bundled `_settings.scss`, not on `foundation-sites` itself — and include the resulting CSS globally.
+
+Whichever option you use, your themed stylesheet must win the cascade (e.g. load after, or match/exceed specificity) over `NfsButton`'s own runtime-injected default styles.
 
 Each component's CSS is injected once per app as a single `<style data-nfs-style-id="...">` element in `<head>` (ref-counted across instances, removed when the last instance is destroyed), so it participates in normal CSS cascade rules — no Shadow DOM or view encapsulation boundary to work around.
 
