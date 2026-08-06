@@ -2,6 +2,7 @@
   "name": "@ngx-foundation-sites/nfs-style-loader",
   "version": "0.0.1",
   "peerDependencies": {
+    "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0"
   },
   "sideEffects": false
