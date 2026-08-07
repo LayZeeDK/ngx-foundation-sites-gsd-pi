@@ -97,9 +97,12 @@ The package also publishes its Sass source (`scss/nfs-button.scss` and `scss/_se
   $primary-color: #2a5db0,
   $secondary-color: #4a4a4a,
   $global-radius: 4px,
+  $button-padding: 1em 1.5em,
   $button-opacity-disabled: 0.4
 );
 ```
+
+`$primary-color`/`$secondary-color` cover the palette, `$global-radius` covers corner radius, and `$button-padding` covers spacing — all declared `!default` in [`scss/_settings.scss`](src/scss/_settings.scss), so setting them via the `with (...)` configuration (Sass's module-scoped equivalent of a consumer settings file) before the module's own defaults are used is enough to theme the component; no component code changes are needed.
 
 Compile this with your app's normal Sass build — no extra `--load-path` is needed, since `nfs-button.scss` only depends on its own bundled `_settings.scss`, not on `foundation-sites` itself — and include the resulting CSS globally.
 
