@@ -114,6 +114,22 @@ Each component's CSS is injected once per app as a single `<style data-nfs-style
 
 Styles are SSR-safe out of the box: `NfsStyleExtractor` inlines each component's critical CSS into the server-rendered `<head>` (deduplicated per style id), and `NfsStyleLoader` takes over on the client without re-injecting or flashing unstyled content. No additional setup is required — both services are `providedIn: 'root'` and platform-guarded automatically.
 
+## RTL/Bidirectional support
+
+`NfsButton` mirrors correctly under `dir="rtl"`, matching Foundation for Sites' `$global-text-direction` behavior:
+
+- All of the default theme's layout properties (padding, border, border-radius) use symmetric shorthand rather than physical `left`/`right` values, so the button's box model is naturally direction-agnostic -- there's nothing to flip. `apps/nfs-demo/e2e/nfs-button-rtl.spec.ts` regression-tests this by asserting identical computed styles between an `ltr` and an `rtl`-ancestor instance.
+- The [Option 1 precompiled CSS](#option-1-precompiled-css-zero-build-step) also ships a pre-mirrored `nfs-button.rtl.css` (generated via `rtlcss`) for consumers who want an explicit RTL stylesheet rather than relying on inherited `dir="rtl"`.
+- **Caveat:** if you theme via [Option 2](#option-2-scss-override-recompile-with-your-own-variables) and introduce your own directional (left/right) values, verify mirroring yourself -- `NfsButton`'s own styles have no directional properties to get wrong, but consumer overrides can.
+
+## Accessibility
+
+`NfsButton` meets WCAG 2.1 AA:
+
+- **Contrast.** The default theme's text/background pairs (primary `#fefefe` on `#1779ba`, secondary `#fefefe` on `#767676`, and their hollow/hover variants) all meet the 4.5:1 minimum contrast ratio for normal text. Disabled buttons are dimmed via `opacity` and are exempt from this requirement per WCAG (disabled controls aren't required to meet contrast). If you override colors via [Option 2 theming](#option-2-scss-override-recompile-with-your-own-variables), re-check contrast for your chosen palette with a contrast calculator (e.g. [WebAIM's](https://webaim.org/resources/contrastchecker/)) — the `!default` variables let you pick any values, including ones below AA.
+- **ARIA semantics.** `<button libNfsButton disabled>` uses the native `disabled` attribute; no ARIA is needed. `<a libNfsButton disabled>` cannot be natively disabled, so it sets `aria-disabled="true"` and `tabindex="-1"` instead, while keeping its native `link` role (it still navigates via `href` — it isn't re-cast as a `button`).
+- **Automated regression coverage.** `apps/nfs-demo/e2e/nfs-button-a11y.spec.ts` runs an axe-core scan (WCAG 2.1 A/AA rules) against every variant — primary/secondary, hollow, all sizes, disabled button, and disabled anchor — and fails the build on any critical or serious violation.
+
 ## Browser support
 
 The workspace's [`.browserslistrc`](../../.browserslistrc) targets `baseline widely available` — browserslist's native query for the [web.dev "widely available" Baseline](https://web.dev/baseline) (browsers released less than 30 months ago across Chrome, Edge, Firefox, and Safari, desktop + iOS). This is the same definition Angular 22 documents for its own [browser support](https://angular.dev/reference/versions#browser-support), so the config tracks Angular's rolling baseline instead of a hand-copied, driftable static list. `node scripts/verify-browserslist.mjs` (wired into `nx run ngx-foundation-sites:lint`) asserts the config resolves to a non-empty browser set on every lint run.

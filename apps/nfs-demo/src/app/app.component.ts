@@ -17,6 +17,21 @@ import { NfsButton } from 'ngx-foundation-sites';
           RTL button
         </button>
       </div>
+
+      <!-- Scanned by nfs-button-a11y.spec.ts (S13/R003): one instance per
+           NfsButton variant, so the axe-core scan covers every combination
+           called out in the slice plan. -->
+      <div data-testid="a11y-variants">
+        <button libNfsButton>Primary</button>
+        <button libNfsButton color="secondary">Secondary</button>
+        <button libNfsButton hollow>Hollow primary</button>
+        <button libNfsButton hollow color="secondary">Hollow secondary</button>
+        <button libNfsButton size="tiny">Tiny</button>
+        <button libNfsButton size="small">Small</button>
+        <button libNfsButton size="large">Large</button>
+        <button libNfsButton disabled>Disabled button</button>
+        <a libNfsButton href="#" disabled>Disabled anchor</a>
+      </div>
     </main>
   `,
 })
