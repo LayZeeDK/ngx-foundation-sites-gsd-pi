@@ -3,8 +3,13 @@
  * ($primary-color #1779ba, $secondary-color #767676, $global-radius 0,
  * $button-opacity-disabled 0.25). Loaded globally via NfsStyleLoader keyed
  * 'nfs-button'; replaced by the real SCSS-compiled output in a later slice.
+ *
+ * Wrapped in `@layer nfs-defaults` (Baseline widely available since March
+ * 2022 -- Chrome 99, Firefox 97, Safari 15.4) so any unlayered consumer
+ * override always wins the cascade regardless of DOM insertion order.
  */
 export const NFS_BUTTON_STYLES = `
+@layer nfs-defaults {
 .button {
   display: inline-block;
   vertical-align: middle;
@@ -84,5 +89,6 @@ export const NFS_BUTTON_STYLES = `
   opacity: 0.25;
   cursor: not-allowed;
   pointer-events: none;
+}
 }
 `;

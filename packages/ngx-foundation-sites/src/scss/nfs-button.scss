@@ -10,6 +10,14 @@
 @forward 'settings';
 @use 'settings' as *;
 
+// Deliberately unlayered: this file is what Option 2 (theming) consumers
+// `@use ... with (...)` directly, and per the cascade spec an unlayered rule
+// always beats a layered one. The compile-default-css Nx target wraps its
+// OWN compiled output (Option 1, zero-config precompiled CSS) in
+// `@layer nfs-defaults` as a separate post-process step -- see project.json
+// -- so it doesn't fight a themed Option 2 build the way this source file's
+// runtime-default consumers do (see nfs-button.styles.ts).
+
 .button {
   display: inline-block;
   vertical-align: middle;

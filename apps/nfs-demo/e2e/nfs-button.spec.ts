@@ -27,4 +27,30 @@ test.describe('NfsButton rendered from the registry-installed ngx-foundation-sit
     await button.click();
     await expect(clickCount).toHaveText('Clicks: 2');
   });
+
+  test('applies the app-level SCSS theme override (README Option 2) over the runtime default', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    const button = page.getByRole('button', { name: 'Click me' });
+
+    // src/styles.scss overrides $primary-color to #2a5db0 (rgb(42, 93, 176)).
+    // NfsButton's runtime-injected default is wrapped in `@layer nfs-defaults`,
+    // so this unlayered app stylesheet must win the cascade regardless of the
+    // runtime <style> tag's later DOM insertion order (R008/D009).
+    await expect(button).toHaveCSS('background-color', 'rgb(42, 93, 176)');
+  });
+
+  test('renders correctly under an RTL ancestor with the theme override still applied', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    const rtlContainer = page.getByTestId('rtl-container');
+    const rtlButton = page.getByTestId('rtl-button');
+
+    await expect(rtlContainer).toHaveCSS('direction', 'rtl');
+    await expect(rtlButton).toHaveCSS('background-color', 'rgb(42, 93, 176)');
+  });
 });

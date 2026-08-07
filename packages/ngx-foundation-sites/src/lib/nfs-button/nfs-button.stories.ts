@@ -5,6 +5,15 @@ import { NfsButton } from './nfs-button';
 const meta: Meta<NfsButton> = {
   component: NfsButton,
   title: 'NfsButton',
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "Foundation for Sites button, applied to a native `<button>` or `<a>` element via the `libNfsButton` attribute selector.\n\nRenders Foundation's `.button` classes and states (color, hollow, size, disabled/soft-disabled) while keeping the host's native button or anchor semantics intact.",
+      },
+    },
+  },
   argTypes: {
     color: {
       control: 'radio',

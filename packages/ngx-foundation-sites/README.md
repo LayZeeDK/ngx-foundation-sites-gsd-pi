@@ -103,7 +103,7 @@ The package also publishes its Sass source (`scss/nfs-button.scss` and `scss/_se
 
 Compile this with your app's normal Sass build — no extra `--load-path` is needed, since `nfs-button.scss` only depends on its own bundled `_settings.scss`, not on `foundation-sites` itself — and include the resulting CSS globally.
 
-Whichever option you use, your themed stylesheet must win the cascade (e.g. load after, or match/exceed specificity) over `NfsButton`'s own runtime-injected default styles.
+Both the runtime-injected default styles and the precompiled CSS are wrapped in `@layer nfs-defaults` (Baseline widely available since March 2022). Per the CSS cascade spec, any unlayered rule always beats a layered rule regardless of specificity or load order, so your themed stylesheet wins automatically as long as it isn't itself wrapped in a named `@layer` that sorts before `nfs-defaults`.
 
 Each component's CSS is injected once per app as a single `<style data-nfs-style-id="...">` element in `<head>` (ref-counted across instances, removed when the last instance is destroyed), so it participates in normal CSS cascade rules — no Shadow DOM or view encapsulation boundary to work around.
 

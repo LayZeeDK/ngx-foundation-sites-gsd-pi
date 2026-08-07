@@ -36,9 +36,18 @@
         "commands": [
           "node -e \"require('fs').mkdirSync('dist/packages/ngx-foundation-sites/css', { recursive: true })\"",
           "npx sass --load-path=node_modules/foundation-sites/scss --no-source-map packages/ngx-foundation-sites/src/scss/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css",
-          "npx rtlcss --config packages/ngx-foundation-sites/.rtlcssrc.json dist/packages/ngx-foundation-sites/css/nfs-button.css dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css"
+          "npx rtlcss --config packages/ngx-foundation-sites/.rtlcssrc.json dist/packages/ngx-foundation-sites/css/nfs-button.css dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css",
+          "node -e \"const fs=require('fs');for(const f of ['dist/packages/ngx-foundation-sites/css/nfs-button.css','dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css']){fs.writeFileSync(f,'@layer nfs-defaults {\\n'+fs.readFileSync(f,'utf8')+'}\\n')}\""
         ],
         "parallel": false,
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "compodoc": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/compodoc/ngx-foundation-sites"],
+      "options": {
+        "command": "npx compodoc -p packages/ngx-foundation-sites/tsconfig.lib.json -d dist/compodoc/ngx-foundation-sites --disableGraph",
         "cwd": "{workspaceRoot}"
       }
     },

@@ -1,0 +1,7 @@
+// Consumer theme override (README "Theming" Option 2): recompiles
+// NfsButton's SCSS with a distinct $primary-color to prove Sass theming
+// actually reaches a real consuming app end-to-end (R008), not just the
+// monorepo's own Storybook/unit-test context.
+@use 'ngx-foundation-sites/scss/nfs-button' with (
+  $primary-color: #2a5db0
+);

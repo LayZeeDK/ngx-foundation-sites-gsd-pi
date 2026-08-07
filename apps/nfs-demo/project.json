@@ -16,7 +16,7 @@
         "polyfills": [],
         "tsConfig": "apps/nfs-demo/tsconfig.app.json",
         "assets": [],
-        "styles": [],
+        "styles": ["apps/nfs-demo/src/styles.scss"],
         "scripts": []
       },
       "configurations": {

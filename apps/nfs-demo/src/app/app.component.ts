@@ -11,6 +11,12 @@ import { NfsButton } from 'ngx-foundation-sites';
         Click me
       </button>
       <p data-testid="click-count">Clicks: {{ clickCount() }}</p>
+
+      <div dir="rtl" data-testid="rtl-container">
+        <button libNfsButton color="primary" data-testid="rtl-button">
+          RTL button
+        </button>
+      </div>
     </main>
   `,
 })

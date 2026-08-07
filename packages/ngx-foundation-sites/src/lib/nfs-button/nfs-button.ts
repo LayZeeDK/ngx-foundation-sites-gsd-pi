@@ -12,6 +12,14 @@ import { NFS_BUTTON_STYLES } from './nfs-button.styles';
 
 const NFS_BUTTON_STYLE_ID = 'nfs-button';
 
+/**
+ * Foundation for Sites button, applied to a native `<button>` or `<a>` element
+ * via the `libNfsButton` attribute selector.
+ *
+ * Renders Foundation's `.button` classes and states (color, hollow, size,
+ * disabled/soft-disabled) while keeping the host's native button or anchor
+ * semantics intact.
+ */
 @Component({
   selector: 'button[libNfsButton], a[libNfsButton]',
   imports: [],
@@ -31,9 +39,19 @@ const NFS_BUTTON_STYLE_ID = 'nfs-button';
   },
 })
 export class NfsButton implements OnDestroy {
+  /** Foundation color variant. Defaults to `'primary'`. */
   readonly color = input<'primary' | 'secondary'>('primary');
+  /** Renders Foundation's hollow (outlined) button style when `true`. */
   readonly hollow = input(false, { transform: booleanAttribute });
+  /** Foundation size variant. Defaults to the standard (unset) size. */
   readonly size = input<'tiny' | 'small' | 'large' | undefined>(undefined);
+  /**
+   * Disables the button. On a native `<button>` host this sets the
+   * `disabled` attribute; on an `<a>` host (which cannot be natively
+   * disabled) this applies Foundation's soft-disabled styling, sets
+   * `aria-disabled="true"`, removes the element from the tab order, and
+   * suppresses click activation.
+   */
   readonly disabled = input(false, { transform: booleanAttribute });
 
   private readonly elementRef = inject(ElementRef<HTMLElement>);
@@ -47,15 +65,26 @@ export class NfsButton implements OnDestroy {
     this.styleLoader.load(NFS_BUTTON_STYLE_ID, NFS_BUTTON_STYLES);
   }
 
+  /** Unloads this component's styles, decrementing NfsStyleLoader's ref count. */
   ngOnDestroy(): void {
     this.styleLoader.unload(NFS_BUTTON_STYLE_ID);
   }
 
-  /** Focuses the host button or anchor element. */
+  /**
+   * Focuses the host button or anchor element.
+   *
+   * @param options - Native `HTMLElement.focus()` options (e.g. `preventScroll`).
+   */
   focus(options?: FocusOptions): void {
     this.elementRef.nativeElement.focus(options);
   }
 
+  /**
+   * Host `(click)` handler. Prevents activation when a disabled `<a>` host
+   * is clicked, since anchors cannot be natively disabled.
+   *
+   * @param event - The native click event.
+   */
   protected onHostClick(event: Event): void {
     if (this.isAnchor && this.disabled()) {
       event.preventDefault();
