@@ -1,0 +1,7 @@
+# Aligned to Angular 22's documented Baseline browser-support definition
+# (https://angular.dev/reference/versions#browser-support): browsers within
+# the "widely available" Baseline (web.dev/baseline) -- released less than
+# 30 months ago across Chrome, Edge, Firefox, Safari (desktop + iOS).
+# browserslist 4.22+ resolves this query natively, so it tracks Angular's
+# rolling definition instead of a hand-copied, driftable static list.
+baseline widely available

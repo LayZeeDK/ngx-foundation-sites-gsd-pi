@@ -9,6 +9,14 @@
         "config": ".verdaccio/config.yml",
         "storage": "tmp/local-registry/storage"
       }
+    },
+    "verify-browserslist": {
+      "executor": "nx:run-commands",
+      "inputs": ["{workspaceRoot}/.browserslistrc"],
+      "options": {
+        "command": "node scripts/verify-browserslist.mjs",
+        "cwd": "{workspaceRoot}"
+      }
     }
   }
 }

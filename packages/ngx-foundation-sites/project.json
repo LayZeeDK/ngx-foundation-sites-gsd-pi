@@ -54,7 +54,8 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "dependsOn": ["@ngx-foundation-sites/source:verify-browserslist"]
     },
     "storybook": {
       "executor": "@storybook/angular:start-storybook",

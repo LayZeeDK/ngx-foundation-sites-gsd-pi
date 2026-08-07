@@ -111,6 +111,10 @@ Each component's CSS is injected once per app as a single `<style data-nfs-style
 
 Styles are SSR-safe out of the box: `NfsStyleExtractor` inlines each component's critical CSS into the server-rendered `<head>` (deduplicated per style id), and `NfsStyleLoader` takes over on the client without re-injecting or flashing unstyled content. No additional setup is required — both services are `providedIn: 'root'` and platform-guarded automatically.
 
+## Browser support
+
+The workspace's [`.browserslistrc`](../../.browserslistrc) targets `baseline widely available` — browserslist's native query for the [web.dev "widely available" Baseline](https://web.dev/baseline) (browsers released less than 30 months ago across Chrome, Edge, Firefox, and Safari, desktop + iOS). This is the same definition Angular 22 documents for its own [browser support](https://angular.dev/reference/versions#browser-support), so the config tracks Angular's rolling baseline instead of a hand-copied, driftable static list. `node scripts/verify-browserslist.mjs` (wired into `nx run ngx-foundation-sites:lint`) asserts the config resolves to a non-empty browser set on every lint run.
+
 ## Running unit tests
 
 Run `nx test ngx-foundation-sites` to execute the unit tests.
