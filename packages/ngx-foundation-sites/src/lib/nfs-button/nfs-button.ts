@@ -26,6 +26,7 @@ const NFS_BUTTON_STYLE_ID = 'nfs-button';
     '[class.disabled]': 'isAnchor && disabled()',
     '[attr.disabled]': '!isAnchor && disabled() ? "" : null',
     '[attr.aria-disabled]': 'isAnchor && disabled() ? "true" : null',
+    '[attr.tabindex]': 'isAnchor && disabled() ? -1 : null',
     '(click)': 'onHostClick($event)',
   },
 })
@@ -48,6 +49,11 @@ export class NfsButton implements OnDestroy {
 
   ngOnDestroy(): void {
     this.styleLoader.unload(NFS_BUTTON_STYLE_ID);
+  }
+
+  /** Focuses the host button or anchor element. */
+  focus(options?: FocusOptions): void {
+    this.elementRef.nativeElement.focus(options);
   }
 
   protected onHostClick(event: Event): void {

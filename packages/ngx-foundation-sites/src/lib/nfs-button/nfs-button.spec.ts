@@ -1,5 +1,6 @@
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { NfsButton } from './nfs-button';
 
 @Component({
@@ -164,6 +165,41 @@ describe('NfsButton', () => {
 
       expect(button.classList.contains('disabled')).toBe(false);
     });
+
+    it('does not set tabindex when disabled (native disabled attribute already removes it from the tab order)', async () => {
+      host.disabled.set(true);
+      await fixture.whenStable();
+
+      expect(button.hasAttribute('tabindex')).toBe(false);
+    });
+  });
+
+  describe('focus() convenience method', () => {
+    it('moves focus to the host button element', async () => {
+      const fixture = TestBed.createComponent(ButtonHostComponent);
+      await fixture.whenStable();
+
+      const directive = fixture.debugElement.query(
+        By.directive(NfsButton),
+      ).componentInstance as NfsButton;
+      directive.focus();
+
+      const button = fixture.nativeElement.querySelector('button');
+      expect(document.activeElement).toBe(button);
+    });
+
+    it('moves focus to the host anchor element', async () => {
+      const fixture = TestBed.createComponent(AnchorHostComponent);
+      await fixture.whenStable();
+
+      const directive = fixture.debugElement.query(
+        By.directive(NfsButton),
+      ).componentInstance as NfsButton;
+      directive.focus();
+
+      const anchor = fixture.nativeElement.querySelector('a');
+      expect(document.activeElement).toBe(anchor);
+    });
   });
 
   describe('disabled semantics on <a>', () => {
@@ -195,6 +231,17 @@ describe('NfsButton', () => {
       await fixture.whenStable();
 
       expect(anchor.classList.contains('disabled')).toBe(true);
+    });
+
+    it('does not set tabindex by default', () => {
+      expect(anchor.hasAttribute('tabindex')).toBe(false);
+    });
+
+    it('sets tabindex="-1" when disabled, removing it from the tab order', async () => {
+      host.disabled.set(true);
+      await fixture.whenStable();
+
+      expect(anchor.getAttribute('tabindex')).toBe('-1');
     });
 
     it('blocks click-driven navigation when disabled', async () => {

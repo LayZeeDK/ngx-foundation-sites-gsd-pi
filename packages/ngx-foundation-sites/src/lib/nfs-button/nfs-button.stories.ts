@@ -196,5 +196,6 @@ export const DisabledAnchor: Story = {
     await expect(anchor).toHaveAttribute('aria-disabled', 'true');
     await expect(anchor).toHaveClass('disabled');
     await expect(anchor).not.toHaveAttribute('disabled');
+    await expect(anchor).toHaveAttribute('tabindex', '-1');
   },
 };
