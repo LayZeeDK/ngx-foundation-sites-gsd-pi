@@ -50,7 +50,16 @@
     "test": {
       "executor": "@nx/angular:unit-test",
       "options": {
-        "watch": false
+        "watch": false,
+        "exclude": ["**/*.browser.spec.ts"]
+      }
+    },
+    "test-browser": {
+      "executor": "@nx/angular:unit-test",
+      "options": {
+        "watch": false,
+        "browsers": ["ChromiumHeadless"],
+        "include": ["**/*.browser.spec.ts"]
       }
     },
     "lint": {
