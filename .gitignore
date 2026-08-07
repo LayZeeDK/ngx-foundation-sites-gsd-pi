@@ -52,4 +52,8 @@ tmp/
 __screenshots__/
 /typings
 
+# ── Playwright ──
+test-results/
+playwright-report/
+
 .angular
