@@ -97,14 +97,16 @@
     },
     "test-storybook": {
       "executor": "nx:run-commands",
+      "dependsOn": ["build-storybook"],
       "options": {
-        "command": "test-storybook -c packages/ngx-foundation-sites/.storybook --url=http://localhost:4400"
+        "command": "concurrently -k -s first -n server,tests \"nx run ngx-foundation-sites:static-storybook\" \"wait-on tcp:4400 && test-storybook -c packages/ngx-foundation-sites/.storybook --url=http://localhost:4400\""
       }
     },
     "static-storybook": {
       "executor": "@nx/web:file-server",
       "dependsOn": ["build-storybook"],
       "options": {
+        "port": 4400,
         "buildTarget": "ngx-foundation-sites:build-storybook",
         "staticFilePath": "dist/storybook/ngx-foundation-sites",
         "spa": true
