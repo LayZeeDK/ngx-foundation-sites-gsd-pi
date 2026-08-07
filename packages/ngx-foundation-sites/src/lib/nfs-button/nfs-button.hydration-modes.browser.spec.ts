@@ -66,6 +66,8 @@ function renderSsrHtmlIntoDocument(html: string): void {
 // and interaction-triggered incremental hydration -- which both gate on
 // `window._ejsas[appId]` being populated before the client app bootstraps --
 // would otherwise silently no-op.
+// Container is `document.body`, matching what platform-server's
+// insertEventRecordScript() passes in real SSR output (packages/platform-server/src/utils.ts).
 function bootstrapEarlyJsactionContract(
   appId: string,
   bubbleEventTypes: string[],
@@ -76,13 +78,13 @@ function bootstrapEarlyJsactionContract(
   (
     window as unknown as {
       __jsaction_bootstrap: (
-        container: Document,
+        container: HTMLElement,
         appId: string,
         bubbleEventTypes: string[],
         captureEventTypes: string[],
       ) => void;
     }
-  ).__jsaction_bootstrap(document, appId, bubbleEventTypes, captureEventTypes);
+  ).__jsaction_bootstrap(document.body, appId, bubbleEventTypes, captureEventTypes);
 }
 
 const REPLAY_APP_ID = 'nfs-button-replay-app';
