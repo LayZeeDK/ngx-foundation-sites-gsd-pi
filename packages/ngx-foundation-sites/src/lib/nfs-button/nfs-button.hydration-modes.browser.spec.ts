@@ -21,7 +21,7 @@ import earlyEventContractScript from '@angular/core/event-dispatch-contract.min.
 @Component({
   selector: 'lib-nfs-button-replay-host',
   imports: [NfsButton],
-  template: `<button libNfsButton (click)="onClick()">Button</button>`,
+  template: `<button nfsButton (click)="onClick()">Button</button>`,
 })
 class NfsButtonEventReplayHostComponent {
   clickCount = 0;
@@ -143,7 +143,7 @@ let incrementalProbeInstantiated = false;
 @Component({
   selector: 'lib-nfs-button-incremental-probe',
   imports: [NfsButton],
-  template: `<button libNfsButton>Button</button>`,
+  template: `<button nfsButton>Button</button>`,
 })
 class IncrementalHydrationProbeComponent {
   constructor() {

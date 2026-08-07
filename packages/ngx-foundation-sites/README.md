@@ -19,7 +19,7 @@ Peer dependencies (already present in any Angular 22 app):
 
 ## Usage
 
-`NfsButton` is a directive-style standalone component applied to a native `<button>` or `<a>` element via the `libNfsButton` attribute selector, so your markup keeps its native tag semantics.
+`NfsButton` is a directive-style standalone component applied to a native `<button>` or `<a>` element via the `nfsButton` attribute selector, so your markup keeps its native tag semantics.
 
 ```typescript
 import { Component } from '@angular/core';
@@ -28,7 +28,7 @@ import { NfsButton } from 'ngx-foundation-sites';
 @Component({
   selector: 'app-root',
   imports: [NfsButton],
-  template: `<button libNfsButton (click)="onClick()">Click me</button>`,
+  template: `<button nfsButton (click)="onClick()">Click me</button>`,
 })
 export class AppComponent {
   onClick(): void {
@@ -50,20 +50,20 @@ export class AppComponent {
 
 `NfsButton` detects its host element and applies the correct disabled semantics for each:
 
-- **`<button libNfsButton>`** — `disabled` sets the native `disabled` attribute. The browser prevents clicks and focus automatically.
-- **`<a libNfsButton>`** — anchors have no native `disabled` attribute, so `disabled` instead applies `aria-disabled="true"` and a `.disabled` CSS class, and click-driven navigation is prevented in the click handler. The anchor remains focusable, matching Foundation for Sites' documented "soft-disabled" pattern for links.
+- **`<button nfsButton>`** — `disabled` sets the native `disabled` attribute. The browser prevents clicks and focus automatically.
+- **`<a nfsButton>`** — anchors have no native `disabled` attribute, so `disabled` instead applies `aria-disabled="true"` and a `.disabled` CSS class, and click-driven navigation is prevented in the click handler. The anchor remains focusable, matching Foundation for Sites' documented "soft-disabled" pattern for links.
 
 ```html
-<a libNfsButton href="/checkout" [disabled]="isProcessing()">Checkout</a>
+<a nfsButton href="/checkout" [disabled]="isProcessing()">Checkout</a>
 ```
 
 ### Examples
 
 ```html
-<button libNfsButton color="secondary">Secondary</button>
-<button libNfsButton hollow>Hollow</button>
-<button libNfsButton size="tiny">Tiny</button>
-<button libNfsButton size="large" disabled>Large, disabled</button>
+<button nfsButton color="secondary">Secondary</button>
+<button nfsButton hollow>Hollow</button>
+<button nfsButton size="tiny">Tiny</button>
+<button nfsButton size="large" disabled>Large, disabled</button>
 ```
 
 ## Theming
@@ -127,7 +127,7 @@ Styles are SSR-safe out of the box: `NfsStyleExtractor` inlines each component's
 `NfsButton` meets WCAG 2.1 AA:
 
 - **Contrast.** The default theme's text/background pairs (primary `#fefefe` on `#1779ba`, secondary `#fefefe` on `#767676`, and their hollow/hover variants) all meet the 4.5:1 minimum contrast ratio for normal text. Disabled buttons are dimmed via `opacity` and are exempt from this requirement per WCAG (disabled controls aren't required to meet contrast). If you override colors via [Option 2 theming](#option-2-scss-override-recompile-with-your-own-variables), re-check contrast for your chosen palette with a contrast calculator (e.g. [WebAIM's](https://webaim.org/resources/contrastchecker/)) — the `!default` variables let you pick any values, including ones below AA.
-- **ARIA semantics.** `<button libNfsButton disabled>` uses the native `disabled` attribute; no ARIA is needed. `<a libNfsButton disabled>` cannot be natively disabled, so it sets `aria-disabled="true"` and `tabindex="-1"` instead, while keeping its native `link` role (it still navigates via `href` — it isn't re-cast as a `button`).
+- **ARIA semantics.** `<button nfsButton disabled>` uses the native `disabled` attribute; no ARIA is needed. `<a nfsButton disabled>` cannot be natively disabled, so it sets `aria-disabled="true"` and `tabindex="-1"` instead, while keeping its native `link` role (it still navigates via `href` — it isn't re-cast as a `button`).
 - **Automated regression coverage.** `apps/nfs-demo/e2e/nfs-button-a11y.spec.ts` runs an axe-core scan (WCAG 2.1 A/AA rules) against every variant — primary/secondary, hollow, all sizes, disabled button, and disabled anchor — and fails the build on any critical or serious violation.
 
 ## Browser support

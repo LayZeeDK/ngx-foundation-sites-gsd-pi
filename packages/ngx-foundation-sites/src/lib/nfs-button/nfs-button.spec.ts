@@ -7,7 +7,7 @@ import { NfsButton } from './nfs-button';
   imports: [NfsButton],
   template: `
     <button
-      libNfsButton
+      nfsButton
       [color]="color()"
       [hollow]="hollow()"
       [size]="size()"
@@ -28,7 +28,7 @@ class ButtonHostComponent {
   imports: [NfsButton],
   template: `
     <a
-      libNfsButton
+      nfsButton
       href="#"
       [color]="color()"
       [hollow]="hollow()"

@@ -29,7 +29,7 @@ export default [
         'error',
         {
           type: 'attribute',
-          prefix: 'lib',
+          prefix: 'nfs',
           style: 'camelCase',
         },
       ],
@@ -50,7 +50,7 @@ export default [
         'error',
         {
           type: 'attribute',
-          prefix: 'lib',
+          prefix: 'nfs',
           style: 'camelCase',
         },
       ],

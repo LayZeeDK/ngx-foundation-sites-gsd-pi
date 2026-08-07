@@ -11,7 +11,7 @@ import { NFS_BUTTON_STYLES } from './nfs-button.styles';
 @Component({
   selector: 'lib-nfs-button-ssr-host',
   imports: [NfsButton],
-  template: `<button libNfsButton>Button</button>`,
+  template: `<button nfsButton>Button</button>`,
 })
 class NfsButtonSsrHostComponent {}
 

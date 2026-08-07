@@ -7,13 +7,13 @@ import { NfsButton } from 'ngx-foundation-sites';
   template: `
     <main>
       <h1>ngx-foundation-sites demo</h1>
-      <button libNfsButton color="primary" (click)="increment()">
+      <button nfsButton color="primary" (click)="increment()">
         Click me
       </button>
       <p data-testid="click-count">Clicks: {{ clickCount() }}</p>
 
       <div dir="rtl" data-testid="rtl-container">
-        <button libNfsButton color="primary" data-testid="rtl-button">
+        <button nfsButton color="primary" data-testid="rtl-button">
           RTL button
         </button>
       </div>
@@ -22,15 +22,15 @@ import { NfsButton } from 'ngx-foundation-sites';
            NfsButton variant, so the axe-core scan covers every combination
            called out in the slice plan. -->
       <div data-testid="a11y-variants">
-        <button libNfsButton>Primary</button>
-        <button libNfsButton color="secondary">Secondary</button>
-        <button libNfsButton hollow>Hollow primary</button>
-        <button libNfsButton hollow color="secondary">Hollow secondary</button>
-        <button libNfsButton size="tiny">Tiny</button>
-        <button libNfsButton size="small">Small</button>
-        <button libNfsButton size="large">Large</button>
-        <button libNfsButton disabled>Disabled button</button>
-        <a libNfsButton href="#" disabled>Disabled anchor</a>
+        <button nfsButton>Primary</button>
+        <button nfsButton color="secondary">Secondary</button>
+        <button nfsButton hollow>Hollow primary</button>
+        <button nfsButton hollow color="secondary">Hollow secondary</button>
+        <button nfsButton size="tiny">Tiny</button>
+        <button nfsButton size="small">Small</button>
+        <button nfsButton size="large">Large</button>
+        <button nfsButton disabled>Disabled button</button>
+        <a nfsButton href="#" disabled>Disabled anchor</a>
       </div>
     </main>
   `,

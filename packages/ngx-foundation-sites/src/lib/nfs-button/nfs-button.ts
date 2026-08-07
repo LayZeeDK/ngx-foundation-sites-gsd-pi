@@ -14,14 +14,14 @@ const NFS_BUTTON_STYLE_ID = 'nfs-button';
 
 /**
  * Foundation for Sites button, applied to a native `<button>` or `<a>` element
- * via the `libNfsButton` attribute selector.
+ * via the `nfsButton` attribute selector.
  *
  * Renders Foundation's `.button` classes and states (color, hollow, size,
  * disabled/soft-disabled) while keeping the host's native button or anchor
  * semantics intact.
  */
 @Component({
-  selector: 'button[libNfsButton], a[libNfsButton]',
+  selector: 'button[nfsButton], a[nfsButton]',
   imports: [],
   templateUrl: './nfs-button.html',
   host: {

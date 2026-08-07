@@ -10,7 +10,7 @@ const meta: Meta<NfsButton> = {
     docs: {
       description: {
         component:
-          "Foundation for Sites button, applied to a native `<button>` or `<a>` element via the `libNfsButton` attribute selector.\n\nRenders Foundation's `.button` classes and states (color, hollow, size, disabled/soft-disabled) while keeping the host's native button or anchor semantics intact.",
+          "Foundation for Sites button, applied to a native `<button>` or `<a>` element via the `nfsButton` attribute selector.\n\nRenders Foundation's `.button` classes and states (color, hollow, size, disabled/soft-disabled) while keeping the host's native button or anchor semantics intact.",
       },
     },
   },
@@ -38,7 +38,7 @@ type Story = StoryObj<NfsButton>;
 export const Primary: Story = {
   render: (args) => ({
     props: args,
-    template: `<button libNfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Primary button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Primary button</button>`,
   }),
   args: {
     color: 'primary',
@@ -58,7 +58,7 @@ export const Primary: Story = {
 export const Secondary: Story = {
   render: (args) => ({
     props: args,
-    template: `<button libNfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Secondary button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Secondary button</button>`,
   }),
   args: {
     color: 'secondary',
@@ -73,7 +73,7 @@ export const Secondary: Story = {
 export const Hollow: Story = {
   render: (args) => ({
     props: args,
-    template: `<button libNfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Hollow button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Hollow button</button>`,
   }),
   args: {
     color: 'primary',
@@ -89,7 +89,7 @@ export const Hollow: Story = {
 export const Tiny: Story = {
   render: (args) => ({
     props: args,
-    template: `<button libNfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Tiny button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Tiny button</button>`,
   }),
   args: {
     color: 'primary',
@@ -105,7 +105,7 @@ export const Tiny: Story = {
 export const Small: Story = {
   render: (args) => ({
     props: args,
-    template: `<button libNfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Small button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Small button</button>`,
   }),
   args: {
     color: 'primary',
@@ -121,7 +121,7 @@ export const Small: Story = {
 export const Large: Story = {
   render: (args) => ({
     props: args,
-    template: `<button libNfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Large button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Large button</button>`,
   }),
   args: {
     color: 'primary',
@@ -138,7 +138,7 @@ export const DisabledButton: Story = {
   name: 'Disabled (button)',
   render: (args) => ({
     props: args,
-    template: `<button libNfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Disabled button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Disabled button</button>`,
   }),
   args: {
     color: 'primary',
@@ -164,7 +164,7 @@ export const DisabledButton: Story = {
 export const Anchor: Story = {
   render: (args) => ({
     props: args,
-    template: `<a libNfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Anchor button</a>`,
+    template: `<a nfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Anchor button</a>`,
   }),
   args: {
     color: 'primary',
@@ -193,7 +193,7 @@ export const DisabledAnchor: Story = {
   name: 'Disabled (anchor, soft-disabled)',
   render: (args) => ({
     props: args,
-    template: `<a libNfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Disabled anchor</a>`,
+    template: `<a nfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Disabled anchor</a>`,
   }),
   args: {
     color: 'primary',
