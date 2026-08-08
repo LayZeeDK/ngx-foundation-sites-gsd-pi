@@ -11,6 +11,8 @@ import { NfsButton } from './nfs-button';
       [color]="color()"
       [hollow]="hollow()"
       [size]="size()"
+      [expanded]="expanded()"
+      [dropdown]="dropdown()"
       [disabled]="disabled()"
     >
       Button
@@ -18,9 +20,11 @@ import { NfsButton } from './nfs-button';
   `,
 })
 class ButtonHostComponent {
-  readonly color = signal<'primary' | 'secondary'>('primary');
+  readonly color = signal<'primary' | 'secondary' | 'success' | 'warning' | 'alert'>('primary');
   readonly hollow = signal(false);
   readonly size = signal<'tiny' | 'small' | 'large' | undefined>(undefined);
+  readonly expanded = signal(false);
+  readonly dropdown = signal(false);
   readonly disabled = signal(false);
 }
 
@@ -33,6 +37,8 @@ class ButtonHostComponent {
       [color]="color()"
       [hollow]="hollow()"
       [size]="size()"
+      [expanded]="expanded()"
+      [dropdown]="dropdown()"
       [disabled]="disabled()"
     >
       Anchor
@@ -40,9 +46,11 @@ class ButtonHostComponent {
   `,
 })
 class AnchorHostComponent {
-  readonly color = signal<'primary' | 'secondary'>('primary');
+  readonly color = signal<'primary' | 'secondary' | 'success' | 'warning' | 'alert'>('primary');
   readonly hollow = signal(false);
   readonly size = signal<'tiny' | 'small' | 'large' | undefined>(undefined);
+  readonly expanded = signal(false);
+  readonly dropdown = signal(false);
   readonly disabled = signal(false);
 }
 
@@ -94,6 +102,36 @@ describe('NfsButton', () => {
       expect(button.classList.contains('secondary')).toBe(true);
     });
 
+    it('applies the "success" class when color is success', async () => {
+      host.color.set('success');
+      await fixture.whenStable();
+
+      expect(button.classList.contains('success')).toBe(true);
+    });
+
+    it('applies the "warning" class when color is warning', async () => {
+      host.color.set('warning');
+      await fixture.whenStable();
+
+      expect(button.classList.contains('warning')).toBe(true);
+    });
+
+    it('applies the "alert" class when color is alert', async () => {
+      host.color.set('alert');
+      await fixture.whenStable();
+
+      expect(button.classList.contains('alert')).toBe(true);
+    });
+
+    it('does not apply a color class other than the one selected', async () => {
+      host.color.set('success');
+      await fixture.whenStable();
+
+      expect(button.classList.contains('secondary')).toBe(false);
+      expect(button.classList.contains('warning')).toBe(false);
+      expect(button.classList.contains('alert')).toBe(false);
+    });
+
     it('applies the "hollow" class when hollow is true', async () => {
       host.hollow.set(true);
       await fixture.whenStable();
@@ -126,6 +164,28 @@ describe('NfsButton', () => {
       await fixture.whenStable();
 
       expect(button.classList.contains('large')).toBe(true);
+    });
+
+    it('does not apply the "expanded" class by default', () => {
+      expect(button.classList.contains('expanded')).toBe(false);
+    });
+
+    it('applies the "expanded" class when expanded is true', async () => {
+      host.expanded.set(true);
+      await fixture.whenStable();
+
+      expect(button.classList.contains('expanded')).toBe(true);
+    });
+
+    it('does not apply the "dropdown" class by default', () => {
+      expect(button.classList.contains('dropdown')).toBe(false);
+    });
+
+    it('applies the "dropdown" class when dropdown is true', async () => {
+      host.dropdown.set(true);
+      await fixture.whenStable();
+
+      expect(button.classList.contains('dropdown')).toBe(true);
     });
   });
 

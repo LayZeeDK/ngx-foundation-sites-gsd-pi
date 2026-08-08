@@ -27,10 +27,15 @@ const NFS_BUTTON_STYLE_ID = 'nfs-button';
   host: {
     class: 'button',
     '[class.secondary]': "color() === 'secondary'",
+    '[class.success]': "color() === 'success'",
+    '[class.warning]': "color() === 'warning'",
+    '[class.alert]': "color() === 'alert'",
     '[class.hollow]': 'hollow()',
     '[class.tiny]': "size() === 'tiny'",
     '[class.small]': "size() === 'small'",
     '[class.large]': "size() === 'large'",
+    '[class.expanded]': 'expanded()',
+    '[class.dropdown]': 'dropdown()',
     '[class.disabled]': 'isAnchor && disabled()',
     '[attr.disabled]': '!isAnchor && disabled() ? "" : null',
     '[attr.aria-disabled]': 'isAnchor && disabled() ? "true" : null',
@@ -39,12 +44,20 @@ const NFS_BUTTON_STYLE_ID = 'nfs-button';
   },
 })
 export class NfsButton implements OnDestroy {
-  /** Foundation color variant. Defaults to `'primary'`. */
-  readonly color = input<'primary' | 'secondary'>('primary');
+  /**
+   * Foundation color variant. Defaults to `'primary'`. Matches Foundation's
+   * full `$button-palette` (D017): primary, secondary, success, warning,
+   * alert.
+   */
+  readonly color = input<'primary' | 'secondary' | 'success' | 'warning' | 'alert'>('primary');
   /** Renders Foundation's hollow (outlined) button style when `true`. */
   readonly hollow = input(false, { transform: booleanAttribute });
   /** Foundation size variant. Defaults to the standard (unset) size. */
   readonly size = input<'tiny' | 'small' | 'large' | undefined>(undefined);
+  /** Renders Foundation's expanded (full-width) button style when `true`. */
+  readonly expanded = input(false, { transform: booleanAttribute });
+  /** Renders Foundation's dropdown arrow indicator when `true`. */
+  readonly dropdown = input(false, { transform: booleanAttribute });
   /**
    * Disables the button. On a native `<button>` host this sets the
    * `disabled` attribute; on an `<a>` host (which cannot be natively
