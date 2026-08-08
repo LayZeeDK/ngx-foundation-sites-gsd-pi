@@ -9,8 +9,12 @@
 @use 'sass:color';
 
 $white: #fefefe !default;
+$black: #0a0a0a !default;
 $primary-color: #1779ba !default;
 $secondary-color: #767676 !default;
+$success-color: #3adb76 !default;
+$warning-color: #ffae00 !default;
+$alert-color: #cc4b37 !default;
 
 $global-margin: 1rem !default;
 $global-radius: 0 !default;
@@ -24,6 +28,7 @@ $button-background-hover: color.scale(
 ) !default;
 $button-background-hover-lightness: -20% !default;
 $button-color: $white !default;
+$button-color-alt: $black !default;
 $button-radius: $global-radius !default;
 $button-border: 1px solid transparent !default;
 $button-hollow-border-width: 1px !default;
@@ -32,6 +37,17 @@ $button-opacity-disabled: 0.25 !default;
 $button-transition:
   background-color 0.25s ease-out,
   color 0.25s ease-out !default;
+
+// D017: full Foundation $button-palette (S15). Keys/color values match
+// Foundation's own $foundation-palette naming so _foundation-button.scss can
+// seed Foundation's real button mixins with it unmodified.
+$button-palette: (
+  primary: $primary-color,
+  secondary: $secondary-color,
+  success: $success-color,
+  warning: $warning-color,
+  alert: $alert-color,
+) !default;
 
 // Foundation's own $button-sizes map only varies font-size per size; NfsButton
 // additionally varies padding per size (matches nfs-button.styles.ts, S03).

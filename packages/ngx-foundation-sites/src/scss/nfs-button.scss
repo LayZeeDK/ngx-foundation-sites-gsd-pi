@@ -1,15 +1,26 @@
 // NfsButton default theme.
 //
-// Concrete CSS rules (not Foundation's @include mixins) so the precompiled
-// bundle stays deterministic and decoupled from Foundation mixin API changes
-// (D009). Selector structure mirrors nfs-button.styles.ts (S03) — the
-// TS-template-literal file stays the runtime source fed to NfsStyleLoader and
-// is not modified by this pipeline.
-@use 'sass:color';
-@use 'sass:list';
+// D017 (supersedes D008/D009): @includes Foundation for Sites' own button
+// mixins (button-base, button-fill-style, button-hollow-style,
+// button-disabled, button-expand, button-dropdown) instead of hand-rolled
+// CSS, covering the full $button-palette (primary/secondary/success/
+// warning/alert) plus expanded and dropdown. Foundation's legacy
+// @import-based Sass is isolated behind _foundation-button.scss (D018) and
+// consumed here via a plain, non-transitive `@use ... as *;` so none of it
+// leaks into a downstream `@use 'ngx-foundation-sites/scss/nfs-button' with
+// (...)` consumer (Option 2 theming).
+//
+// RTL mirroring for this file's physical properties (inherited as-is from
+// Foundation's own mixins) is handled by the separate rtlcss-generated
+// dual-file build in project.json's compile-default-css target (D018).
+// This is a deliberately different mechanism from nfs-button.styles.ts's
+// own CSS-logical-properties + dir-attribute runtime approach (S14) -- that
+// TS-template-literal file stays the runtime source fed to NfsStyleLoader
+// and is not modified by this file (see T03).
 @use 'sass:map';
 @forward 'settings';
-@use 'settings' as *;
+@use 'settings' as settings;
+@use './foundation-button' as *;
 
 // Deliberately unlayered: this file is what Option 2 (theming) consumers
 // `@use ... with (...)` directly, and per the cascade spec an unlayered rule
@@ -20,100 +31,90 @@
 // runtime-default consumers do (see nfs-button.styles.ts).
 
 .button {
-  display: inline-block;
-  vertical-align: middle;
-  margin-block: list.nth($button-margin, 1) list.nth($button-margin, 3);
-  margin-inline: list.nth($button-margin, 2);
-  padding-block: list.nth($button-padding, 1);
-  padding-inline: list.nth($button-padding, 2);
-  border: $button-border;
-  border-radius: $button-radius;
-  transition: $button-transition;
-  font-size: map.get($button-sizes, default);
-  line-height: 1;
-  text-align: center;
-  cursor: pointer;
-  appearance: none;
-  background-color: $button-background;
-  color: $button-color;
-}
-
-.button:hover,
-.button:focus {
-  background-color: $button-background-hover;
-  color: $button-color;
-}
-
-.button.secondary {
-  background-color: $secondary-color;
-  color: $button-color;
-}
-
-.button.secondary:hover,
-.button.secondary:focus {
-  background-color: color.scale(
-    $secondary-color,
-    $lightness: $button-background-hover-lightness
+  @include button-base;
+  @include button-fill-style(
+    solid,
+    settings.$button-background,
+    settings.$button-background-hover,
+    settings.$button-color
   );
-  color: $button-color;
-}
 
-.button.hollow {
-  border: $button-hollow-border-width solid $button-background;
-  background-color: transparent;
-  color: $button-background;
-}
+  &.secondary {
+    @include button-fill-style(solid, settings.$secondary-color, auto, settings.$button-color);
+  }
 
-.button.hollow:hover,
-.button.hollow:focus {
-  border-color: color.scale(
-    $button-background,
-    $lightness: $button-hollow-hover-lightness
-  );
-  color: color.scale(
-    $button-background,
-    $lightness: $button-hollow-hover-lightness
-  );
-}
+  @each $name, $color in settings.$button-palette {
+    @if $name != primary and $name != secondary {
+      &.#{$name} {
+        @include button-fill-style(solid, $color, auto, auto);
+      }
+    }
+  }
 
-.button.hollow.secondary {
-  border-color: $secondary-color;
-  color: $secondary-color;
-}
+  &.hollow {
+    @include button-hollow-style(settings.$button-background);
 
-.button.hollow.secondary:hover,
-.button.hollow.secondary:focus {
-  border-color: color.scale(
-    $secondary-color,
-    $lightness: $button-hollow-hover-lightness
-  );
-  color: color.scale(
-    $secondary-color,
-    $lightness: $button-hollow-hover-lightness
-  );
-}
+    &.secondary {
+      @include button-hollow-style(settings.$secondary-color);
+    }
 
-.button.tiny {
-  padding-block: list.nth($button-padding-tiny, 1);
-  padding-inline: list.nth($button-padding-tiny, 2);
-  font-size: map.get($button-sizes, tiny);
-}
+    @each $name, $color in settings.$button-palette {
+      @if $name != primary and $name != secondary {
+        &.#{$name} {
+          @include button-hollow-style($color);
+        }
+      }
+    }
+  }
 
-.button.small {
-  padding-block: list.nth($button-padding-small, 1);
-  padding-inline: list.nth($button-padding-small, 2);
-  font-size: map.get($button-sizes, small);
-}
+  &.tiny {
+    padding: settings.$button-padding-tiny;
+    font-size: map.get(settings.$button-sizes, tiny);
+  }
 
-.button.large {
-  padding-block: list.nth($button-padding-large, 1);
-  padding-inline: list.nth($button-padding-large, 2);
-  font-size: map.get($button-sizes, large);
-}
+  &.small {
+    padding: settings.$button-padding-small;
+    font-size: map.get(settings.$button-sizes, small);
+  }
 
-.button[disabled],
-.button.disabled {
-  opacity: $button-opacity-disabled;
-  cursor: not-allowed;
-  pointer-events: none;
+  &.large {
+    padding: settings.$button-padding-large;
+    font-size: map.get(settings.$button-sizes, large);
+  }
+
+  &.expanded {
+    @include button-expand;
+  }
+
+  &[disabled],
+  &.disabled {
+    @include button-disabled;
+    // Foundation's own button-disabled mixin only sets opacity/cursor;
+    // pointer-events: none is a pre-existing NfsButton behavior (D009-era)
+    // preserved here for zero regression to nfs-button.spec.ts's existing
+    // click-prevention assertions.
+    pointer-events: none;
+  }
+
+  &.dropdown {
+    @include button-dropdown;
+
+    &.hollow {
+      &::after {
+        border-top-color: settings.$button-background;
+      }
+
+      &.secondary::after {
+        border-top-color: settings.$secondary-color;
+      }
+
+      @each $name, $color in settings.$button-palette {
+        @if $name != primary and $name != secondary {
+          &.#{$name}::after {
+            border-top-color: $color;
+          }
+        }
+      }
+    }
+  }
 }

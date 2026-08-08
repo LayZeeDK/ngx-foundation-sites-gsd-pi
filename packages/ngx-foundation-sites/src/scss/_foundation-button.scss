@@ -1,0 +1,48 @@
+// Internal isolation partial (D017/D018).
+//
+// Foundation for Sites' own button mixins (components/_button.scss) are
+// legacy @import-style Sass with implicit global variables ($button-*,
+// $foundation-palette, $global-left/$global-right, $black/$white) and
+// unnamespaced legacy functions/mixins (scale-color, get-side, css-triangle,
+// disable-mouse-outline, color-pick-contrast, breakpoint()) that only
+// resolve correctly via @import, not @use.
+//
+// This file is the ONLY place that @imports Foundation's Sass, so it
+// becomes the sole holder of Foundation's globals as its own module
+// members. nfs-button.scss consumes it via a plain, non-transitive
+// `@use './foundation-button' as *;` (NOT @forward) -- since @use is
+// non-transitive in Sass, none of Foundation's globals/mixins reach any
+// downstream `@use 'ngx-foundation-sites/scss/nfs-button' with (...)`
+// consumer (Option 2 theming), fully isolating the legacy Sass boundary.
+@use 'settings' as settings;
+
+// Seed Foundation's own global variable names from our theming settings
+// BEFORE importing Foundation's Sass below. Foundation declares all of
+// these with !default (assigns only if unset), so assigning them here
+// first -- using whatever values the consumer already configured via
+// nfs-button.scss's `@forward 'settings';` -- makes ours win.
+$white: settings.$white;
+$black: settings.$black;
+// D018: RTL is mirrored via the separate rtlcss-generated dual-file build
+// in project.json's compile-default-css target, not Foundation's own
+// Sass-time $global-text-direction flip.
+$global-text-direction: ltr;
+
+$button-padding: settings.$button-padding;
+$button-margin: settings.$button-margin;
+$button-background: settings.$button-background;
+$button-background-hover: settings.$button-background-hover;
+$button-background-hover-lightness: settings.$button-background-hover-lightness;
+$button-color: settings.$button-color;
+$button-color-alt: settings.$button-color-alt;
+$button-radius: settings.$button-radius;
+$button-border: settings.$button-border;
+$button-hollow-border-width: settings.$button-hollow-border-width;
+$button-hollow-hover-lightness: settings.$button-hollow-hover-lightness;
+$button-opacity-disabled: settings.$button-opacity-disabled;
+$button-transition: settings.$button-transition;
+$button-sizes: settings.$button-sizes;
+
+@import 'foundation-sites/scss/util/util';
+@import 'foundation-sites/scss/global';
+@import 'foundation-sites/scss/components/button';

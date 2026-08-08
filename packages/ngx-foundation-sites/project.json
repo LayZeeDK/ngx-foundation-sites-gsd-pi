@@ -35,7 +35,7 @@
       "options": {
         "commands": [
           "node -e \"require('fs').mkdirSync('dist/packages/ngx-foundation-sites/css', { recursive: true })\"",
-          "npx sass --load-path=node_modules/foundation-sites/scss --no-source-map packages/ngx-foundation-sites/src/scss/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css",
+          "npx sass --load-path=node_modules --no-source-map packages/ngx-foundation-sites/src/scss/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css",
           "npx rtlcss --config packages/ngx-foundation-sites/.rtlcssrc.json dist/packages/ngx-foundation-sites/css/nfs-button.css dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css",
           "node -e \"const fs=require('fs');for(const f of ['dist/packages/ngx-foundation-sites/css/nfs-button.css','dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css']){fs.writeFileSync(f,'@layer nfs-defaults {\\n'+fs.readFileSync(f,'utf8')+'}\\n')}\""
         ],
