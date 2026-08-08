@@ -2,6 +2,7 @@ import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NfsButton } from './nfs-button';
+import { NFS_BUTTON_STYLES } from './nfs-button.styles';
 
 @Component({
   imports: [NfsButton],
@@ -411,6 +412,20 @@ describe('NfsButton', () => {
         'style[data-nfs-style-id="nfs-button"]',
       );
       expect(styleLoaderElement).toBeNull();
+    });
+  });
+
+  describe('NFS_BUTTON_STYLES logical-property compliance', () => {
+    // T03/D017: the expanded/dropdown runtime CSS must use only CSS
+    // logical properties (margin-inline, margin-inline-start) so the
+    // existing dir="rtl" mirroring approach (S14) keeps working, unlike
+    // Foundation's own physical float + margin-left/margin-right.
+    it('does not use float', () => {
+      expect(NFS_BUTTON_STYLES).not.toMatch(/\bfloat\s*:/);
+    });
+
+    it('does not use physical margin-left or margin-right', () => {
+      expect(NFS_BUTTON_STYLES).not.toMatch(/\bmargin-(left|right)\s*:/);
     });
   });
 });

@@ -1,12 +1,29 @@
-// Proves the precompiled default CSS bundle contains every selector that
-// nfs-button.styles.ts (S03's TS-template-literal source) defines. Selector
-// parity only — hover/hollow hex values are recomputed from Foundation's own
-// scale-color formulas in nfs-button.scss and may differ by a shade from the
-// hand-matched approximations in nfs-button.styles.ts (see D009).
+// Proves selector parity between nfs-button.styles.ts (S03's TS-template-
+// literal source, the runtime path fed to NfsStyleLoader/NfsStyleExtractor)
+// and the precompiled default CSS bundle (nfs-button.scss's compiled
+// output). Two directions, for two different regressions (D017/S15 Key
+// Risk 1):
 //
-// ponytail: selector extraction is a plain regex over CSS-rule openers, not a
-// full CSS parser. Sufficient for this flat, non-nested stylesheet; swap to a
-// real parser (e.g. postcss) if either source grows @media/nesting.
+// 1. Forward (raw, exact): every literal selector styles.ts defines must
+//    appear verbatim in the compiled CSS. Catches a typo/drift in an
+//    existing styles.ts selector.
+// 2. Reverse (canonical, variant-family level): every `.button`-rooted
+//    variant family the compiled CSS defines (e.g. `.button.success`,
+//    `.button.dropdown.hollow.warning::after`) must have a matching family
+//    in styles.ts, after stripping Foundation's own disabled/hover/focus
+//    state combinators. Catches nfs-button.scss (T01) gaining a brand-new
+//    palette/expand/dropdown class that styles.ts never learns -- the
+//    forward-only check would stay green in that case, silently shipping
+//    an unstyled runtime class.
+//
+// Non-`.button`-rooted compiled selectors (e.g. Foundation's own
+// `[data-whatinput=mouse] .button` mouse-outline helper) are excluded from
+// the reverse check: they are unrelated accessibility hooks, not button
+// variant classes, and have no runtime styles.ts equivalent by design.
+//
+// ponytail: selector extraction is a plain regex over CSS-rule openers, not
+// a full CSS parser. Sufficient for this flat, non-nested stylesheet; swap
+// to a real parser (e.g. postcss) if either source grows @media/nesting.
 import { readFileSync } from 'node:fs';
 
 const STYLES_TS_PATH = new URL(
@@ -46,24 +63,95 @@ function extractTemplateLiteralBody(tsText) {
   return templateMatch[1];
 }
 
+/**
+ * Reduces a `.button`-rooted selector to its variant-family identity by
+ * dropping Foundation's own disabled/hover/focus state combinators, so
+ * e.g. `.button.hollow.secondary:hover` and `.button.hollow.secondary[disabled]`
+ * both canonicalize to the same family as `.button.hollow.secondary`.
+ * Returns null for selectors that aren't rooted at `.button` (excluded).
+ */
+function canonicalizeButtonSelector(selector) {
+  if (!selector.startsWith('.button')) {
+    return null;
+  }
+
+  const pseudoElementMatch = selector.match(/(::[a-z-]+)$/);
+  const pseudoElement = pseudoElementMatch ? pseudoElementMatch[1] : '';
+  const withoutPseudoElement = pseudoElement
+    ? selector.slice(0, -pseudoElement.length)
+    : selector;
+
+  const withoutState = withoutPseudoElement
+    .replace(/\[disabled\]/g, '')
+    .replace(/\.disabled\b/g, '')
+    .replace(/:hover/g, '')
+    .replace(/:focus/g, '');
+
+  const classes = withoutState.split('.').filter((token) => token.length > 0);
+  const [root, ...variantClasses] = classes;
+
+  return [root, ...variantClasses.sort()].join('.') + pseudoElement;
+}
+
+function toCanonicalFamilies(selectors) {
+  const families = new Set();
+
+  for (const selector of selectors) {
+    const canonical = canonicalizeButtonSelector(selector);
+
+    if (canonical !== null) {
+      families.add(canonical);
+    }
+  }
+
+  return families;
+}
+
 const stylesTs = readFileSync(STYLES_TS_PATH, 'utf8');
 const compiledCss = readFileSync(COMPILED_CSS_PATH, 'utf8');
 
-const expectedSelectors = extractSelectors(extractTemplateLiteralBody(stylesTs));
-const actualSelectors = extractSelectors(compiledCss);
+const stylesTsSelectors = extractSelectors(extractTemplateLiteralBody(stylesTs));
+const compiledCssSelectors = extractSelectors(compiledCss);
 
-const missing = [...expectedSelectors].filter((selector) => !actualSelectors.has(selector));
+const missingFromCompiled = [...stylesTsSelectors].filter(
+  (selector) => !compiledCssSelectors.has(selector),
+);
 
-if (missing.length > 0) {
-  console.error('CSS parity check FAILED. Selectors missing from precompiled CSS:');
+const compiledFamilies = toCanonicalFamilies(compiledCssSelectors);
+const stylesTsFamilies = toCanonicalFamilies(stylesTsSelectors);
 
-  for (const selector of missing) {
+const missingFromStylesTs = [...compiledFamilies].filter(
+  (family) => !stylesTsFamilies.has(family),
+);
+
+let failed = false;
+
+if (missingFromCompiled.length > 0) {
+  failed = true;
+  console.error(
+    'CSS parity check FAILED (forward). Selectors from nfs-button.styles.ts missing from the precompiled CSS:',
+  );
+
+  for (const selector of missingFromCompiled) {
     console.error(`  - ${selector}`);
   }
+}
 
+if (missingFromStylesTs.length > 0) {
+  failed = true;
+  console.error(
+    'CSS parity check FAILED (reverse). Variant families present in the precompiled CSS but missing from nfs-button.styles.ts:',
+  );
+
+  for (const family of missingFromStylesTs) {
+    console.error(`  - ${family}`);
+  }
+}
+
+if (failed) {
   process.exit(1);
 }
 
 console.log(
-  `CSS parity check PASSED: all ${expectedSelectors.size} selectors from nfs-button.styles.ts are present in the precompiled default CSS.`,
+  `CSS parity check PASSED: all ${stylesTsSelectors.size} selectors from nfs-button.styles.ts are present in the precompiled default CSS, and all ${compiledFamilies.size} button variant families in the precompiled CSS have a matching family in nfs-button.styles.ts.`,
 );
