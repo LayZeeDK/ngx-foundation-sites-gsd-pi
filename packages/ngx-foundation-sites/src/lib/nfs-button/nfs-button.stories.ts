@@ -10,14 +10,14 @@ const meta: Meta<NfsButton> = {
     docs: {
       description: {
         component:
-          "Foundation for Sites button, applied to a native `<button>` or `<a>` element via the `nfsButton` attribute selector.\n\nRenders Foundation's `.button` classes and states (color, hollow, size, disabled/soft-disabled) while keeping the host's native button or anchor semantics intact.",
+          "Foundation for Sites button, applied to a native `<button>` or `<a>` element via the `nfsButton` attribute selector.\n\nRenders Foundation's `.button` classes and states (color, hollow, size, expanded, dropdown, disabled/soft-disabled) while keeping the host's native button or anchor semantics intact.",
       },
     },
   },
   argTypes: {
     color: {
       control: 'radio',
-      options: ['primary', 'secondary'],
+      options: ['primary', 'secondary', 'success', 'warning', 'alert'],
     },
     hollow: {
       control: 'boolean',
@@ -25,6 +25,12 @@ const meta: Meta<NfsButton> = {
     size: {
       control: 'radio',
       options: ['tiny', 'small', 'large'],
+    },
+    expanded: {
+      control: 'boolean',
+    },
+    dropdown: {
+      control: 'boolean',
     },
     disabled: {
       control: 'boolean',
@@ -38,7 +44,7 @@ type Story = StoryObj<NfsButton>;
 export const Primary: Story = {
   render: (args) => ({
     props: args,
-    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Primary button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Primary button</button>`,
   }),
   args: {
     color: 'primary',
@@ -58,7 +64,7 @@ export const Primary: Story = {
 export const Secondary: Story = {
   render: (args) => ({
     props: args,
-    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Secondary button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Secondary button</button>`,
   }),
   args: {
     color: 'secondary',
@@ -73,7 +79,7 @@ export const Secondary: Story = {
 export const Hollow: Story = {
   render: (args) => ({
     props: args,
-    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Hollow button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Hollow button</button>`,
   }),
   args: {
     color: 'primary',
@@ -86,10 +92,87 @@ export const Hollow: Story = {
   },
 };
 
+export const Success: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Success button</button>`,
+  }),
+  args: {
+    color: 'success',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Success button' });
+    await expect(button).toHaveClass('success');
+  },
+};
+
+export const Warning: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Warning button</button>`,
+  }),
+  args: {
+    color: 'warning',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Warning button' });
+    await expect(button).toHaveClass('warning');
+  },
+};
+
+export const Alert: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Alert button</button>`,
+  }),
+  args: {
+    color: 'alert',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Alert button' });
+    await expect(button).toHaveClass('alert');
+  },
+};
+
+export const Expanded: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Expanded button</button>`,
+  }),
+  args: {
+    color: 'primary',
+    expanded: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Expanded button' });
+    await expect(button).toHaveClass('expanded');
+  },
+};
+
+export const Dropdown: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Dropdown button</button>`,
+  }),
+  args: {
+    color: 'primary',
+    dropdown: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Dropdown button' });
+    await expect(button).toHaveClass('dropdown');
+  },
+};
+
 export const Tiny: Story = {
   render: (args) => ({
     props: args,
-    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Tiny button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Tiny button</button>`,
   }),
   args: {
     color: 'primary',
@@ -105,7 +188,7 @@ export const Tiny: Story = {
 export const Small: Story = {
   render: (args) => ({
     props: args,
-    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Small button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Small button</button>`,
   }),
   args: {
     color: 'primary',
@@ -121,7 +204,7 @@ export const Small: Story = {
 export const Large: Story = {
   render: (args) => ({
     props: args,
-    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Large button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Large button</button>`,
   }),
   args: {
     color: 'primary',
@@ -138,7 +221,7 @@ export const DisabledButton: Story = {
   name: 'Disabled (button)',
   render: (args) => ({
     props: args,
-    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Disabled button</button>`,
+    template: `<button nfsButton [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Disabled button</button>`,
   }),
   args: {
     color: 'primary',
@@ -164,7 +247,7 @@ export const DisabledButton: Story = {
 export const Anchor: Story = {
   render: (args) => ({
     props: args,
-    template: `<a nfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Anchor button</a>`,
+    template: `<a nfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Anchor button</a>`,
   }),
   args: {
     color: 'primary',
@@ -193,7 +276,7 @@ export const DisabledAnchor: Story = {
   name: 'Disabled (anchor, soft-disabled)',
   render: (args) => ({
     props: args,
-    template: `<a nfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [disabled]="disabled">Disabled anchor</a>`,
+    template: `<a nfsButton href="#" [color]="color" [hollow]="hollow" [size]="size" [expanded]="expanded" [dropdown]="dropdown" [disabled]="disabled">Disabled anchor</a>`,
   }),
   args: {
     color: 'primary',

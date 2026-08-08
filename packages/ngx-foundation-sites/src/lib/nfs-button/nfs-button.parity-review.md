@@ -57,6 +57,15 @@ doesn't need directional logic for a plain button either.
 **Verdict: no gap.** The existing rtlcss-compiled `nfs-button.rtl.css` output (S04) already gives
 full RTL parity; no code or SCSS change needed for this component.
 
+## Expanded / dropdown (D017, S15)
+
+`expanded` (full-width `display: block` button) and `dropdown` (trailing arrow indicator) are
+Foundation-specific variants added in S15 with no `MatButtonBase` equivalent to compare against —
+Material's own layout model uses CSS Grid/Flexbox container patterns for full-width buttons and a
+separate `MatMenuTrigger` directive (not a button-level style) for a dropdown affordance, rather
+than a same-component boolean input. Both are additive Foundation parity surface, not gaps against
+Material, so no "before"/"after" row applies to them in the table above.
+
 ## Summary
 
 - 2 genuine gaps found and fixed: `tabindex="-1"` on disabled anchors (a11y), `focus()` method
@@ -66,3 +75,5 @@ full RTL parity; no code or SCSS change needed for this component.
   parity concerns).
 - RTL: verified no gap — button has no directional CSS to mirror, and Material itself doesn't add
   RTL-specific button logic.
+- `expanded`/`dropdown` (S15/D017): Foundation-specific variants with no Material analogue to
+  compare against; not a parity gap.
