@@ -6,6 +6,7 @@
 // TS-template-literal file stays the runtime source fed to NfsStyleLoader and
 // is not modified by this pipeline.
 @use 'sass:color';
+@use 'sass:list';
 @use 'sass:map';
 @forward 'settings';
 @use 'settings' as *;
@@ -21,8 +22,10 @@
 .button {
   display: inline-block;
   vertical-align: middle;
-  margin: $button-margin;
-  padding: $button-padding;
+  margin-block: list.nth($button-margin, 1) list.nth($button-margin, 3);
+  margin-inline: list.nth($button-margin, 2);
+  padding-block: list.nth($button-padding, 1);
+  padding-inline: list.nth($button-padding, 2);
   border: $button-border;
   border-radius: $button-radius;
   transition: $button-transition;
@@ -91,17 +94,20 @@
 }
 
 .button.tiny {
-  padding: $button-padding-tiny;
+  padding-block: list.nth($button-padding-tiny, 1);
+  padding-inline: list.nth($button-padding-tiny, 2);
   font-size: map.get($button-sizes, tiny);
 }
 
 .button.small {
-  padding: $button-padding-small;
+  padding-block: list.nth($button-padding-small, 1);
+  padding-inline: list.nth($button-padding-small, 2);
   font-size: map.get($button-sizes, small);
 }
 
 .button.large {
-  padding: $button-padding-large;
+  padding-block: list.nth($button-padding-large, 1);
+  padding-inline: list.nth($button-padding-large, 2);
   font-size: map.get($button-sizes, large);
 }
 

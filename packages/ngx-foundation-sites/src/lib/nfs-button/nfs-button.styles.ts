@@ -13,8 +13,10 @@ export const NFS_BUTTON_STYLES = `
 .button {
   display: inline-block;
   vertical-align: middle;
-  margin: 0 0 1rem 0;
-  padding: 0.85em 1em;
+  margin-block: 0 1rem;
+  margin-inline: 0;
+  padding-block: 0.85em;
+  padding-inline: 1em;
   border: 1px solid transparent;
   border-radius: 0;
   transition:
@@ -70,17 +72,20 @@ export const NFS_BUTTON_STYLES = `
 }
 
 .button.tiny {
-  padding: 0.5em 1em;
+  padding-block: 0.5em;
+  padding-inline: 1em;
   font-size: 0.6rem;
 }
 
 .button.small {
-  padding: 0.75em 1em;
+  padding-block: 0.75em;
+  padding-inline: 1em;
   font-size: 0.75rem;
 }
 
 .button.large {
-  padding: 1em 2em;
+  padding-block: 1em;
+  padding-inline: 2em;
   font-size: 1.25rem;
 }
 
