@@ -1,0 +1,67 @@
+// PRIVATE defaults table for NfsButton's theme mixin.
+//
+// NOT public API. It lives under `internal/` and is read only by
+// `../_button.scss`'s `theme` mixin. Consumers theme through named arguments
+// -- `@include nfs-button.theme($background: ...)` -- never by configuring
+// these variables, so they are deliberately plain assignments rather than
+// `!default`: there is no `@use ... with (...)` surface left to configure
+// (ticket 05 measured why module configuration loses; ticket 06 detail 1
+// chose the mixin).
+//
+// Values mirror Foundation for Sites 6.9.0's own button defaults
+// (scss/settings/_settings.scss, scss/components/_button.scss) so the
+// zero-config output is Foundation's default theme unchanged (D017).
+
+$white: #fefefe;
+$black: #0a0a0a;
+$primary-color: #1779ba;
+$secondary-color: #767676;
+$success-color: #3adb76;
+$warning-color: #ffae00;
+$alert-color: #cc4b37;
+
+$global-margin: 1rem;
+$global-radius: 0;
+
+$button-padding: 0.85em 1em;
+$button-margin: 0 0 $global-margin 0;
+$button-background: $primary-color;
+// Hover is deliberately NOT precomputed here. Foundation's own button-style
+// mixin derives it from whatever background it is handed when passed `auto`,
+// using this lightness -- which is what keeps a consumer-supplied
+// $background's hover correct without a second theme argument.
+$button-background-hover-lightness: -20%;
+$button-color: $white;
+$button-color-alt: $black;
+$button-radius: $global-radius;
+$button-border: 1px solid transparent;
+$button-hollow-border-width: 1px;
+$button-hollow-hover-lightness: -50%;
+$button-opacity-disabled: 0.25;
+$button-transition:
+  background-color 0.25s ease-out,
+  color 0.25s ease-out;
+
+// D017: the full Foundation $button-palette. Keys and colors match
+// Foundation's own $foundation-palette naming so _foundation-button.scss can
+// seed Foundation's real button mixins with it unmodified.
+$button-palette: (
+  primary: $primary-color,
+  secondary: $secondary-color,
+  success: $success-color,
+  warning: $warning-color,
+  alert: $alert-color,
+);
+
+// Foundation's own $button-sizes map only varies font-size per size; NfsButton
+// additionally varies padding per size (pre-existing NfsButton behaviour,
+// documented in the README's size table).
+$button-sizes: (
+  tiny: 0.6rem,
+  small: 0.75rem,
+  default: 0.9rem,
+  large: 1.25rem,
+);
+$button-padding-tiny: 0.5em 1em;
+$button-padding-small: 0.75em 1em;
+$button-padding-large: 1em 2em;

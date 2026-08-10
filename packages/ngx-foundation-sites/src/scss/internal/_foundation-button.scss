@@ -1,0 +1,92 @@
+// Internal isolation partial (D017/D018) -- the legacy `@import` island.
+//
+// Foundation for Sites' own button mixins (components/_button.scss) are
+// legacy @import-style Sass with implicit global variables ($button-*,
+// $foundation-palette, $global-left/$global-right, $black/$white) and
+// unnamespaced legacy functions/mixins (scale-color, get-side, css-triangle,
+// disable-mouse-outline, color-pick-contrast, breakpoint()) that only resolve
+// correctly via @import, not @use.
+//
+// This file is the ONLY place that @imports Foundation's Sass, so it becomes
+// the sole holder of Foundation's globals as its own module members. Ticket 05
+// proved that boundary is genuinely non-transitive: reached one hop further
+// out, every Foundation member fails with `Undefined mixin/variable/function`.
+// It is consumed by ../_button.scss through a NAMESPACED `@use` -- never
+// `as *`, which silently ships an unresolved function as a plain-CSS function
+// call instead of failing the build (ticket 05, defect 2).
+//
+// When Dart Sass 3.0.0 removes @import (floor 2026-10-17, realistically
+// later; Foundation 6.9.0 is dead upstream and its Sass tree does not survive
+// sass-migrator), THIS is the single file to vendor or freeze. The component
+// and the public API do not change.
+@use 'settings' as settings;
+
+// Seed Foundation's own global variable names from the private defaults table
+// BEFORE importing Foundation's Sass below. Foundation declares all of these
+// with !default (assigns only if unset), so assigning them here first makes
+// ours win. $button-background-hover is deliberately NOT seeded: leaving
+// Foundation's own `scale-color($button-background, $button-background-hover-lightness)`
+// !default to fire keeps hover derivation in Foundation's hands (D017).
+$white: settings.$white;
+$black: settings.$black;
+
+$global-margin: settings.$global-margin;
+$global-radius: settings.$global-radius;
+
+$button-padding: settings.$button-padding;
+$button-margin: settings.$button-margin;
+$button-background: settings.$button-background;
+$button-background-hover-lightness: settings.$button-background-hover-lightness;
+$button-color: settings.$button-color;
+$button-color-alt: settings.$button-color-alt;
+$button-radius: settings.$button-radius;
+$button-border: settings.$button-border;
+$button-hollow-border-width: settings.$button-hollow-border-width;
+$button-hollow-hover-lightness: settings.$button-hollow-hover-lightness;
+$button-opacity-disabled: settings.$button-opacity-disabled;
+$button-transition: settings.$button-transition;
+$button-sizes: settings.$button-sizes;
+$button-palette: settings.$button-palette;
+
+@import 'foundation-sites/scss/util/util';
+@import 'foundation-sites/scss/global';
+@import 'foundation-sites/scss/components/button';
+
+// R004 -- RTL from one stylesheet (ticket 03).
+//
+// Foundation reads these two globals through interpolation at @include time
+// (`float: #{$global-right}` / `margin-#{$global-left}` in button-dropdown),
+// and _global.scss assigns them non-!default from $global-text-direction, so
+// they MUST be reassigned AFTER the @imports above. Foundation's UNMODIFIED
+// button-dropdown then emits `float: inline-end; margin-inline-start: 1em`
+// and the single stylesheet serves both directions -- no [dir] selector, no
+// :dir() specificity cost, no postcss-rtlcss, D017 intact. These are the only
+// two genuinely directional declarations the whole sheet contains.
+// css-logical-props fails 0/136 targets at the pinned baseline (R022).
+$global-left: inline-start;
+$global-right: inline-end;
+
+/// Runs @content with Foundation's globals-only $button-radius temporarily
+/// rebound, then restores it. Foundation's `button-base` takes no arguments
+/// and reads $button-radius straight off the global, so this rebind is the
+/// only way a theme-mixin argument can reach it (ticket 05 proved the
+/// technique, including the restore).
+///
+/// ponytail: deliberate scoped global mutation, and only safe because the
+/// restore is unconditional and this module is single-purpose. If more
+/// globals-only knobs get exposed, widen this mixin's parameter list rather
+/// than adding a second rebinding mixin.
+///
+/// @param {Number|null} $radius - Border radius, or null to leave the default.
+@mixin with-radius($radius) {
+  @if $radius == null {
+    @content;
+  } @else {
+    $original-radius: $button-radius;
+    $button-radius: $radius !global;
+
+    @content;
+
+    $button-radius: $original-radius !global;
+  }
+}

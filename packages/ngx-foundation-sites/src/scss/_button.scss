@@ -1,0 +1,158 @@
+// NfsButton's PUBLIC Sass API (ticket 06, architecture A).
+//
+//   @use 'ngx-foundation-sites/scss/button' as nfs-button;
+//
+//   // Foundation's default theme, unchanged
+//   @include nfs-button.theme;
+//
+//   // Themed -- no global SCSS variable is named anywhere
+//   @include nfs-button.theme(
+//     $background: #2a5db0,
+//     $palette: (secondary: #767676, success: #3adb76, warning: #ffae00, alert: #cc4b37),
+//     $radius: 6px
+//   );
+//
+//   // Two themes in one compilation, and consumer-chosen cascade position --
+//   // both impossible with `@use ... with (...)`
+//   @include nfs-button.theme($selector: '.button--brand', $background: #2a5db0);
+//
+// A theme MIXIN, not module configuration: `@use ... with (...)` forced the
+// consumer to type bare Foundation-shaped globals, could not be used twice in
+// one compilation even with byte-identical values, and emitted 5490 bytes of
+// unwanted rules just to read one token (all measured, ticket 05). This file
+// emits NOTHING on load, so `@use`-ing it costs 0 bytes.
+//
+// The emitted rules are UNLAYERED on purpose. A consumer's `@include` output
+// therefore beats the library's own `@layer nfs-defaults` default (delivered
+// via the component's styleUrl) regardless of DOM insertion order -- R008.
+// A themed consumer consequently ships the ruleset twice; that is the
+// documented, accepted price of compile-time theming, not a defect.
+//
+// D017: every visual declaration below comes from Foundation for Sites' own
+// button mixins (button-base, button-fill-style, button-hollow-style,
+// button-disabled, button-expand, button-dropdown) across the full
+// $button-palette plus expanded and dropdown. Nothing is hand-rolled that
+// Foundation can emit.
+@use 'sass:map';
+@use 'internal/foundation-button' as fb;
+@use 'internal/settings' as settings;
+
+/// Emits NfsButton's button rules.
+///
+/// @param {String} $selector ['.button'] - Selector to emit the rules under.
+///   Use it for a scoped or additional theme.
+/// @param {Color|null} $background [null] - Fill color of the default
+///   (primary) button. Hover is derived from it by Foundation's own
+///   scale-color, so it needs no companion argument.
+/// @param {Map|null} $palette [null] - Whole-palette override, keyed the way
+///   Foundation's $button-palette is (secondary, success, warning, alert; a
+///   `primary` key is ignored because $background covers it). Each entry gets
+///   a contrast-picked text color from Foundation's color-pick-contrast.
+/// @param {Number|null} $radius [null] - Corner radius. Reaches Foundation's
+///   argument-less button-base through internal/_foundation-button.scss's
+///   !global rebind.
+@mixin theme(
+  $selector: '.button',
+  $background: null,
+  $palette: null,
+  $radius: null
+) {
+  $fill-background: settings.$button-background;
+
+  @if $background != null {
+    $fill-background: $background;
+  }
+
+  $fill-palette: settings.$button-palette;
+
+  @if $palette != null {
+    $fill-palette: $palette;
+  }
+
+  @include fb.with-radius($radius) {
+    #{$selector} {
+      @include fb.button-base;
+      // `auto` hover -> Foundation derives it with scale-color from whatever
+      // background it is handed, so a consumer-set $background stays correct.
+      @include fb.button-fill-style(
+        solid,
+        $fill-background,
+        auto,
+        settings.$button-color
+      );
+
+      // `primary` is skipped: the base selector above already IS the primary
+      // variant, and NfsButton never emits a `.primary` class.
+      @each $name, $color in $fill-palette {
+        @if $name != primary {
+          &.#{$name} {
+            @include fb.button-fill-style(solid, $color, auto, auto);
+          }
+        }
+      }
+
+      &.hollow {
+        // button-hollow is what makes the fill transparent; button-hollow-style
+        // only sets border and text color.
+        @include fb.button-hollow;
+        @include fb.button-hollow-style($fill-background);
+
+        @each $name, $color in $fill-palette {
+          @if $name != primary {
+            &.#{$name} {
+              @include fb.button-hollow-style($color);
+            }
+          }
+        }
+      }
+
+      // Foundation's own $button-sizes map varies only font-size; NfsButton
+      // varies padding too (pre-existing behaviour).
+      &.tiny {
+        padding: settings.$button-padding-tiny;
+        font-size: map.get(settings.$button-sizes, tiny);
+      }
+
+      &.small {
+        padding: settings.$button-padding-small;
+        font-size: map.get(settings.$button-sizes, small);
+      }
+
+      &.large {
+        padding: settings.$button-padding-large;
+        font-size: map.get(settings.$button-sizes, large);
+      }
+
+      &.expanded {
+        @include fb.button-expand;
+      }
+
+      &[disabled],
+      &.disabled {
+        @include fb.button-disabled;
+        // Foundation's button-disabled only sets opacity/cursor;
+        // pointer-events: none is pre-existing NfsButton behaviour backing
+        // nfs-button.spec.ts's click-prevention assertions.
+        pointer-events: none;
+      }
+
+      &.dropdown {
+        @include fb.button-dropdown;
+
+        &.hollow {
+          &::after {
+            border-top-color: $fill-background;
+          }
+
+          @each $name, $color in $fill-palette {
+            @if $name != primary {
+              &.#{$name}::after {
+                border-top-color: $color;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
