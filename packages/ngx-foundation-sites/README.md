@@ -149,11 +149,40 @@ SSR-safe out of the box, with no library-specific setup and no services to provi
 
 ## Accessibility
 
-`NfsButton` meets WCAG 2.1 AA:
+`NfsButton`'s semantics, keyboard behavior and focus handling meet WCAG 2.1 AA. **Its default theme does not, for three variants.** Read the contrast disclosure below before shipping an accessibility-sensitive product.
 
-- **Contrast.** The default theme's text/background pairs (primary `#fefefe` on `#1779ba`, secondary `#fefefe` on `#767676`, success `#0a0a0a` on `#3adb76`, warning `#0a0a0a` on `#ffae00`, alert `#fefefe` on `#cc4b37`, and their hollow/hover variants) all meet the 4.5:1 minimum contrast ratio for normal text — the text color for each new palette entry is computed by Foundation's own `color-pick-contrast` mixin, matching upstream Foundation's automatic black/white text selection. Disabled buttons are dimmed via `opacity` and are exempt from this requirement per WCAG (disabled controls aren't required to meet contrast). If you override colors via the [theme mixin](#the-theme-mixin), re-check contrast for your chosen palette with a contrast calculator (e.g. [WebAIM's](https://webaim.org/resources/contrastchecker/)) — the `!default` variables let you pick any values, including ones below AA.
-- **ARIA semantics.** `<button nfsButton disabled>` uses the native `disabled` attribute; no ARIA is needed. `<a nfsButton disabled>` cannot be natively disabled, so it sets `aria-disabled="true"` and `tabindex="-1"` instead, while keeping its native `link` role (it still navigates via `href` — it isn't re-cast as a `button`).
-- **Automated regression coverage.** `apps/nfs-demo/e2e/nfs-button-a11y.spec.ts` runs an axe-core scan (WCAG 2.1 A/AA rules) against every variant — primary/secondary, hollow, all sizes, disabled button, and disabled anchor — and fails the build on any critical or serious violation.
+### Contrast: the default theme ships three known WCAG AA failures
+
+They are inherited from Foundation for Sites' own palette values, and the default theme is deliberately faithful to Foundation rather than corrected:
+
+| Variant          | Pairing                                  | Ratio | AA (4.5:1) | AA-large (3:1) |
+| ---------------- | ---------------------------------------- | ----- | ---------- | -------------- |
+| `alert` (fill)   | `#fefefe` text on `#cc4b37`              | 4.498 | **FAIL**   | pass           |
+| `hollow success` | `#3adb76` text on a `#fefefe` page       | 1.799 | **FAIL**   | **FAIL**       |
+| `hollow warning` | `#ffae00` text on a `#fefefe` page       | 1.842 | **FAIL**   | **FAIL**       |
+
+`alert` misses AA by 0.002, which Foundation's own quantization to one decimal reports as a passing "4.5". The two hollow variants are around 1.8:1 -- effectively illegible, and below even the 3:1 large-text floor. No text-color choice fixes them, because the failing color *is* the palette color; only substantially darkening `$success-color` and `$warning-color` would, and that is a real change to Foundation's design values.
+
+Everything else in the default theme passes AA: `primary` fill and `hollow primary` at 4.647, `secondary` fill and `hollow secondary` at 4.504, `success` fill at 10.912, `warning` fill at 10.659. `secondary` passes by 0.004, so treat it as fragile. Disabled buttons are dimmed via `opacity` and are exempt from the contrast requirement per WCAG. Text colors are contrast-picked by Foundation's own `color-pick-contrast`, matching upstream Foundation's automatic black/white selection.
+
+**A WCAG-compliant prebuilt theme is planned, and it is the supported route to AA.** Until it ships, you can reach AA yourself through the [theme mixin](#the-theme-mixin): as hollow text on a white page, `success: #238648` and `warning: #9e6c00` clear 4.5:1, and `alert` needs only `#cb4b37`.
+
+### Hollow-variant contrast depends on your page background, which this library does not control
+
+A hollow button uses the palette color as its **text** color against whatever is behind it, and this package ships no global styles, so the pairing is your page's, not the library's. `hollow alert` is the worked example: `#cc4b37` on a pure-white page is 4.537 and passes, but on Foundation's own `#fefefe` body background it is 4.498 and fails. The same shift applies to the two failing hollow variants (1.799 and 1.842 on `#fefefe`; 1.81 and 1.86 on pure white).
+
+So an app that imports Foundation's global styles gets a different answer from one that does not, and the palette alone cannot tell you which. Check the hollow variants against your actual page background.
+
+### Do not read a green CI run as a clean bill of health for the default theme
+
+The axe suite asserts the **exact** expected-failure set above rather than suppressing the contrast rule, so it fails loudly if a fourth failure appears or if Foundation's values change. Once the compliant theme lands, the suite will also run against that theme and report zero violations there -- while the default theme still ships these three. Reading only the test output would give exactly the wrong impression.
+
+### Semantics and coverage
+
+- **ARIA semantics.** `<button nfsButton disabled>` uses the native `disabled` attribute; no ARIA is needed. `<a nfsButton disabled>` cannot be natively disabled, so it sets `aria-disabled="true"` and `tabindex="-1"` instead, while keeping its native `link` role (it still navigates via `href` -- it isn't re-cast as a `button`).
+- **Focus.** Foundation's own `disable-mouse-outline` rule depends on Foundation's JavaScript, which this package does not ship, so the focus ring is suppressed for pointer-driven focus with `:focus-visible` instead. Keyboard focus rings are left intact.
+- **Automated regression coverage.** `apps/nfs-demo/e2e/nfs-button-a11y.spec.ts` runs an axe-core scan (WCAG 2.1 A/AA rules) against every variant in both fill and hollow form -- all five palette members, all sizes, disabled button and disabled anchor -- and fails the build on any critical or serious violation, plus any color-contrast violation outside the recorded set above.
+- If you override colors, re-check contrast for your own palette with a contrast calculator (e.g. [WebAIM's](https://webaim.org/resources/contrastchecker/)). The mixin accepts any values, including ones below AA.
 
 ## Browser support
 
