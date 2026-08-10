@@ -23,9 +23,16 @@
 //      install, using its own .npmrc registry override).
 //   5. Assert node_modules/ngx-foundation-sites is a real extracted directory
 //      (not a symlink) and matches the disposable version we just published.
-//   6. Build apps/nfs-demo and assert the output bundle contains no
-//      reference to packages/ngx-foundation-sites/src (the monorepo source
-//      path) while still containing the expected NfsButton reference.
+//   6. Build BOTH of apps/nfs-demo's build targets - the CSR one behind the
+//      dev-server and static-serve hosts, and the SSR one behind the
+//      Express/node host - and assert neither output references
+//      packages/ngx-foundation-sites/src (the monorepo source path) while both
+//      still contain the nfsButton attribute selector.
+//
+// Why the SSR half exists: D016 re-scoped a real SSR host out of M001 partly
+// because SSR wiring risks reopening this isolation, and ticket 12's SSR
+// measurements ran against workspace source rather than the published package.
+// Scanning the server bundle is what closes that.
 
 import { execSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -38,6 +45,7 @@ const ROOT = path.resolve(__dirname, '..', '..', '..');
 const APP_DIR = path.join(ROOT, 'apps', 'nfs-demo');
 const LIB_DIST_DIR = path.join(ROOT, 'dist', 'packages', 'ngx-foundation-sites');
 const APP_DIST_DIR = path.join(ROOT, 'dist', 'apps', 'nfs-demo');
+const APP_SSR_DIST_DIR = path.join(ROOT, 'dist', 'apps', 'nfs-demo-ssr');
 const SCRATCH_DIR = path.join(ROOT, 'tmp', 'registry-proof', 'pkg');
 const LOCAL_REGISTRY_URL = 'http://localhost:4873';
 const PROOF_PKG_NAME = 'ngx-foundation-sites';
@@ -157,9 +165,33 @@ function pinAppDependency() {
   }
 }
 
+// The proof version is a FIXED string, so republishing it replaces the tarball
+// behind a version apps/nfs-demo's lockfile already pins by integrity hash.
+// `npm install` then satisfies the range from cache and silently keeps the
+// PREVIOUS build - observed: a reinstall after the SCSS public-API rename left
+// the old scss/nfs-button.scss layout in place. Dropping the lockfile entry
+// forces re-resolution against the registry's current metadata.
+function dropLockfileEntryForProofPackage() {
+  const lockPath = path.join(APP_DIR, 'package-lock.json');
+  fs.rmSync(path.join(APP_DIR, 'node_modules', PROOF_PKG_NAME), { recursive: true, force: true });
+
+  if (!fs.existsSync(lockPath)) {
+    return;
+  }
+
+  const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+
+  if (lock.packages?.[`node_modules/${PROOF_PKG_NAME}`]) {
+    delete lock.packages[`node_modules/${PROOF_PKG_NAME}`];
+    fs.writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
+    log(`Dropped the ${PROOF_PKG_NAME} lockfile entry so the republished tarball is refetched.`);
+  }
+}
+
 function installApp() {
   log('Running isolated `npm install` inside apps/nfs-demo (own .npmrc, registry-only resolution)...');
-  run('npm install', APP_DIR);
+  dropLockfileEntryForProofPackage();
+  run('npm install --prefer-online', APP_DIR);
 }
 
 function verifyInstalledPackageIsRealCopy() {
@@ -185,10 +217,16 @@ function verifyInstalledPackageIsRealCopy() {
 }
 
 function buildApp() {
-  log('Building apps/nfs-demo...');
+  log('Building apps/nfs-demo (CSR target, behind the dev-server and static-serve hosts)...');
   run('npx nx build nfs-demo --skip-nx-cache', ROOT);
   if (!fs.existsSync(APP_DIST_DIR)) {
     fail(`Expected build output at ${APP_DIST_DIR} but it does not exist.`);
+  }
+
+  log('Building apps/nfs-demo (SSR target, behind the Express/node and dev-SSR hosts)...');
+  run('npx nx build-ssr nfs-demo --skip-nx-cache', ROOT);
+  if (!fs.existsSync(path.join(APP_SSR_DIST_DIR, 'server', 'server.mjs'))) {
+    fail(`Expected SSR server bundle at ${APP_SSR_DIST_DIR}/server/server.mjs but it does not exist.`);
   }
 }
 
@@ -205,25 +243,34 @@ function listFilesRecursive(dir) {
   return results;
 }
 
-function verifyBuildOutputHasNoSourceLeakage() {
-  const files = listFilesRecursive(APP_DIST_DIR);
+function verifyOutputDirHasNoSourceLeakage(label, dir) {
+  const files = listFilesRecursive(dir);
 
   let sawNfsButtonReference = false;
   for (const file of files) {
     const contents = fs.readFileSync(file, 'utf8');
     for (const needle of SOURCE_PATH_NEEDLES) {
       if (contents.includes(needle)) {
-        fail(`Build output ${file} references monorepo source path "${needle}" - app resolved ngx-foundation-sites from source, not the installed package.`);
+        fail(`${label} output ${file} references monorepo source path "${needle}" - app resolved ngx-foundation-sites from source, not the installed package.`);
       }
     }
-    if (contents.includes('NfsButton') || contents.includes('nfs-button')) {
+    // `nfsButton` is the attribute selector, so it has to survive into the
+    // compiled template. The class name `NfsButton` and the old `nfs-button`
+    // literal do not: production minification mangles the former, and ticket
+    // 09 deleted the CSS-in-JS path that carried the latter.
+    if (contents.includes('nfsButton')) {
       sawNfsButtonReference = true;
     }
   }
   if (!sawNfsButtonReference) {
-    fail('Build output contains no reference to NfsButton/nfs-button at all - the check would pass vacuously without this.');
+    fail(`${label} output contains no reference to the nfsButton selector at all - the check would pass vacuously without this.`);
   }
-  log('Confirmed build output has no reference to packages/ngx-foundation-sites/src, and does reference NfsButton.');
+  log(`Confirmed ${label} output has no reference to packages/ngx-foundation-sites/src, and does reference the nfsButton selector.`);
+}
+
+function verifyBuildOutputHasNoSourceLeakage() {
+  verifyOutputDirHasNoSourceLeakage('CSR build', APP_DIST_DIR);
+  verifyOutputDirHasNoSourceLeakage('SSR build', APP_SSR_DIST_DIR);
 }
 
 async function main() {
@@ -236,7 +283,7 @@ async function main() {
   verifyInstalledPackageIsRealCopy();
   buildApp();
   verifyBuildOutputHasNoSourceLeakage();
-  log('PASS: apps/nfs-demo consumes ngx-foundation-sites from the local Verdaccio registry as a real built package, not the monorepo source.');
+  log('PASS: apps/nfs-demo consumes ngx-foundation-sites from the local Verdaccio registry as a real built package, not the monorepo source - in the CSR build AND the SSR build.');
 }
 
 main().catch((error) => {
