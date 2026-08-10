@@ -37,6 +37,38 @@ if (selected.length === 0) {
   );
 }
 
+// The RTL spec is the one gate whose subject is a CSS ENGINE behaviour rather
+// than an Angular style-delivery mechanism: it asserts that `float: inline-end`
+// and `margin-inline-start` actually mirror under `dir="rtl"`. Every browser
+// observation behind that mechanism (ticket 03) was headless Chromium, and
+// `css-logical-props` resolving as supported across all 136 pinned browserslist
+// targets is a support-TABLE claim, not an observation. So it also runs under
+// WebKit and Firefox.
+//
+// Against ONE host, not all four: the engine is orthogonal to how Angular
+// delivered the stylesheet, which the four Chromium projects already cover
+// 4x-over. `static-csr` is the host chosen because it serves the production
+// build -- the exact artefact a consumer ships -- with no dev-server transform
+// in the path.
+const rtlEngineHost = 'static-csr';
+const rtlEngines = [
+  { suffix: 'webkit', device: 'Desktop Safari' },
+  { suffix: 'firefox', device: 'Desktop Firefox' },
+] as const;
+
+const rtlEngineProjects = selected
+  .filter((host) => host.name === rtlEngineHost)
+  .flatMap((host) =>
+    rtlEngines.map((engine) => ({
+      name: `${host.name}-${engine.suffix}`,
+      testMatch: /nfs-button-rtl\.spec\.ts$/,
+      use: {
+        ...devices[engine.device],
+        baseURL: `http://localhost:${host.port}`,
+      },
+    })),
+  );
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -48,11 +80,14 @@ export default defineConfig({
   // dependsOn tasks, and this only waits for them. See playwright-global-setup.ts
   // for why that split is not optional.
   globalSetup: './playwright-global-setup.ts',
-  projects: selected.map((host) => ({
-    name: host.name,
-    use: {
-      ...devices['Desktop Chrome'],
-      baseURL: `http://localhost:${host.port}`,
-    },
-  })),
+  projects: [
+    ...selected.map((host) => ({
+      name: host.name,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: `http://localhost:${host.port}`,
+      },
+    })),
+    ...rtlEngineProjects,
+  ],
 });

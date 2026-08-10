@@ -21,7 +21,12 @@ import { expect, test } from '@playwright/test';
 // directions, since the computed value keeps the logical keyword and only used
 // layout resolves it. A float assertion would therefore either pass vacuously
 // or fail misleadingly. The mirrored margin is the observable that actually
-// differs.
+// differs. Measured in all three engines, not just Chromium: Chromium 151,
+// WebKit 26.5 and Firefox 153 all report "inline-end" in both directions.
+//
+// This spec is also the reason playwright.config.ts carries `-webkit` and
+// `-firefox` projects: it is the one gate whose subject is a CSS ENGINE
+// behaviour rather than an Angular style-delivery mechanism.
 test.describe('NfsButton RTL/bidirectional layout', () => {
   test('mirrors the dropdown arrow margin under dir="rtl"', async ({
     page,
@@ -33,13 +38,20 @@ test.describe('NfsButton RTL/bidirectional layout', () => {
       'rtl',
     );
 
+    // Compared as NUMBERS, not as computed-value strings. WebKit snaps this
+    // margin to 1/64 px on whichever side lands on a fractional offset, so the
+    // same `margin-inline-start: 1em` serialises as "14.4px" on one arrow and
+    // "14.390625px" on the other, and which arrow gets which is not stable
+    // across runs. Chromium 151 and Firefox 153 report 14.4px on both. A 1/64 px
+    // difference is not a mirroring defect, so string equality would be a
+    // flake, not a gate.
     const readArrowMargins = (testId: string) =>
       page.getByTestId(testId).evaluate((element) => {
         const style = getComputedStyle(element, '::after');
 
         return {
-          marginLeft: style.marginLeft,
-          marginRight: style.marginRight,
+          marginLeft: Number.parseFloat(style.marginLeft),
+          marginRight: Number.parseFloat(style.marginRight),
         };
       });
 
@@ -47,18 +59,20 @@ test.describe('NfsButton RTL/bidirectional layout', () => {
     const rtlArrow = await readArrowMargins('rtl-dropdown');
 
     // Anti-vacuity: the inline-start margin must actually be non-zero, or both
-    // directions would trivially agree on "0px" and the mirroring assertions
-    // below would mean nothing.
-    expect(ltrArrow.marginLeft).not.toBe('0px');
-    expect(ltrArrow.marginRight).toBe('0px');
-    expect(rtlArrow.marginRight).not.toBe('0px');
-    expect(rtlArrow.marginLeft).toBe('0px');
+    // directions would trivially agree on 0 and the mirroring assertions below
+    // would mean nothing.
+    expect(ltrArrow.marginLeft).toBeGreaterThan(0);
+    expect(ltrArrow.marginRight).toBe(0);
+    expect(rtlArrow.marginRight).toBeGreaterThan(0);
+    expect(rtlArrow.marginLeft).toBe(0);
 
     // The actual mirroring. A physical `margin-left` -- the pre-ticket-03
     // output, and what a regression would reintroduce -- does NOT mirror, so
-    // rtlArrow would equal ltrArrow and both of these would fail.
-    expect(rtlArrow.marginLeft).toBe(ltrArrow.marginRight);
-    expect(rtlArrow.marginRight).toBe(ltrArrow.marginLeft);
+    // rtlArrow would equal ltrArrow and both of these would fail. The 1-decimal
+    // tolerance (0.05 px) absorbs WebKit's 1/64 px (0.0094 px) snapping while
+    // staying far below the 14.4 px the assertion is really about.
+    expect(rtlArrow.marginLeft).toBeCloseTo(ltrArrow.marginRight, 1);
+    expect(rtlArrow.marginRight).toBeCloseTo(ltrArrow.marginLeft, 1);
   });
 
   test('keeps the symmetric box model identical between ltr and rtl', async ({
