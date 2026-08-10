@@ -5,10 +5,12 @@
 //   // Foundation's default theme, unchanged
 //   @include nfs-button.theme;
 //
-//   // Themed -- no global SCSS variable is named anywhere
+//   // Themed -- no global SCSS variable is named anywhere. $palette is
+//   // merged over the defaults, so overriding one entry keeps the other
+//   // three at Foundation's values.
 //   @include nfs-button.theme(
 //     $background: #2a5db0,
-//     $palette: (secondary: #767676, success: #3adb76, warning: #ffae00, alert: #cc4b37),
+//     $palette: (success: #238648),
 //     $radius: 6px
 //   );
 //
@@ -44,10 +46,12 @@
 /// @param {Color|null} $background [null] - Fill color of the default
 ///   (primary) button. Hover is derived from it by Foundation's own
 ///   scale-color, so it needs no companion argument.
-/// @param {Map|null} $palette [null] - Whole-palette override, keyed the way
-///   Foundation's $button-palette is (secondary, success, warning, alert; a
-///   `primary` key is ignored because $background covers it). Each entry gets
-///   a contrast-picked text color from Foundation's color-pick-contrast.
+/// @param {Map|null} $palette [null] - Palette override, MERGED over the
+///   defaults, keyed the way Foundation's $button-palette is (secondary,
+///   success, warning, alert; a `primary` key is ignored because $background
+///   covers it). Pass only the keys you want to change -- the rest keep
+///   Foundation's values. Each entry gets a contrast-picked text color from
+///   Foundation's color-pick-contrast.
 /// @param {Number|null} $radius [null] - Corner radius. Reaches Foundation's
 ///   argument-less button-base through internal/_foundation-button.scss's
 ///   !global rebind.
@@ -66,7 +70,10 @@
   $fill-palette: settings.$button-palette;
 
   @if $palette != null {
-    $fill-palette: $palette;
+    // Merged, not replaced: overriding one key must not silently drop the
+    // other three. Default key order is preserved, so emission order is
+    // stable and unlisted keys keep Foundation's values.
+    $fill-palette: map.merge($fill-palette, $palette);
   }
 
   @include fb.with-radius($radius) {
