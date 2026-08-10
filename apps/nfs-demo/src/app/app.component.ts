@@ -94,6 +94,144 @@ import { NfsButton } from 'ngx-foundation-sites';
           Disabled anchor
         </a>
       </div>
+
+      <!-- Scanned by nfs-button-a11y.spec.ts's second ("m002-compliant")
+           fixture (S05): mirrors the a11y-variants block above exactly, but
+           each button additionally carries a static class="theme-compliant"
+           so Angular merges it with NfsButton's own dynamically-bound host
+           classes (e.g. final class ends up "button theme-compliant
+           success"), matching the ".theme-compliant.success" selector
+           styles.scss's second theme() invocation compiles. Proves the
+           already-published compliant palette (success: #238648,
+           warning: #9e6c00, alert: #cb4b37) clears WCAG AA in both fill and
+           hollow contexts -- the counterpart to the default theme's known
+           three-item failure set above. -->
+      <div data-testid="a11y-variants-compliant">
+        <button
+          nfsButton
+          class="theme-compliant"
+          data-a11y-variant="primary"
+        >
+          Primary
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          color="secondary"
+          data-a11y-variant="secondary"
+        >
+          Secondary
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          color="success"
+          data-a11y-variant="success"
+        >
+          Success
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          color="warning"
+          data-a11y-variant="warning"
+        >
+          Warning
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          color="alert"
+          data-a11y-variant="alert"
+        >
+          Alert
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          hollow
+          data-a11y-variant="hollow-primary"
+        >
+          Hollow primary
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          hollow
+          color="secondary"
+          data-a11y-variant="hollow-secondary"
+        >
+          Hollow secondary
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          hollow
+          color="success"
+          data-a11y-variant="hollow-success"
+        >
+          Hollow success
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          hollow
+          color="warning"
+          data-a11y-variant="hollow-warning"
+        >
+          Hollow warning
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          hollow
+          color="alert"
+          data-a11y-variant="hollow-alert"
+        >
+          Hollow alert
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          size="tiny"
+          data-a11y-variant="tiny"
+        >
+          Tiny
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          size="small"
+          data-a11y-variant="small"
+        >
+          Small
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          size="large"
+          data-a11y-variant="large"
+        >
+          Large
+        </button>
+        <button
+          nfsButton
+          class="theme-compliant"
+          disabled
+          data-a11y-variant="disabled-button"
+        >
+          Disabled button
+        </button>
+        <a
+          nfsButton
+          class="theme-compliant"
+          href="#"
+          disabled
+          data-a11y-variant="disabled-anchor"
+        >
+          Disabled anchor
+        </a>
+      </div>
     </main>
   `,
 })
