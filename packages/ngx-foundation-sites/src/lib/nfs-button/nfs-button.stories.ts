@@ -169,6 +169,66 @@ export const Dropdown: Story = {
   },
 };
 
+// R006 requires the stories to cover RTL, and until now they did not. That gap
+// was invisible while RTL was a separate build artefact (a `.rtl.css` twin that
+// Storybook never loaded); under ticket 03's mechanism the mirroring lives in
+// the single component stylesheet, so a story can and must exercise it.
+//
+// The dropdown variant is the only one with anything to mirror: Foundation's
+// unmodified `button-dropdown` emits `float: inline-end` and
+// `margin-inline-start: 1em` on `::after`, and those are the only two
+// directional declarations the whole sheet contains. `float` is deliberately NOT
+// asserted -- it computes to "inline-end" in both directions, so asserting it
+// would pass vacuously. Same observable, same reasoning and same numeric
+// tolerance as apps/nfs-demo/e2e/nfs-button-rtl.spec.ts.
+export const Rtl: Story = {
+  name: 'RTL (dir="rtl") mirroring',
+  render: (args) => ({
+    props: args,
+    template: `
+      <div data-testid="ltr-container">
+        <button nfsButton dropdown [color]="color">LTR dropdown</button>
+      </div>
+      <div dir="rtl" data-testid="rtl-container">
+        <button nfsButton dropdown [color]="color">RTL dropdown</button>
+      </div>
+    `,
+  }),
+  args: {
+    color: 'primary',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const readArrowMargins = (element: Element) => {
+      const style = getComputedStyle(element, '::after');
+
+      return {
+        marginLeft: Number.parseFloat(style.marginLeft),
+        marginRight: Number.parseFloat(style.marginRight),
+      };
+    };
+
+    const ltrArrow = readArrowMargins(
+      canvas.getByRole('button', { name: 'LTR dropdown' }),
+    );
+    const rtlArrow = readArrowMargins(
+      canvas.getByRole('button', { name: 'RTL dropdown' }),
+    );
+
+    // Anti-vacuity first: without a non-zero inline-start margin both
+    // directions would trivially agree on 0.
+    await expect(ltrArrow.marginLeft).toBeGreaterThan(0);
+    await expect(ltrArrow.marginRight).toBe(0);
+    await expect(rtlArrow.marginRight).toBeGreaterThan(0);
+    await expect(rtlArrow.marginLeft).toBe(0);
+
+    // Then the mirroring itself. A physical `margin-left` does not mirror, so a
+    // regression makes rtlArrow equal ltrArrow and both of these fail.
+    await expect(rtlArrow.marginLeft).toBeCloseTo(ltrArrow.marginRight, 1);
+    await expect(rtlArrow.marginRight).toBeCloseTo(ltrArrow.marginLeft, 1);
+  },
+};
+
 export const Tiny: Story = {
   render: (args) => ({
     props: args,
