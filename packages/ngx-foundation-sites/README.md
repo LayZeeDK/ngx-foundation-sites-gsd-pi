@@ -141,11 +141,12 @@ SSR-safe out of the box, with no library-specific setup and no services to provi
 
 ## RTL/Bidirectional support
 
-`NfsButton` mirrors correctly under `dir="rtl"`, matching Foundation for Sites' `$global-text-direction` behavior:
+`NfsButton` mirrors under `dir="rtl"` from its single stylesheet: no `[dir]` selector, no mirrored second file, no runtime direction check, and no specificity cost.
 
-- Spacing uses CSS logical properties (`margin-block`/`margin-inline`, `padding-block`/`padding-inline`) instead of physical `top`/`right`/`bottom`/`left` values, so directional spacing (e.g. the default bottom margin) automatically flips to the correct physical side under `dir="rtl"`. Border, border-radius, and the hollow variant's border-width remain uniform (symmetric) shorthand -- they apply identically to all sides/corners and have no directional variant to encode, so there's nothing to flip there. `apps/nfs-demo/e2e/nfs-button-rtl.spec.ts` regression-tests this by asserting identical computed styles between an `ltr` and an `rtl`-ancestor instance.
-- The `expanded` and `dropdown` variants also use only logical properties at runtime (`margin-inline: 0` for expanded, `margin-inline-start` for the dropdown arrow's spacing) rather than Foundation's own physical `float`/`margin-left`/`margin-right`, so they mirror correctly under `dir="rtl"` too. `nfs-button.scss`'s separate precompiled pipeline instead ships a dedicated `rtlcss`-mirrored dual-file build (see Option 1 below) for the same variants.
-- **Caveat:** if you theme via the [theme mixin](#the-theme-mixin) and introduce your own directional (left/right) values, verify mirroring yourself -- `NfsButton`'s own styles have no directional properties to get wrong, but consumer overrides can.
+The mechanism is Foundation's own. The package rebinds Foundation's `$global-left`/`$global-right` to `inline-start`/`inline-end` after Foundation's `@import`s, so Foundation's **unmodified** `button-dropdown` mixin emits logical properties -- `float: inline-end; margin-inline-start: 1em` -- where stock Foundation would emit `float: right; margin-left: 1em`. Those two declarations, both on `.button.dropdown::after`, are the only directional pair in the whole stylesheet. Everything else is either symmetric shorthand (`margin: 0 0 1rem 0`, `padding: 0.85em 1em`, uniform border and border-radius, and `.button.expanded`'s `margin-left: 0; margin-right: 0`) or block-axis, so it has no side to flip.
+
+- **Assert margins, not `float`, if you regression-test this yourself.** `getComputedStyle(el, '::after').float` reports `inline-end` in *both* directions -- confirmed in Chromium, WebKit and Firefox -- so a `float` assertion cannot detect mirroring at all. `apps/nfs-demo/e2e/nfs-button-rtl.spec.ts` and the `RTL (dir="rtl") mirroring` Storybook story both read the computed `margin-left`/`margin-right` on the dropdown arrow instead. The Playwright spec runs under all three engines; note that WebKit snaps the margin to 1/64 px, so compare with a tolerance rather than for equality.
+- **Caveat:** if you theme via the [theme mixin](#the-theme-mixin) and introduce your own directional (left/right) values, verify mirroring yourself -- `NfsButton`'s own styles have no physical directional properties left to get wrong, but yours can.
 
 ## Accessibility
 
