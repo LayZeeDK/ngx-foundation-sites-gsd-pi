@@ -1,7 +1,18 @@
 # Aligned to Angular 22's documented Baseline browser-support definition
-# (https://angular.dev/reference/versions#browser-support): browsers within
-# the "widely available" Baseline (web.dev/baseline) -- released less than
-# 30 months ago across Chrome, Edge, Firefox, Safari (desktop + iOS).
-# browserslist 4.22+ resolves this query natively, so it tracks Angular's
-# rolling definition instead of a hand-copied, driftable static list.
-baseline widely available
+# (https://angular.dev/reference/versions#browser-support): the browsers in
+# the Baseline "widely available" set AS OF 2026-05-07.
+#
+# The date is PINNED, not rolling, because Angular 22's definition is itself
+# fixed to that date. A bare `baseline widely available` query resolves to
+# TODAY's Baseline and therefore drifts further from Angular 22 every day --
+# and drifts LOOSER, since newer floors drop older browsers. Measured: the
+# rolling query resolved to 125 targets (chrome/edge 121, firefox 122,
+# safari/ios_saf 17.2) where the pinned query resolves to 136 (chrome/edge/
+# firefox 119, safari/ios_saf 17.0).
+#
+# browserslist 4.28.7 supports the pinned form natively and resolves it
+# through `baseline-browser-mapping`, the same data source behind
+# https://web-platform-dx.github.io/supported-browsers/ (includeDownstream=false).
+#
+# scripts/verify-browserslist.mjs asserts this exact query (R022).
+baseline widely available on 2026-05-07
