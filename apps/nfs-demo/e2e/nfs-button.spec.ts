@@ -42,6 +42,27 @@ test.describe('NfsButton rendered from the registry-installed ngx-foundation-sit
     await expect(button).toHaveCSS('background-color', 'rgb(42, 93, 176)');
   });
 
+  // The theme assertion above cannot catch a duplicated component stylesheet --
+  // two identical copies compute the same colour. This can: the SSR hosts emit
+  // the component sheet on the server as `<style ng-app-id="ng">` and the client
+  // is supposed to ADOPT that exact node rather than append its own, keyed on the
+  // CSS text. A divergent server/browser optimization setting would surface here
+  // as a second `<style>` and nowhere else (ticket 12).
+  test('delivers exactly one @layer nfs-defaults stylesheet', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    const layeredSheets = await page.evaluate(
+      () =>
+        [...document.querySelectorAll('style')].filter((element) =>
+          element.textContent?.includes('@layer nfs-defaults'),
+        ).length,
+    );
+
+    expect(layeredSheets).toBe(1);
+  });
+
   test('renders correctly under an RTL ancestor with the theme override still applied', async ({
     page,
   }) => {
