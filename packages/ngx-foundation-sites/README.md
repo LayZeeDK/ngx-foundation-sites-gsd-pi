@@ -166,7 +166,7 @@ They are inherited from Foundation for Sites' own palette values, and the defaul
 
 Everything else in the default theme passes AA: `primary` fill and `hollow primary` at 4.647, `secondary` fill and `hollow secondary` at 4.504, `success` fill at 10.912, `warning` fill at 10.659. `secondary` passes by 0.004, so treat it as fragile. Disabled buttons are dimmed via `opacity` and are exempt from the contrast requirement per WCAG. Text colors are contrast-picked by Foundation's own `color-pick-contrast`, matching upstream Foundation's automatic black/white selection.
 
-**A WCAG-compliant prebuilt theme is planned, and it is the supported route to AA.** Until it ships, you can reach AA yourself through the [theme mixin](#the-theme-mixin): as hollow text on a white page, `success: #238648` and `warning: #9e6c00` clear 4.5:1, and `alert` needs only `#cb4b37`.
+**A WCAG-compliant prebuilt theme is planned, and it is the supported route to AA.** Until it ships, you can reach AA yourself through the [theme mixin](#the-theme-mixin): `success: #238648` and `warning: #9e6c00` clear 4.5:1 as hollow text on a white page, and `alert: #cb4b37` -- 0.5% darker than Foundation's -- clears it as a fill.
 
 ### Hollow-variant contrast depends on your page background, which this library does not control
 
