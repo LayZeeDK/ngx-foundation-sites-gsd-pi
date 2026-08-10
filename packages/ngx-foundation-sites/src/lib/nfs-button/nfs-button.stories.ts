@@ -6,14 +6,11 @@ const meta: Meta<NfsButton> = {
   component: NfsButton,
   title: 'NfsButton',
   tags: ['autodocs'],
-  parameters: {
-    docs: {
-      description: {
-        component:
-          "Foundation for Sites button, applied to a native `<button>` or `<a>` element via the `nfsButton` attribute selector.\n\nRenders Foundation's `.button` classes and states (color, hollow, size, expanded, dropdown, disabled/soft-disabled) while keeping the host's native button or anchor semantics intact.",
-      },
-    },
-  },
+  // No `parameters.docs.description.component` here on purpose: since ticket 15
+  // wired Compodoc docgen, the autodocs page renders NfsButton's class JSDoc as
+  // the component description. A hard-coded copy here would be a second source
+  // of truth, and the one that used to live here had already drifted from the
+  // JSDoc. verify-autodocs-coverage.mjs fails if that JSDoc goes missing.
   argTypes: {
     color: {
       control: 'radio',

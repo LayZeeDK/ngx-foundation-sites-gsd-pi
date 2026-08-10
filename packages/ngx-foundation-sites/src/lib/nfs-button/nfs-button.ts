@@ -12,8 +12,8 @@ import {
  * via the `nfsButton` attribute selector.
  *
  * Renders Foundation's `.button` classes and states (color, hollow, size,
- * disabled/soft-disabled) while keeping the host's native button or anchor
- * semantics intact.
+ * expanded, dropdown, disabled/soft-disabled) while keeping the host's native
+ * button or anchor semantics intact.
  */
 @Component({
   selector: 'button[nfsButton], a[nfsButton]',
