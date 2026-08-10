@@ -10,9 +10,23 @@ import { NfsButton } from 'ngx-foundation-sites';
       <button nfsButton color="primary" (click)="increment()">Click me</button>
       <p data-testid="click-count">Clicks: {{ clickCount() }}</p>
 
+      <!-- The LTR half of nfs-button-rtl.spec.ts's mirroring gate. The
+           dropdown variant is the ONLY one that carries a directional
+           declaration: Foundation's button-dropdown emits
+           "float: inline-end; margin-inline-start: 1em" on ::after, so a
+           plain button cannot gate mirroring at all (ticket 03). -->
+      <div data-testid="ltr-container">
+        <button nfsButton dropdown data-testid="ltr-dropdown">
+          LTR dropdown
+        </button>
+      </div>
+
       <div dir="rtl" data-testid="rtl-container">
         <button nfsButton color="primary" data-testid="rtl-button">
           RTL button
+        </button>
+        <button nfsButton dropdown data-testid="rtl-dropdown">
+          RTL dropdown
         </button>
       </div>
 
