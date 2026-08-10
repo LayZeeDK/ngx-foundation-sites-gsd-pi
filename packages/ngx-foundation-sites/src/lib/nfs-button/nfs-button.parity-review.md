@@ -6,14 +6,14 @@ Compares `NfsButton` (`nfs-button.ts`) against Angular Material's `MatButton`/`M
 
 ## Host bindings / disabled semantics
 
-| Surface | MatButtonBase (verified) | NfsButton (before) | NfsButton (after) | Verdict |
-|---|---|---|---|---|
-| `disabled` attr on native `<button>` | Set when `disabled && !disabledInteractive` | Set when `disabled` | unchanged | Match (no `disabledInteractive`, see below) |
-| `aria-disabled` on native `<button>` | `null` unless `disabledInteractive` | `null` always | unchanged | Match |
-| `aria-disabled` on `<a>` | `disabled \|\| null` | `disabled ? "true" : null` | unchanged | Match |
-| `tabindex` on `<a>` when disabled | `-1` (removes from tab order) unless `disabledInteractive` | not set — anchor stayed focusable | `-1` | **Gap, fixed (T01)** |
-| `tabindex` on native `<button>` when disabled | unaffected (native `disabled` already excludes it) | unaffected | unaffected | Match |
-| Click-blocking on disabled `<a>` | `preventDefault` + `stopImmediatePropagation`, listener attached outside NgZone via `Renderer2` | `preventDefault` + `stopImmediatePropagation`, in-zone `(click)` binding | unchanged | Match on behavior; zone-scheduling difference is an internal perf detail, not a public a11y/RTL/API surface — out of scope for R010 |
+| Surface                                       | MatButtonBase (verified)                                                                        | NfsButton (before)                                                       | NfsButton (after) | Verdict                                                                                                                             |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `disabled` attr on native `<button>`          | Set when `disabled && !disabledInteractive`                                                     | Set when `disabled`                                                      | unchanged         | Match (no `disabledInteractive`, see below)                                                                                         |
+| `aria-disabled` on native `<button>`          | `null` unless `disabledInteractive`                                                             | `null` always                                                            | unchanged         | Match                                                                                                                               |
+| `aria-disabled` on `<a>`                      | `disabled \|\| null`                                                                            | `disabled ? "true" : null`                                               | unchanged         | Match                                                                                                                               |
+| `tabindex` on `<a>` when disabled             | `-1` (removes from tab order) unless `disabledInteractive`                                      | not set — anchor stayed focusable                                        | `-1`              | **Gap, fixed (T01)**                                                                                                                |
+| `tabindex` on native `<button>` when disabled | unaffected (native `disabled` already excludes it)                                              | unaffected                                                               | unaffected        | Match                                                                                                                               |
+| Click-blocking on disabled `<a>`              | `preventDefault` + `stopImmediatePropagation`, listener attached outside NgZone via `Renderer2` | `preventDefault` + `stopImmediatePropagation`, in-zone `(click)` binding | unchanged         | Match on behavior; zone-scheduling difference is an internal perf detail, not a public a11y/RTL/API surface — out of scope for R010 |
 
 **Gap found and fixed:** disabled anchors were keyboard-focusable (Foundation's `.disabled` class
 is CSS-only). MatAnchor removes them from the tab sequence. Added
@@ -22,8 +22,8 @@ is CSS-only). MatAnchor removes them from the tab sequence. Added
 
 ## Convenience methods
 
-| Surface | MatButtonBase | NfsButton (after) | Verdict |
-|---|---|---|---|
+| Surface                    | MatButtonBase                                                                                                                          | NfsButton (after)                                                                    | Verdict                             |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------- |
 | `focus(origin?, options?)` | Delegates to CDK `FocusMonitor.focusVia`, tracking focus origin (mouse/keyboard/program) to drive Material's own focus-visible styling | `focus(options?: FocusOptions)` delegates directly to `nativeElement.focus(options)` | **Gap, fixed (T02) — lean variant** |
 
 Deliberately did not pull in `FocusMonitor`/`@angular/cdk/a11y`: origin-tracking exists to power

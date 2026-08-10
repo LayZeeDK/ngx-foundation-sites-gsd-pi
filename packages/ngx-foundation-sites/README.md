@@ -38,14 +38,14 @@ export class AppComponent {
 
 ### Inputs
 
-| Input      | Type                                                                  | Default     | Description                                                                 |
-| ---------- | ---------------------------------------------------------------------| ----------- | ---------------------------------------------------------------------------- |
-| `color`    | `'primary' \| 'secondary' \| 'success' \| 'warning' \| 'alert'`      | `'primary'` | Button color variant, matching Foundation's full `$button-palette`.          |
-| `hollow`   | `boolean`                                                             | `false`     | Renders an outlined ("hollow") variant instead of a filled background.       |
-| `size`     | `'tiny' \| 'small' \| 'large' \| undefined`                          | `undefined` | Button size. Leave `undefined` for the default size.                        |
-| `expanded` | `boolean`                                                             | `false`     | Renders Foundation's expanded (full-width, `display: block`) button style.   |
-| `dropdown` | `boolean`                                                             | `false`     | Renders Foundation's dropdown arrow indicator after the button content.      |
-| `disabled` | `boolean`                                                             | `false`     | Disables the button. On `<a>` this is a soft-disable (see below).            |
+| Input      | Type                                                            | Default     | Description                                                                |
+| ---------- | --------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------- |
+| `color`    | `'primary' \| 'secondary' \| 'success' \| 'warning' \| 'alert'` | `'primary'` | Button color variant, matching Foundation's full `$button-palette`.        |
+| `hollow`   | `boolean`                                                       | `false`     | Renders an outlined ("hollow") variant instead of a filled background.     |
+| `size`     | `'tiny' \| 'small' \| 'large' \| undefined`                     | `undefined` | Button size. Leave `undefined` for the default size.                       |
+| `expanded` | `boolean`                                                       | `false`     | Renders Foundation's expanded (full-width, `display: block`) button style. |
+| `dropdown` | `boolean`                                                       | `false`     | Renders Foundation's dropdown arrow indicator after the button content.    |
+| `disabled` | `boolean`                                                       | `false`     | Disables the button. On `<a>` this is a soft-disable (see below).          |
 
 ### Button vs. anchor semantics
 
@@ -93,12 +93,12 @@ Theming is Sass-only and happens in your own build. There is no CSS custom prope
 );
 ```
 
-| Argument      | Default                              | Purpose                                                                                                                                                                                                                                                                                                                          |
-| ------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `$selector`   | `'.button'`                          | Selector the rules are emitted under. Use it for a scoped or additional theme.                                                                                                                                                                                                                                                    |
-| `$background` | `#1779ba` (Foundation's primary)     | Fill color of the default (primary) button. Its hover is derived by Foundation's own `scale-color`, so it needs no companion argument.                                                                                                                                                                                             |
-| `$palette`    | Foundation's `$button-palette`       | Palette override, **merged** over the defaults and keyed the way Foundation's `$button-palette` is (`secondary`, `success`, `warning`, `alert`). Pass only the keys you want to change; the rest keep Foundation's values. A `primary` key is ignored, since `$background` covers it. Each entry's text color is contrast-picked by Foundation's own `color-pick-contrast`. |
-| `$radius`     | `0` (Foundation's `$global-radius`)  | Corner radius.                                                                                                                                                                                                                                                                                                                   |
+| Argument      | Default                             | Purpose                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `$selector`   | `'.button'`                         | Selector the rules are emitted under. Use it for a scoped or additional theme.                                                                                                                                                                                                                                                                                              |
+| `$background` | `#1779ba` (Foundation's primary)    | Fill color of the default (primary) button. Its hover is derived by Foundation's own `scale-color`, so it needs no companion argument.                                                                                                                                                                                                                                      |
+| `$palette`    | Foundation's `$button-palette`      | Palette override, **merged** over the defaults and keyed the way Foundation's `$button-palette` is (`secondary`, `success`, `warning`, `alert`). Pass only the keys you want to change; the rest keep Foundation's values. A `primary` key is ignored, since `$background` covers it. Each entry's text color is contrast-picked by Foundation's own `color-pick-contrast`. |
+| `$radius`     | `0` (Foundation's `$global-radius`) | Corner radius.                                                                                                                                                                                                                                                                                                                                                              |
 
 `$palette` **merges** rather than replaces, so overriding one entry keeps the other three at Foundation's values -- the naive expectation would be replacement, and it is worth stating.
 
@@ -145,7 +145,7 @@ SSR-safe out of the box, with no library-specific setup and no services to provi
 
 The mechanism is Foundation's own. The package rebinds Foundation's `$global-left`/`$global-right` to `inline-start`/`inline-end` after Foundation's `@import`s, so Foundation's **unmodified** `button-dropdown` mixin emits logical properties -- `float: inline-end; margin-inline-start: 1em` -- where stock Foundation would emit `float: right; margin-left: 1em`. Those two declarations, both on `.button.dropdown::after`, are the only directional pair in the whole stylesheet. Everything else is either symmetric shorthand (`margin: 0 0 1rem 0`, `padding: 0.85em 1em`, uniform border and border-radius, and `.button.expanded`'s `margin-left: 0; margin-right: 0`) or block-axis, so it has no side to flip.
 
-- **Assert margins, not `float`, if you regression-test this yourself.** `getComputedStyle(el, '::after').float` reports `inline-end` in *both* directions -- confirmed in Chromium, WebKit and Firefox -- so a `float` assertion cannot detect mirroring at all. `apps/nfs-demo/e2e/nfs-button-rtl.spec.ts` and the `RTL (dir="rtl") mirroring` Storybook story both read the computed `margin-left`/`margin-right` on the dropdown arrow instead. The Playwright spec runs under all three engines; note that WebKit snaps the margin to 1/64 px, so compare with a tolerance rather than for equality.
+- **Assert margins, not `float`, if you regression-test this yourself.** `getComputedStyle(el, '::after').float` reports `inline-end` in _both_ directions -- confirmed in Chromium, WebKit and Firefox -- so a `float` assertion cannot detect mirroring at all. `apps/nfs-demo/e2e/nfs-button-rtl.spec.ts` and the `RTL (dir="rtl") mirroring` Storybook story both read the computed `margin-left`/`margin-right` on the dropdown arrow instead. The Playwright spec runs under all three engines; note that WebKit snaps the margin to 1/64 px, so compare with a tolerance rather than for equality.
 - **Caveat:** if you theme via the [theme mixin](#the-theme-mixin) and introduce your own directional (left/right) values, verify mirroring yourself -- `NfsButton`'s own styles have no physical directional properties left to get wrong, but yours can.
 
 ## Accessibility
@@ -156,13 +156,13 @@ The mechanism is Foundation's own. The package rebinds Foundation's `$global-lef
 
 They are inherited from Foundation for Sites' own palette values, and the default theme is deliberately faithful to Foundation rather than corrected:
 
-| Variant          | Pairing                                  | Ratio | AA (4.5:1) | AA-large (3:1) |
-| ---------------- | ---------------------------------------- | ----- | ---------- | -------------- |
-| `alert` (fill)   | `#fefefe` text on `#cc4b37`              | 4.498 | **FAIL**   | pass           |
-| `hollow success` | `#3adb76` text on a `#fefefe` page       | 1.799 | **FAIL**   | **FAIL**       |
-| `hollow warning` | `#ffae00` text on a `#fefefe` page       | 1.842 | **FAIL**   | **FAIL**       |
+| Variant          | Pairing                            | Ratio | AA (4.5:1) | AA-large (3:1) |
+| ---------------- | ---------------------------------- | ----- | ---------- | -------------- |
+| `alert` (fill)   | `#fefefe` text on `#cc4b37`        | 4.498 | **FAIL**   | pass           |
+| `hollow success` | `#3adb76` text on a `#fefefe` page | 1.799 | **FAIL**   | **FAIL**       |
+| `hollow warning` | `#ffae00` text on a `#fefefe` page | 1.842 | **FAIL**   | **FAIL**       |
 
-`alert` misses AA by 0.002, which Foundation's own quantization to one decimal reports as a passing "4.5". The two hollow variants are around 1.8:1 -- effectively illegible, and below even the 3:1 large-text floor. No text-color choice fixes them, because the failing color *is* the palette color; only substantially darkening `$success-color` and `$warning-color` would, and that is a real change to Foundation's design values.
+`alert` misses AA by 0.002, which Foundation's own quantization to one decimal reports as a passing "4.5". The two hollow variants are around 1.8:1 -- effectively illegible, and below even the 3:1 large-text floor. No text-color choice fixes them, because the failing color _is_ the palette color; only substantially darkening `$success-color` and `$warning-color` would, and that is a real change to Foundation's design values.
 
 Everything else in the default theme passes AA: `primary` fill and `hollow primary` at 4.647, `secondary` fill and `hollow secondary` at 4.504, `success` fill at 10.912, `warning` fill at 10.659. `secondary` passes by 0.004, so treat it as fragile. Disabled buttons are dimmed via `opacity` and are exempt from the contrast requirement per WCAG. Text colors are contrast-picked by Foundation's own `color-pick-contrast`, matching upstream Foundation's automatic black/white selection.
 
@@ -189,7 +189,7 @@ The axe suite asserts the **exact** expected-failure set above rather than suppr
 
 The workspace's [`.browserslistrc`](../../.browserslistrc) targets `baseline widely available on 2026-05-07` -- browserslist's native query for the [web.dev "widely available" Baseline](https://web.dev/baseline) (browsers released less than 30 months ago across Chrome, Edge, Firefox, and Safari, desktop + iOS), as of that date. It resolves to 136 browser versions, with floors of Chrome/Edge/Firefox 119 and Safari/iOS Safari 17.0.
 
-The date is **pinned rather than rolling** because Angular 22's own [browser support](https://angular.dev/reference/versions#browser-support) definition is itself fixed to 2026-05-07. A bare `baseline widely available` query resolves to *today's* Baseline and therefore drifts away from Angular 22 over time -- and drifts looser, since newer floors drop older browsers (measured: 125 targets rolling versus 136 pinned). `node scripts/verify-browserslist.mjs` (wired into `nx run ngx-foundation-sites:lint`) asserts that exact query and a non-empty resolved browser set on every lint run.
+The date is **pinned rather than rolling** because Angular 22's own [browser support](https://angular.dev/reference/versions#browser-support) definition is itself fixed to 2026-05-07. A bare `baseline widely available` query resolves to _today's_ Baseline and therefore drifts away from Angular 22 over time -- and drifts looser, since newer floors drop older browsers (measured: 125 targets rolling versus 136 pinned). `node scripts/verify-browserslist.mjs` (wired into `nx run ngx-foundation-sites:lint`) asserts that exact query and a non-empty resolved browser set on every lint run.
 
 ## Running unit tests
 
