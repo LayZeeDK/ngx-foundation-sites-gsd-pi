@@ -168,7 +168,7 @@ They are inherited from Foundation for Sites' own palette values, and the defaul
 
 Everything else in the default theme passes AA: `primary` fill and `hollow primary` at 4.647, `secondary` fill and `hollow secondary` at 4.504, `success` fill at 10.912, `warning` fill at 10.659. `secondary` passes by 0.004, so treat it as fragile. Disabled buttons are dimmed via `opacity` and are exempt from the contrast requirement per WCAG. Text colors are contrast-picked by Foundation's own `color-pick-contrast`, matching upstream Foundation's automatic black/white selection.
 
-**A WCAG-compliant prebuilt theme is planned, and it is the supported route to AA.** Until it ships, you can reach AA yourself through the [theme mixin](#the-theme-mixin): `success: #238648` and `warning: #9e6c00` clear 4.5:1 as hollow text on a white page, and `alert: #cb4b37` -- 0.5% darker than Foundation's -- clears it as a fill.
+**A compliant theme is the supported route to AA today, via the [theme mixin](#the-theme-mixin):** `success: #238648` and `warning: #9e6c00` clear 4.5:1 as hollow text on a white page, and `alert: #cb4b37` -- 0.5% darker than Foundation's -- clears it as a fill. `apps/nfs-demo` demonstrates this theme with `@include nfs-button.theme($selector: '.theme-compliant', $palette: (success: #238648, warning: #9e6c00, alert: #cb4b37))`, and the axe suite's `m002-compliant` fixture asserts zero contrast violations against it.
 
 ### Hollow-variant contrast depends on your page background, which this library does not control
 
@@ -178,13 +178,13 @@ So an app that imports Foundation's global styles gets a different answer from o
 
 ### Do not read a green CI run as a clean bill of health for the default theme
 
-The axe suite asserts the **exact** expected-failure set above rather than suppressing the contrast rule, so it fails loudly if a fourth failure appears or if Foundation's values change. Once the compliant theme lands, the suite will also run against that theme and report zero violations there -- while the default theme still ships these three. Reading only the test output would give exactly the wrong impression.
+The axe suite asserts the **exact** expected-failure set above rather than suppressing the contrast rule, so it fails loudly if a fourth failure appears or if Foundation's values change. The suite also runs a second fixture against the compliant theme above and asserts zero violations there -- while the default theme still ships these three. Reading only the test output for a single fixture would give exactly the wrong impression.
 
 ### Semantics and coverage
 
 - **ARIA semantics.** `<button nfsButton disabled>` uses the native `disabled` attribute; no ARIA is needed. `<a nfsButton disabled>` cannot be natively disabled, so it sets `aria-disabled="true"` and `tabindex="-1"` instead, while keeping its native `link` role (it still navigates via `href` -- it isn't re-cast as a `button`).
 - **Focus.** Foundation's own `disable-mouse-outline` rule depends on Foundation's JavaScript, which this package does not ship, so the focus ring is suppressed for pointer-driven focus with `:focus-visible` instead. Keyboard focus rings are left intact.
-- **Automated regression coverage.** `apps/nfs-demo/e2e/nfs-button-a11y.spec.ts` runs an axe-core scan (WCAG 2.1 A/AA rules) against every variant in both fill and hollow form -- all five palette members, all sizes, disabled button and disabled anchor -- and fails the build on any critical or serious violation, plus any color-contrast violation outside the recorded set above.
+- **Automated regression coverage.** `apps/nfs-demo/e2e/nfs-button-a11y.spec.ts` runs an axe-core scan (WCAG 2.1 A/AA rules) against every variant in both fill and hollow form -- all five palette members, all sizes, disabled button and disabled anchor -- and fails the build on any critical or serious violation, plus any color-contrast violation outside the recorded set above. It runs this scan twice: once against the default theme (the three known failures above) and once against the compliant theme (zero violations).
 - If you override colors, re-check contrast for your own palette with a contrast calculator (e.g. [WebAIM's](https://webaim.org/resources/contrastchecker/)). The mixin accepts any values, including ones below AA.
 
 ## Browser support

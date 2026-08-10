@@ -19,17 +19,22 @@ type ContrastFailure = {
 
 /**
  * A theme the suite scans. The default theme ships Foundation's palette
- * unchanged and therefore ships known WCAG AA contrast shortfalls; M002's
- * WCAG-compliant prebuilt theme adds a SECOND fixture here whose
+ * unchanged and therefore ships known WCAG AA contrast shortfalls; the
+ * compliant M002-parity theme (S05/D023) adds a SECOND fixture here whose
  * `expectedContrastFailures` is `[]`, rather than rewriting this gate.
  *
- * `path` is the seam: a theme is applied by the host's own global stylesheet
- * at build time (compile-time SCSS theming, never runtime custom properties),
- * so a second theme means a second served route or host, not a runtime toggle.
+ * Both fixtures are applied by the SAME host's global stylesheet at build
+ * time (compile-time SCSS theming, never runtime custom properties):
+ * styles.scss compiles two additively-scoped theme() invocations into one
+ * stylesheet, an unscoped default and a `.theme-compliant`-scoped second
+ * theme. `contextSelector` is therefore the seam a second theme adds -- a
+ * second markup region with its own `data-testid`, not a second served
+ * route or host.
  */
 type ThemeFixture = {
   readonly name: string;
   readonly path: string;
+  readonly contextSelector: string;
   readonly expectedContrastFailures: readonly ContrastFailure[];
 };
 
@@ -58,6 +63,7 @@ const themes: readonly ThemeFixture[] = [
     // it cannot mask a default-theme failure.
     name: 'foundation-default',
     path: '/',
+    contextSelector: '[data-testid="a11y-variants"]',
     expectedContrastFailures: [
       // White on #cc4b37 is 4.4989 -- short of AA normal text by 0.002, which
       // Foundation's own quantisation to one decimal reports as "4.5".
@@ -91,6 +97,24 @@ const themes: readonly ThemeFixture[] = [
       // background, not the palette.
     ],
   },
+  {
+    // M002-parity compliant theme (S05/D023/R003): the SAME served page,
+    // scanning the second markup region (`a11y-variants-compliant`,
+    // app.component.ts) that carries the additively-scoped
+    // `.theme-compliant` class -- matching the second theme() invocation
+    // compiled into styles.scss. That invocation overrides only
+    // success/warning/alert with the already-published compliant palette
+    // (success: #238648, warning: #9e6c00, alert: #cb4b37); Foundation's own
+    // default palette above is untouched by this fixture existing.
+    //
+    // Zero expected failures is the whole point: it proves the compliant
+    // palette clears AA in BOTH fill and hollow contexts, the exact two
+    // pairings that produced the default theme's three known failures above.
+    name: 'm002-compliant',
+    path: '/',
+    contextSelector: '[data-testid="a11y-variants-compliant"]',
+    expectedContrastFailures: [],
+  },
 ];
 
 type AxeContrastData = {
@@ -107,20 +131,23 @@ type AxeReport = {
 };
 
 /**
- * Runs axe-core over `[data-testid="a11y-variants"]` -- one instance per
- * NfsButton variant, now including the full palette in both fill and hollow
- * form (success/warning/alert postdate R003's original scan) -- and splits the
- * result into the contrast findings and everything else.
+ * Runs axe-core over `contextSelector` -- one instance per NfsButton variant,
+ * covering the full palette in both fill and hollow form (success/warning/
+ * alert postdate R003's original scan) -- and splits the result into the
+ * contrast findings and everything else. `contextSelector` is what lets the
+ * same served page host two theme fixtures (`a11y-variants` for the default
+ * theme, `a11y-variants-compliant` for the compliant one).
  */
 async function runAxe(
   page: import('@playwright/test').Page,
   path: string,
+  contextSelector: string,
 ): Promise<AxeReport> {
   await page.goto(path);
   await page.addScriptTag({ path: axeCorePath });
 
-  return page.evaluate(async () => {
-    const context = document.querySelector('[data-testid="a11y-variants"]');
+  return page.evaluate(async (contextSelector) => {
+    const context = document.querySelector(contextSelector);
     const results = (await (
       window as unknown as {
         axe: {
@@ -191,7 +218,7 @@ async function runAxe(
       })),
       contrastFailures,
     };
-  });
+  }, contextSelector);
 }
 
 const byVariant = (
@@ -206,7 +233,7 @@ for (const theme of themes) {
     test('has zero critical/serious axe-core violations outside colour contrast', async ({
       page,
     }) => {
-      const report = await runAxe(page, theme.path);
+      const report = await runAxe(page, theme.path, theme.contextSelector);
 
       expect(
         report.otherViolations,
@@ -217,7 +244,7 @@ for (const theme of themes) {
     test('reports exactly the known colour-contrast failures, no more and no fewer', async ({
       page,
     }) => {
-      const report = await runAxe(page, theme.path);
+      const report = await runAxe(page, theme.path, theme.contextSelector);
 
       const actual = report.contrastFailures
         .map(({ variant, foreground, background }) => ({

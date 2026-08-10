@@ -1,0 +1,175 @@
+
+[7m[1m[36m NX [39m[22m[27m  [36mRunning target [1me2e[22m for project nfs-demo and [1m7[22m tasks it depends on:[39m
+
+[2m[36m[39m[22m
+
+[2m> [22m[2mnx run[22m nfs-demo:serve:development
+
+
+[2m> [22m[2mnx run[22m nfs-demo:serve-static
+
+
+[2m> [22m[2mnx run[22m nfs-demo:serve-ssr
+
+[33m❯[39m Building...
+[33m❯[39m Building...
+
+[2m> [22m[2mnx run[22m ngx-foundation-sites:compile-default-css
+
+[2m> [22mnpx sass --quiet-deps --no-source-map --load-path=packages/ngx-foundation-sites/src/scss --load-path=node_modules packages/ngx-foundation-sites/src/lib/nfs-button/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css
+
+[32m✔[39m Building...
+[37m[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m[1mRaw size[22m
+[32mmain.js[37m            [2m | [22m[2mmain[22m         [2m | [22m[36m35.72 kB[37m[2m | [22m
+[32mstyles.css[37m         [2m | [22m[2mstyles[22m       [2m | [22m[36m12.36 kB[37m[2m | [22m
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m48.08 kB[22m
+Application bundle generation complete. [1.516 seconds] - 2026-08-10T17:48:01.840Z
+[39m
+[37mWatch mode enabled. Watching for file changes...[39m
+[37mNOTE: Raw file sizes do not reflect development server per-request transformations.[39m
+[32m✔[39m Building...
+[37m[35mBrowser bundles[37m     
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.js[37m             [2m | [22m[2mmain[22m            [2m | [22m [36m36.30 kB[37m[2m | [22m
+[32mstyles.css[37m          [2m | [22m[2mstyles[22m          [2m | [22m [36m12.36 kB[37m[2m | [22m
+[1m [22m                   [2m | [22m[1mInitial total[22m   [2m | [22m [1m48.66 kB[22m
+[35mServer bundles[37m      
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.server.mjs[37m     [2m | [22m[2mmain.server[22m     [2m | [22m [36m37.05 kB[37m[2m | [22m
+[32mserver.mjs[37m          [2m | [22m[2mserver[22m          [2m | [22m  [36m1.91 kB[37m[2m | [22m
+[32mpolyfills.server.mjs[37m[2m | [22m[2mpolyfills.server[22m[2m | [22m[36m268 bytes[37m[2m | [22m
+Application bundle generation complete. [1.569 seconds] - 2026-08-10T17:48:01.932Z
+[39m
+[37mWatch mode enabled. Watching for file changes...[39m
+[37mNOTE: Raw file sizes do not reflect development server per-request transformations.[39m
+[2m19.48.01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because vite config has changed
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4200[22m/[39m
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4203[22m/[39m
+
+[2m> [22m[2mnx run[22m ngx-foundation-sites:build:production
+
+[34mBuilding Angular Package[39m
+[37m
+------------------------------------------------------------------------------[39m
+[37mBuilding entry point 'ngx-foundation-sites'[39m
+[37m------------------------------------------------------------------------------[39m
+- Compiling with Angular sources in partial compilation mode.
+[32m✔[39m Compiling with Angular sources in partial compilation mode.
+- Writing FESM and DTS bundles
+[32m✔[39m Writing FESM and DTS bundles
+- Copying assets
+[32m✔[39m Copying assets
+- Writing package manifest
+[32m✔[39m Writing package manifest
+[32m✔[39m Built ngx-foundation-sites
+[32m
+------------------------------------------------------------------------------[39m
+[32mBuilt Angular Package
+- from: D:/projects/github/LayZeeDK/ngx-foundation-sites-gsd-pi/packages/ngx-foundation-sites
+- to:   D:/projects/github/LayZeeDK/ngx-foundation-sites-gsd-pi/dist/packages/ngx-foundation-sites[39m
+[32m------------------------------------------------------------------------------[39m
+[37m[37m
+Build at: [1m2026-08-10T17:48:03.277Z[22m - Time: [1m1380[22mms
+[39m[39m
+
+[2m> [22m[2mnx run[22m nfs-demo:build-ssr:production
+
+[7m[1m[36m NX [39m[22m[27m  [36mRunning target [1mbuild[22m for project nfs-demo and [1m2[22m tasks it depends on:[39m
+[2m[36m[39m[22m
+[33m❯[39m Building...
+[2m> [22m[2mnx run[22m ngx-foundation-sites:compile-default-css
+[2m> [22mnpx sass --quiet-deps --no-source-map --load-path=packages/ngx-foundation-sites/src/scss --load-path=node_modules packages/ngx-foundation-sites/src/lib/nfs-button/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css
+[2m> [22m[2mnx run[22m ngx-foundation-sites:build:production  [2m[existing outputs match the cache, left as is][22m
+[2m> [22m[2mnx run[22m nfs-demo:build:production
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37m[35mBrowser bundles[37m     
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain.js[37m             [2m | [22m[2mmain[22m            [2m | [22m[36m172.90 kB[37m[2m | [22m               [36m50.80 kB[37m
+[32mstyles.css[37m          [2m | [22m[2mstyles[22m          [2m | [22m [36m10.54 kB[37m[2m | [22m                [36m1.25 kB[37m
+[32mchunk-AY4LCFTV.js[37m   [2m | [22m[2m-[22m               [2m | [22m[36m720 bytes[37m[2m | [22m              [36m720 bytes[37m
+[1m [22m                   [2m | [22m[1mInitial total[22m   [2m | [22m[1m184.16 kB[22m[2m | [22m               [1m52.77 kB[22m
+[1mLazy chunk files[22m    [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-I22YU7QX.js[37m   [2m | [22m[2mbrowser[22m         [2m | [22m[36m103 bytes[37m[2m | [22m              [36m103 bytes[37m
+[35mServer bundles[37m      
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mserver.mjs[37m          [2m | [22m[2mserver[22m          [2m | [22m[36m833.31 kB[37m[2m | [22m                       
+[32mmain.server.mjs[37m     [2m | [22m[2mmain.server[22m     [2m | [22m[36m684.68 kB[37m[2m | [22m                       
+[32mpolyfills.server.mjs[37m[2m | [22m[2mpolyfills.server[22m[2m | [22m[36m234.18 kB[37m[2m | [22m                       
+[32mchunk-ITOR7NUX.mjs[37m  [2m | [22m[2m-[22m               [2m | [22m  [36m1.38 kB[37m[2m | [22m                       
+[32mchunk-KYQQYI4M.mjs[37m  [2m | [22m[2m-[22m               [2m | [22m  [36m1.01 kB[37m[2m | [22m                       
+[1mLazy chunk files[22m    [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mchunk-KUERU4XA.mjs[37m  [2m | [22m[2mxhr2[22m            [2[39m[37mm | [22m [36m12.17 kB[37m[2m | [22m                       
+[32mchunk-LYHAGGDF.mjs[37m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.07 kB[37m[2m | [22m                       
+[35mPrerendered 0 static routes.[37m
+Application bundle generation complete. [2.533 seconds] - 2026-08-10T17:48:06.960Z
+[39m
+[37mOutput location: D:\projects\github\LayZeeDK\ngx-foundation-sites-gsd-pi\dist\apps\nfs-demo-ssr
+[39m
+
+[2m> [22m[2mnx run[22m nfs-demo:serve-ssr-node
+
+[2m> [22mnode dist/apps/nfs-demo-ssr/server/server.mjs
+
+
+[2m> [22m[2mnx run[22m nfs-demo:e2e --grep NfsButton accessibility
+
+[2m> [22mplaywright test --grep "NfsButton accessibility"
+
+nfs-demo SSR host listening on http://localhost:4202
+[32m✔[39m Building...
+[37m[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain.js[37m            [2m | [22m[2mmain[22m         [2m | [22m[36m119.51 kB[37m[2m | [22m               [36m34.93 kB[37m
+[32mstyles.css[37m         [2m | [22m[2mstyles[22m       [2m | [22m [36m10.54 kB[37m[2m | [22m                [36m1.25 kB[37m
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m130.06 kB[22m[2m | [22m               [1m36.19 kB[22m
+Application bundle generation complete. [1.786 seconds] - 2026-08-10T17:48:08.494Z
+[39m
+[37mOutput location: D:\projects\github\LayZeeDK\ngx-foundation-sites-gsd-pi\dist\apps\nfs-demo
+[39m
+[2m[32m[39m[22m
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild[22m for project nfs-demo and [1m2[22m tasks it depends on[39m
+[2mNx read the output from the cache instead of running the command for 1 out of 3 tasks.[22m
+  Run duration:      4.2s
+  Cache:             1/3 hit (33%)
+  Critical path:     4.2s (3 tasks)
+  Recoverable time:  <1ms
+(node:3108) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[33mStarting up http-server, serving [39m[36mdist/apps/nfs-demo/browser[39m
+[33m[39m
+[33mhttp-server version: [39m[36m14.1.1[39m
+[33m[39m
+[33mhttp-server settings: [39m
+[33mCORS: [39m[36mtrue[39m
+[33mCache: [39m[36m-1 seconds[39m
+[33mConnection Timeout: [39m[36m120 seconds[39m
+[33mDirectory Listings: [39m[36mvisible[39m
+[33mAutoIndex: [39m[36mvisible[39m
+[33mServe GZIP Files: [39m[31mfalse[39m
+[33mServe Brotli Files: [39m[31mfalse[39m
+[33mDefault File Extension: [39m[31mnone[39m
+[33m[39m
+[33mAvailable on:[39m
+  http://localhost:[32m4201[39m
+Unhandled requests will be served from: http://localhost:4201?
+Hit CTRL-C to stop the server
+
+[2mRunning [22m4[2m tests using [22m4[2m workers[22m
+
+  [32mok[39m [2m4 [22m[static-csr] › e2e\nfs-button-a11y.spec.ts:244:9 › NfsButton accessibility (m002-compliant theme) › reports exactly the known colour-contrast failures, no more and no fewer[2m (641ms)[22m
+  [32mok[39m [2m1 [22m[static-csr] › e2e\nfs-button-a11y.spec.ts:233:9 › NfsButton accessibility (foundation-default theme) › has zero critical/serious axe-core violations outside colour contrast[2m (760ms)[22m
+  [32mok[39m [2m2 [22m[static-csr] › e2e\nfs-button-a11y.spec.ts:244:9 › NfsButton accessibility (foundation-default theme) › reports exactly the known colour-contrast failures, no more and no fewer[2m (760ms)[22m
+  [32mok[39m [2m3 [22m[static-csr] › e2e\nfs-button-a11y.spec.ts:233:9 › NfsButton accessibility (m002-compliant theme) › has zero critical/serious axe-core violations outside colour contrast[2m (873ms)[22m
+
+[32m  4 passed[39m[2m (3.3s)[22m
+Warning: command "node dist/apps/nfs-demo-ssr/server/server.mjs" exited with non-zero status code
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1me2e[22m for project nfs-demo and [1m7[22m tasks it depends on[39m
+
+
+  Run duration:      11.9s
+  Cache:             0/8 hit (0%)
+  Critical path:     7.8s (3 tasks)
+  Recoverable time:  <1ms
+EXIT_CODE:0
