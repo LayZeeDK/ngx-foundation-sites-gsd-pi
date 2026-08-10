@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  ViewEncapsulation,
   booleanAttribute,
   inject,
   input,
@@ -24,6 +25,17 @@ const NFS_BUTTON_STYLE_ID = 'nfs-button';
   selector: 'button[nfsButton], a[nfsButton]',
   imports: [],
   templateUrl: './nfs-button.html',
+  // R026: compiled SCSS delivered through Angular's own styleUrl +
+  // ViewEncapsulation.None pipeline (SharedStylesHost), which is what also
+  // supplies R005's ref-counted lazy load/unload -- the requirement that
+  // forces NfsButton to stay a Component rather than become a Directive
+  // (R025's own stylesheet-lifecycle exception, ticket 07).
+  //
+  // Encapsulation must be None: the rules are authored against Foundation's
+  // global `.button` class on the HOST element, which emulated encapsulation
+  // would rewrite to `[_ngcontent-*]`-scoped selectors that never match.
+  styleUrl: './nfs-button.scss',
+  encapsulation: ViewEncapsulation.None,
   host: {
     class: 'button',
     '[class.secondary]': "color() === 'secondary'",

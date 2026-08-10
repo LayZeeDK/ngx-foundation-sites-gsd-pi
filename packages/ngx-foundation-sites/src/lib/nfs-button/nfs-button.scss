@@ -1,0 +1,40 @@
+// NfsButton's default styling, delivered by Angular's own styleUrl +
+// ViewEncapsulation.None pipeline (R026, ticket 06 architecture A).
+//
+// `button` is reached through a Sass LOAD PATH, not a relative import
+// (ng-package.json `lib.styleIncludePaths` for build/test/test-browser,
+// project.json `stylePreprocessorOptions.includePaths` for both Storybook
+// targets). That makes this file's whole dependency graph -- including
+// Foundation's legacy @import island -- a Sass "dependency", so the
+// `quietDeps: true` every builder already hard-codes silences Foundation's
+// @import/global-builtin deprecations. Measured: zero Sass warnings across
+// build, test, test-browser and build-storybook simultaneously. A relative
+// `@use '../../scss/button'` would instead leak three warnings per component
+// stylesheet, in the two builders that cannot silence them at all
+// (ticket 02, Route A).
+@use 'button' as nfs-button;
+
+// R008: the default output is layered so that a consumer recompiling the
+// theme into their own global stylesheet -- which is UNLAYERED -- always wins
+// the cascade, regardless of DOM insertion order. Ticket 01 measured why that
+// matters: this component <style> is appended to <head> AFTER the global
+// styles.css <link>, so without the layer the default would beat the
+// consumer. Ticket 01 also confirmed @layer survives Angular's style
+// injection verbatim, and ticket 12 confirmed it across all six hosts.
+@layer nfs-defaults {
+  @include nfs-button.theme;
+
+  // R026 accessibility-only CSS -- the one sanctioned content exception, and
+  // the only rule in this file that Foundation's mixins do not emit.
+  //
+  // Foundation's `button-base` pulls in `disable-mouse-outline`, which emits
+  // `[data-whatinput=mouse] .button { outline: 0 }`. That rule is permanently
+  // inert here: `data-whatinput` is set by the what-input library that ships
+  // with Foundation's JavaScript, and R016 forbids shipping any Foundation
+  // JS. This is its browser-native replacement -- suppress the focus ring for
+  // pointer-driven focus only, and leave the keyboard focus ring intact.
+  // css-focus-visible fails 0/136 targets at the pinned baseline (R022).
+  .button:focus:not(:focus-visible) {
+    outline: 0;
+  }
+}
