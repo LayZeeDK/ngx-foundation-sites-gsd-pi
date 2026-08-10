@@ -37,9 +37,39 @@
       },
       "defaultConfiguration": "production"
     },
+    "build-ssr": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/nfs-demo-ssr",
+        "index": "apps/nfs-demo/src/index.html",
+        "browser": "apps/nfs-demo/src/main.ssr.ts",
+        "server": "apps/nfs-demo/src/main.server.ts",
+        "ssr": {
+          "entry": "apps/nfs-demo/src/server.ts"
+        },
+        "outputMode": "server",
+        "polyfills": [],
+        "tsConfig": "apps/nfs-demo/tsconfig.app.json",
+        "assets": [],
+        "styles": ["apps/nfs-demo/src/styles.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {},
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
     "serve": {
       "executor": "@angular/build:dev-server",
+      "continuous": true,
       "options": {
+        "port": 4200,
         "prebundle": {
           "exclude": ["ngx-foundation-sites"]
         }
@@ -53,6 +83,56 @@
         }
       },
       "defaultConfiguration": "development"
+    },
+    "serve-ssr": {
+      "executor": "@angular/build:dev-server",
+      "continuous": true,
+      "options": {
+        "port": 4203,
+        "buildTarget": "nfs-demo:build-ssr:development",
+        "prebundle": {
+          "exclude": ["ngx-foundation-sites"]
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "continuous": true,
+      "options": {
+        "port": 4201,
+        "buildTarget": "nfs-demo:build:production",
+        "staticFilePath": "dist/apps/nfs-demo/browser",
+        "spa": true
+      }
+    },
+    "serve-ssr-node": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": ["build-ssr"],
+      "options": {
+        "cwd": "{workspaceRoot}",
+        "env": {
+          "PORT": "4202"
+        },
+        "command": "node dist/apps/nfs-demo-ssr/server/server.mjs"
+      }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/test-results"],
+      "dependsOn": ["serve", "serve-static", "serve-ssr", "serve-ssr-node"],
+      "parallelism": true,
+      "options": {
+        "cwd": "apps/nfs-demo",
+        "command": "playwright test"
+      }
+    },
+    "verify-registry-consumption": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node apps/nfs-demo/scripts/verify-registry-consumption.mjs",
+        "cwd": "{workspaceRoot}"
+      }
     }
   }
 }
