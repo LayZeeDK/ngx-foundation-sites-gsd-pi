@@ -69,7 +69,8 @@
       "executor": "@nx/eslint:lint",
       "dependsOn": [
         "@ngx-foundation-sites/source:verify-browserslist",
-        "verify-foundation-parity"
+        "verify-foundation-parity",
+        "verify-exports-map"
       ]
     },
     "verify-foundation-parity": {
@@ -81,6 +82,18 @@
       ],
       "options": {
         "command": "node packages/ngx-foundation-sites/scripts/verify-foundation-parity.mjs",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "verify-exports-map": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "inputs": [
+        "{projectRoot}/scripts/verify-exports-map.mjs",
+        "{projectRoot}/package.json"
+      ],
+      "options": {
+        "command": "node packages/ngx-foundation-sites/scripts/verify-exports-map.mjs",
         "cwd": "{workspaceRoot}"
       }
     },
