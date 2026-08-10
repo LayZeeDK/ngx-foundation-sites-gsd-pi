@@ -4,5 +4,12 @@
   "peerDependencies": {
     "@angular/core": "^22.0.0"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "//exports": "ng-packagr seeds the published exports map from this one, generating only '.' and './package.json' on its own - so without these keys every documented Sass/CSS subpath fails ERR_PACKAGE_PATH_NOT_EXPORTED under any resolver that honours exports. The null on './scss/internal/*' is load-bearing, not tidy-up-able: exports patterns match across '/', so the './scss/*' identity below would otherwise export the internals too. Null makes an exports-respecting resolver refuse them while a plain Sass load path still reaches them, which is what the planned in-browser theming addon compiles against.",
+  "exports": {
+    "./scss/internal/*": null,
+    "./scss/button": "./scss/_button.scss",
+    "./scss/*": "./scss/*",
+    "./css/*": "./css/*"
+  }
 }
