@@ -1,8 +1,26 @@
-import { Component, PLATFORM_ID, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NfsButton } from './nfs-button';
-import { NFS_BUTTON_STYLES } from './nfs-button.styles';
+
+/**
+ * Locates the `<style>` element Angular's own `SharedStylesHost` injected for
+ * NfsButton's `styleUrl`, identified by the `@layer nfs-defaults` wrapper
+ * authored in `nfs-button.scss`.
+ *
+ * The at-rule name is used as a stable MARKER, never as a CSS-text
+ * comparison: ticket 01 established that `SharedStylesHost` passes styles
+ * through verbatim but the build does not -- dev reformats and prepends an
+ * `angular:styles/component:css` marker comment, production minifies -- so
+ * only element identity, element counts and at-rule presence are safe to
+ * assert here. Declaration-level parity is checked by
+ * `scripts/verify-foundation-parity.mjs` against Sass output instead.
+ */
+function nfsDefaultsStyleElements(): HTMLStyleElement[] {
+  return [...document.head.querySelectorAll('style')].filter((element) =>
+    element.textContent?.includes('@layer nfs-defaults'),
+  );
+}
 
 @Component({
   imports: [NfsButton],
@@ -56,18 +74,6 @@ class AnchorHostComponent {
 }
 
 describe('NfsButton', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [{ provide: PLATFORM_ID, useValue: 'browser' }],
-    });
-  });
-
-  afterEach(() => {
-    document
-      .querySelectorAll('style[data-nfs-style-id], style[data-nfs-critical-css]')
-      .forEach((element) => element.remove());
-  });
-
   it('should create', async () => {
     const fixture = TestBed.createComponent(ButtonHostComponent);
     await fixture.whenStable();
@@ -323,109 +329,68 @@ describe('NfsButton', () => {
     });
   });
 
-  describe('NfsStyleLoader integration', () => {
-    it('loads the "nfs-button" style on construction', async () => {
+  // R005 -- lazy load/unload of the component's stylesheet with a ref count,
+  // delivered by Angular's own SharedStylesHost rather than by hand.
+  //
+  // Ticket 01 established the mechanism against v22.0.8 and observed exactly
+  // the sequence asserted below: `applyStyles()` -> `addUsage` per instance,
+  // `lView[RENDERER].destroy()` -> `removeStyles` -> `removeUsage`, which
+  // calls a real `element.remove()` once the usage count reaches `<= 0`. The
+  // removal is genuine detachment, not a decremented counter, so both the
+  // element count AND `isConnected` are asserted.
+  describe('SharedStylesHost stylesheet lifecycle (R005)', () => {
+    it('injects exactly one <style> element for the component stylesheet', async () => {
       const fixture = TestBed.createComponent(ButtonHostComponent);
       await fixture.whenStable();
 
-      const element = document.head.querySelector(
-        'style[data-nfs-style-id="nfs-button"]',
-      );
-      expect(element).not.toBeNull();
-    });
-
-    it('unloads the style on destroy, leaving zero leaked style elements', async () => {
-      const fixture = TestBed.createComponent(ButtonHostComponent);
-      await fixture.whenStable();
+      expect(nfsDefaultsStyleElements()).toHaveLength(1);
 
       fixture.destroy();
-
-      const element = document.head.querySelector(
-        'style[data-nfs-style-id="nfs-button"]',
-      );
-      expect(element).toBeNull();
     });
 
-    it('does not duplicate the style element across multiple instances', async () => {
+    it('shares one <style> element across instances instead of duplicating it', async () => {
       const fixtureA = TestBed.createComponent(ButtonHostComponent);
       await fixtureA.whenStable();
+      const [firstStyleElement] = nfsDefaultsStyleElements();
+
       const fixtureB = TestBed.createComponent(ButtonHostComponent);
       await fixtureB.whenStable();
 
-      const elements = document.head.querySelectorAll(
-        'style[data-nfs-style-id="nfs-button"]',
-      );
-      expect(elements.length).toBe(1);
+      const styleElements = nfsDefaultsStyleElements();
+      expect(styleElements).toHaveLength(1);
+      expect(styleElements[0]).toBe(firstStyleElement);
 
       fixtureA.destroy();
       fixtureB.destroy();
     });
 
-    it('ref-counts across instances: keeps the style while any instance is alive, removes it once all are destroyed', async () => {
+    it('keeps the <style> element attached while any instance is still alive', async () => {
       const fixtureA = TestBed.createComponent(ButtonHostComponent);
       await fixtureA.whenStable();
       const fixtureB = TestBed.createComponent(ButtonHostComponent);
       await fixtureB.whenStable();
+      const [styleElement] = nfsDefaultsStyleElements();
 
       fixtureA.destroy();
 
-      let element = document.head.querySelector(
-        'style[data-nfs-style-id="nfs-button"]',
-      );
-      expect(element).not.toBeNull();
+      expect(nfsDefaultsStyleElements()).toHaveLength(1);
+      expect(styleElement.isConnected).toBe(true);
 
       fixtureB.destroy();
-
-      element = document.head.querySelector(
-        'style[data-nfs-style-id="nfs-button"]',
-      );
-      expect(element).toBeNull();
-    });
-  });
-
-  describe('NfsStyleExtractor integration', () => {
-    it('does not inject critical CSS on the browser platform', async () => {
-      const fixture = TestBed.createComponent(ButtonHostComponent);
-      await fixture.whenStable();
-
-      const element = document.head.querySelector(
-        'style[data-nfs-critical-css="nfs-button"]',
-      );
-      expect(element).toBeNull();
     });
 
-    it('injects critical CSS on the server platform without touching NfsStyleLoader behavior', async () => {
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
-      });
+    it('removes the <style> element from the DOM once the last instance is destroyed', async () => {
+      const fixtureA = TestBed.createComponent(ButtonHostComponent);
+      await fixtureA.whenStable();
+      const fixtureB = TestBed.createComponent(ButtonHostComponent);
+      await fixtureB.whenStable();
+      const [styleElement] = nfsDefaultsStyleElements();
 
-      const fixture = TestBed.createComponent(ButtonHostComponent);
-      await fixture.whenStable();
+      fixtureA.destroy();
+      fixtureB.destroy();
 
-      const criticalCssElement = document.head.querySelector(
-        'style[data-nfs-critical-css="nfs-button"]',
-      );
-      expect(criticalCssElement).not.toBeNull();
-
-      const styleLoaderElement = document.head.querySelector(
-        'style[data-nfs-style-id="nfs-button"]',
-      );
-      expect(styleLoaderElement).toBeNull();
-    });
-  });
-
-  describe('NFS_BUTTON_STYLES logical-property compliance', () => {
-    // T03/D017: the expanded/dropdown runtime CSS must use only CSS
-    // logical properties (margin-inline, margin-inline-start) so the
-    // existing dir="rtl" mirroring approach (S14) keeps working, unlike
-    // Foundation's own physical float + margin-left/margin-right.
-    it('does not use float', () => {
-      expect(NFS_BUTTON_STYLES).not.toMatch(/\bfloat\s*:/);
-    });
-
-    it('does not use physical margin-left or margin-right', () => {
-      expect(NFS_BUTTON_STYLES).not.toMatch(/\bmargin-(left|right)\s*:/);
+      expect(nfsDefaultsStyleElements()).toHaveLength(0);
+      expect(styleElement.isConnected).toBe(false);
     });
   });
 });

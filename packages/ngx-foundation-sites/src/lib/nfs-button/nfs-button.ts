@@ -1,17 +1,11 @@
 import {
   Component,
   ElementRef,
-  OnDestroy,
   ViewEncapsulation,
   booleanAttribute,
   inject,
   input,
 } from '@angular/core';
-import { NfsStyleExtractor } from '../nfs-style-extractor';
-import { NfsStyleLoader } from '../nfs-style-loader';
-import { NFS_BUTTON_STYLES } from './nfs-button.styles';
-
-const NFS_BUTTON_STYLE_ID = 'nfs-button';
 
 /**
  * Foundation for Sites button, applied to a native `<button>` or `<a>` element
@@ -55,7 +49,7 @@ const NFS_BUTTON_STYLE_ID = 'nfs-button';
     '(click)': 'onHostClick($event)',
   },
 })
-export class NfsButton implements OnDestroy {
+export class NfsButton {
   /**
    * Foundation color variant. Defaults to `'primary'`. Matches Foundation's
    * full `$button-palette` (D017): primary, secondary, success, warning,
@@ -80,20 +74,8 @@ export class NfsButton implements OnDestroy {
   readonly disabled = input(false, { transform: booleanAttribute });
 
   private readonly elementRef = inject(ElementRef<HTMLElement>);
-  private readonly styleLoader = inject(NfsStyleLoader);
-  private readonly styleExtractor = inject(NfsStyleExtractor);
 
   protected readonly isAnchor = this.elementRef.nativeElement.tagName === 'A';
-
-  constructor() {
-    this.styleExtractor.extractStyles(NFS_BUTTON_STYLE_ID, NFS_BUTTON_STYLES);
-    this.styleLoader.load(NFS_BUTTON_STYLE_ID, NFS_BUTTON_STYLES);
-  }
-
-  /** Unloads this component's styles, decrementing NfsStyleLoader's ref count. */
-  ngOnDestroy(): void {
-    this.styleLoader.unload(NFS_BUTTON_STYLE_ID);
-  }
 
   /**
    * Focuses the host button or anchor element.
