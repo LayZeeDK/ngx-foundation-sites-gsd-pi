@@ -113,7 +113,7 @@
     },
     "build-storybook": {
       "executor": "@storybook/angular:build-storybook",
-      "outputs": ["{options.outputDir}"],
+      "outputs": ["{options.outputDir}", "{projectRoot}/documentation.json"],
       "options": {
         "outputDir": "dist/storybook/ngx-foundation-sites",
         "configDir": "packages/ngx-foundation-sites/.storybook",
@@ -139,9 +139,17 @@
         }
       }
     },
-    "test-storybook": {
+    "verify-autodocs-coverage": {
       "executor": "nx:run-commands",
       "dependsOn": ["build-storybook"],
+      "options": {
+        "command": "node packages/ngx-foundation-sites/scripts/verify-autodocs-coverage.mjs",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "test-storybook": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["verify-autodocs-coverage"],
       "options": {
         "command": "concurrently -k -s first -n server,tests \"nx run ngx-foundation-sites:static-storybook\" \"wait-on tcp:4400 && test-storybook -c packages/ngx-foundation-sites/.storybook --url=http://localhost:4400\""
       }
