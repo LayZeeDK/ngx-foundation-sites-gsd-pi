@@ -1,7 +1,17 @@
 // Consumer theme override (README "Theming" Option 2): recompiles
-// NfsButton's SCSS with a distinct $primary-color to prove Sass theming
+// NfsButton's SCSS with a distinct primary background to prove Sass theming
 // actually reaches a real consuming app end-to-end (R008), not just the
 // monorepo's own Storybook/unit-test context.
-@use 'ngx-foundation-sites/scss/nfs-button' with (
-  $primary-color: #2a5db0
-);
+//
+// Ticket 08 replaced the old `@use ... with ($primary-color: ...)` module
+// configuration with a theme MIXIN, and renamed the public partial from
+// `scss/nfs-button` to `scss/button`. Both halves of that are breaking
+// changes for a consumer, which is why this file changed with it.
+//
+// The emitted rules are unlayered, so they beat the library's own
+// `@layer nfs-defaults` default (delivered via NfsButton's styleUrl)
+// regardless of DOM insertion order -- which is what the Playwright
+// assertion on rgb(42, 93, 176) actually measures.
+@use 'ngx-foundation-sites/scss/button' as nfs-button;
+
+@include nfs-button.theme($background: #2a5db0);

@@ -6,6 +6,11 @@
     "@angular/common": "~22.0.4",
     "@angular/core": "~22.0.4",
     "@angular/platform-browser": "~22.0.4",
+    "@angular/platform-server": "~22.0.4",
+    "@angular/router": "~22.0.4",
+    "@angular/ssr": "~22.0.4",
+    "express": "^4.21.2",
+    "foundation-sites": "^6.9.0",
     "ngx-foundation-sites": "0.0.1-registryproof.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
