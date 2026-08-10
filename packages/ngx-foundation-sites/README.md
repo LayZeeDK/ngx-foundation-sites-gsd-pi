@@ -114,11 +114,13 @@ The package also ships the default stylesheet precompiled, at `css/nfs-button.cs
 
 The `rtlcss`-mirrored `css/nfs-button.rtl.css` twin is no longer published; the single stylesheet mirrors on its own (see [RTL/Bidirectional support](#rtlbidirectional-support)).
 
-Note that the published `exports` map declares only the package root, so a strictly `exports`-compliant resolver rejects `ngx-foundation-sites/css/nfs-button.css` as a bare specifier. Angular's own Sass resolution does reach the `scss/` subpath, which is what the theme mixin above relies on; for the precompiled CSS, reference the file by path if your bundler enforces `exports`.
+`ngx-foundation-sites/css/nfs-button.css` works as a bare specifier: the published `exports` map declares `./css/*` and `./scss/*` alongside the package root, so a strictly `exports`-compliant resolver accepts it. That was not always true -- earlier builds published only the root, and the documented Sass and CSS subpaths resolved by accident of Angular's Sass importer using node_modules load paths rather than `exports`.
 
 ### Internals
 
-Anything under `ngx-foundation-sites/scss/internal/` is unsupported: treat it as private and expect it to change or move in any release. `internal/foundation-button` and `internal/settings` do still resolve if you import them -- the boundary is a signal, not an enforced wall, because the SCSS source has to stay fetchable and compilable for the planned in-browser runtime-theming addon. Theme through the mixin's named arguments instead; nothing under `internal/` is part of the public API.
+Anything under `ngx-foundation-sites/scss/internal/` is unsupported: treat it as private and expect it to change or move in any release. Theme through the mixin's named arguments instead; nothing under `internal/` is part of the public API.
+
+The boundary is **enforced wherever `exports` is enforced, and a signal everywhere else**, so it is worth knowing which side your toolchain is on. `./scss/internal/*` is mapped to `null` in the published `exports` map, so Node's own resolver and bundler resolvers that read `exports` (webpack's `enhanced-resolve`, Vite, esbuild) reject `ngx-foundation-sites/scss/internal/foundation-button` outright with `ERR_PACKAGE_PATH_NOT_EXPORTED`. What still reaches it is Sass load-path resolution -- including Dart Sass's own `pkg:` package importer, which was measured to ignore `exports` for subpaths entirely (1.102.0: even an `exports` entry pointing at a nonexistent target still resolves the real file). That reachability is deliberate and cannot be closed: the SCSS source has to stay fetchable and compilable for the planned in-browser runtime-theming addon.
 
 ### Migrating from the previously published shape
 
