@@ -90,7 +90,17 @@
         "port": 4400,
         "configDir": "packages/ngx-foundation-sites/.storybook",
         "browserTarget": "ngx-foundation-sites:build-storybook",
-        "compodoc": false,
+        "compodoc": true,
+        "compodocArgs": [
+          "-e",
+          "json",
+          "-p",
+          "packages/ngx-foundation-sites/tsconfig.lib.json",
+          "-d",
+          "packages/ngx-foundation-sites",
+          "--disablePrivate",
+          "--disableProtected"
+        ],
         "stylePreprocessorOptions": {
           "includePaths": ["packages/ngx-foundation-sites/src/scss"]
         }
@@ -108,7 +118,17 @@
         "outputDir": "dist/storybook/ngx-foundation-sites",
         "configDir": "packages/ngx-foundation-sites/.storybook",
         "browserTarget": "ngx-foundation-sites:build-storybook",
-        "compodoc": false,
+        "compodoc": true,
+        "compodocArgs": [
+          "-e",
+          "json",
+          "-p",
+          "packages/ngx-foundation-sites/tsconfig.lib.json",
+          "-d",
+          "packages/ngx-foundation-sites",
+          "--disablePrivate",
+          "--disableProtected"
+        ],
         "stylePreprocessorOptions": {
           "includePaths": ["packages/ngx-foundation-sites/src/scss"]
         }
