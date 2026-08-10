@@ -33,13 +33,7 @@
       "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}/css"],
       "options": {
-        "commands": [
-          "node -e \"require('fs').mkdirSync('dist/packages/ngx-foundation-sites/css', { recursive: true })\"",
-          "npx sass --load-path=node_modules --no-source-map packages/ngx-foundation-sites/src/scss/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css",
-          "npx rtlcss --config packages/ngx-foundation-sites/.rtlcssrc.json dist/packages/ngx-foundation-sites/css/nfs-button.css dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css",
-          "node -e \"const fs=require('fs');for(const f of ['dist/packages/ngx-foundation-sites/css/nfs-button.css','dist/packages/ngx-foundation-sites/css/nfs-button.rtl.css']){fs.writeFileSync(f,'@layer nfs-defaults {\\n'+fs.readFileSync(f,'utf8')+'}\\n')}\""
-        ],
-        "parallel": false,
+        "command": "npx sass --quiet-deps --no-source-map --load-path=packages/ngx-foundation-sites/src/scss --load-path=node_modules packages/ngx-foundation-sites/src/lib/nfs-button/nfs-button.scss dist/packages/ngx-foundation-sites/css/nfs-button.css",
         "cwd": "{workspaceRoot}"
       }
     },
@@ -81,7 +75,10 @@
         "port": 4400,
         "configDir": "packages/ngx-foundation-sites/.storybook",
         "browserTarget": "ngx-foundation-sites:build-storybook",
-        "compodoc": false
+        "compodoc": false,
+        "stylePreprocessorOptions": {
+          "includePaths": ["packages/ngx-foundation-sites/src/scss"]
+        }
       },
       "configurations": {
         "ci": {
@@ -96,7 +93,10 @@
         "outputDir": "dist/storybook/ngx-foundation-sites",
         "configDir": "packages/ngx-foundation-sites/.storybook",
         "browserTarget": "ngx-foundation-sites:build-storybook",
-        "compodoc": false
+        "compodoc": false,
+        "stylePreprocessorOptions": {
+          "includePaths": ["packages/ngx-foundation-sites/src/scss"]
+        }
       },
       "configurations": {
         "ci": {

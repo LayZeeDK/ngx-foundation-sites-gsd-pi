@@ -4,12 +4,13 @@
   "deleteDestPath": false,
   "assets": [
     {
-      "glob": "**/*",
+      "glob": "**/*.scss",
       "input": "src/scss",
       "output": "scss"
     }
   ],
   "lib": {
-    "entryFile": "src/index.ts"
+    "entryFile": "src/index.ts",
+    "styleIncludePaths": ["src/scss"]
   }
 }
