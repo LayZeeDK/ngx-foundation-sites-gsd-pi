@@ -4,6 +4,11 @@
     "outDir": "../../dist/out-tsc/apps/nfs-demo",
     "types": ["node"]
   },
-  "files": ["src/main.ts", "src/main.ssr.ts", "src/main.server.ts", "src/server.ts"],
+  "files": [
+    "src/main.ts",
+    "src/main.ssr.ts",
+    "src/main.server.ts",
+    "src/server.ts"
+  ],
   "include": ["src/**/*.d.ts"]
 }

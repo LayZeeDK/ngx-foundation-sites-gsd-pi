@@ -16,8 +16,10 @@ const hosts = [
 ] as const;
 
 // Narrows the run to a subset of hosts, e.g.
-// `NFS_DEMO_HOSTS=ssr-node npx nx run nfs-demo:e2e`. Selecting with `--project`
-// alone works too, but the global setup would still wait for all four hosts.
+// `NFS_DEMO_HOSTS=ssr-node npx nx run nfs-demo:e2e`. It narrows the projects AND
+// what the global setup waits for; `--project` alone narrows only the projects.
+// Either way the `e2e` target's dependsOn still starts all four hosts, since
+// that list is static -- use the serve targets directly to run just one.
 const requested = process.env['NFS_DEMO_HOSTS']
   ?.split(',')
   .map((name) => name.trim())

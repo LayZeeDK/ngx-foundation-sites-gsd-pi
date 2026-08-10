@@ -2,10 +2,7 @@
   "name": "nfs-demo",
   "version": "0.0.0",
   "private": true,
-  "comments": {
-    "no-angular-here": "@angular/* is deliberately NOT declared. This app is outside the root workspaces glob (D014) and installs into its own node_modules, so declaring the framework here produced a SECOND physical copy of it. The application builder resolves @angular/ssr from the WORKSPACE ROOT when it injects the server manifests, so an SSR build then mixed two @angular/core instances and died during route extraction with NG0201 'No provider found for InjectionToken PlatformDestroyListeners. Source: Platform: core'. Resolving the framework upward to the monorepo root - which is where the builder itself comes from - keeps exactly one copy. D014/D015 are about ngx-foundation-sites, which is still installed here as a real registry tarball, and verify-registry-consumption.mjs still gates that.",
-    "why-these-three": "express is server.ts's host, foundation-sites is what the library's public Sass @imports, and ngx-foundation-sites is the subject of the whole proof. None of them carry DI identity, so a duplicate copy is harmless."
-  },
+  "//": "Do NOT add @angular/* here. This app installs into its own node_modules (D014), so declaring the framework produces a SECOND physical copy of it, and the application builder resolves @angular/ssr from the WORKSPACE ROOT when it injects the server manifests -- the SSR build then mixes two @angular/core instances and dies in route extraction with NG0201 'No provider found for InjectionToken PlatformDestroyListeners. Source: Platform: core'. Angular must resolve upward to the monorepo root, which is where the builder itself comes from. D014/D015 are about ngx-foundation-sites, which is still installed here as a real registry tarball and still gated by scripts/verify-registry-consumption.mjs. The three packages below are safe to duplicate because none of them carries DI identity: express hosts server.ts, foundation-sites is what the library's public Sass @imports, and ngx-foundation-sites is the subject of the proof.",
   "dependencies": {
     "express": "^4.21.2",
     "foundation-sites": "^6.9.0",

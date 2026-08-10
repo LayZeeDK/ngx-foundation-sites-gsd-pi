@@ -1,4 +1,7 @@
-import { BootstrapContext, bootstrapApplication } from '@angular/platform-browser';
+import {
+  BootstrapContext,
+  bootstrapApplication,
+} from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { serverAppConfig } from './app/app.config.ssr';
 
