@@ -14,6 +14,10 @@ export default [
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}',
             '{projectRoot}/src/**/*.spec.ts',
+            // Build-time verification tooling. Never published (ng-package.json
+            // ships only src/scss/**/*.scss), so its postcss/sass imports are
+            // not part of the package's dependency contract.
+            '{projectRoot}/scripts/**/*.mjs',
           ],
         },
       ],

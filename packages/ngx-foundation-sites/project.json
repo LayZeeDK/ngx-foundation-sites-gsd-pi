@@ -67,7 +67,22 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "dependsOn": ["@ngx-foundation-sites/source:verify-browserslist"]
+      "dependsOn": [
+        "@ngx-foundation-sites/source:verify-browserslist",
+        "verify-foundation-parity"
+      ]
+    },
+    "verify-foundation-parity": {
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{projectRoot}/scripts/verify-foundation-parity.mjs",
+        "{projectRoot}/src/scss/**/*.scss",
+        "{projectRoot}/src/lib/nfs-button/nfs-button.scss"
+      ],
+      "options": {
+        "command": "node packages/ngx-foundation-sites/scripts/verify-foundation-parity.mjs",
+        "cwd": "{workspaceRoot}"
+      }
     },
     "storybook": {
       "executor": "@storybook/angular:start-storybook",
