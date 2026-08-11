@@ -118,7 +118,7 @@ must end up in GSD, never which interface applies it. No repo file outside
 4. **D023 closure statement**, clause by clause. Clause 1 untouched and green
    *for the right reason* (`verify-foundation-parity` is declaration-level and
    structurally blind to a variable). Clause 2 becomes literally true --
-   `$compliant-palette` ships in the tarball's `scss/_button.scss`. Clause 3 is
+   `$wcag-palette` ships in the tarball's `scss/_button.scss`. Clause 3 is
    discharged **in place**: the axe proof STAYS in `apps/nfs-demo`, nothing is
    re-pointed, and the preset is bound to it by a three-link identity chain
    (fixture -> unit identity assertion -> rendered-colour assertion) rather than

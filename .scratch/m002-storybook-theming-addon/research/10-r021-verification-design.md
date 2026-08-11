@@ -242,7 +242,7 @@ cheaper, it is vacuous.
 | --- | --- | --- |
 | **T1** | Compiling the committed generated sources map with the addon's real options bag yields CSS whose sha256 equals the filesystem compile's, and whose byte length is 5839 for the default control set. | Ticket 08's fitness claim is a pure input/output property. jsdom resolves the node build and produced the identical digest [V-EXEC Q2]. No browser needed. |
 | **T2** | Each of the six controls changes the expected declaration, asserted **differentially**: compile with value A and value B, assert both the expected literal AND `cssA !== cssB`. | Pure compilation. Differential form is the anti-vacuity lever (section 5). |
-| **T3** | The preset baseline read (ticket 07's custom Sass `functions` probe) returns Foundation's six defaults and `$compliant-palette`'s three overrides, keyed exactly. | Verified working under jsdom [V-EXEC Q3]. The mechanism is compiler-side, not browser-side. |
+| **T3** | The preset baseline read (ticket 07's custom Sass `functions` probe) returns Foundation's six defaults and `$wcag-palette`'s three overrides, keyed exactly. | Verified working under jsdom [V-EXEC Q3]. The mechanism is compiler-side, not browser-side. |
 | **T4** | Preset-equality: see section 4.1 -- five sub-assertions, all pure functions over six scalars. | Ticket 09 B.3 reduced this to scalars. There is nothing to observe in a DOM. |
 | **T5** | Invalid input: the hex parser and the radius clamp reject/normalise; **plus** feeding the panel's write output through the real `buildArgsParam` yields a NON-EMPTY `?globals=`, with a deliberately-invalid control case yielding an empty one. | The whole-theme-drop hazard (ticket 09 A.4) is a property of Storybook's `buildArgsParam`, which is importable in Node. Ticket 09 already executed it from a Node probe. |
 | **T6** | Sass error surface: a bad control value yields `sassMessage` and `span.url` with no ANSI in `message`; a mis-wired importer yields the FRIENDLY missing-importer diagnostic. | Ticket 09 D.7 requires importer tests on the main thread or in Node, because inside a Worker `document` is undefined and the diagnostic degrades to the generic message. jsdom is the Node-side lane. |
@@ -549,7 +549,7 @@ remember. It is the fallback if continuous-task sharing misbehaves in CI.
   it a dependency of `lint` or `e2e` would put a registry server in the standard
   battery. It does not need to be wired, because the failure it guards is
   **already loud**: once `apps/nfs-demo/src/styles.scss` reads
-  `nfs-button.$compliant-palette`, a stale tarball fails `nfs-demo:build` with an
+  `nfs-button.$wcag-palette`, a stale tarball fails `nfs-demo:build` with an
   undefined-variable error, and `build` feeds every serve target and `e2e`
   [V-PRIOR: research/07 section 7]. The sequencing requirement (source ->
   re-run `verify-registry-consumption` -> re-point `styles.scss`, in one change)
@@ -572,7 +572,7 @@ in `apps/nfs-demo`, exactly where it already is. Nothing is re-pointed.**
 
 > **The `m002-compliant` fixture in `apps/nfs-demo/e2e/nfs-button-a11y.spec.ts`
 > remains the axe proof, unchanged in shape.** After ticket 07's collapse it
-> scans CSS compiled from the shipped `$compliant-palette` constant, delivered
+> scans CSS compiled from the shipped `$wcag-palette` constant, delivered
 > through a **real published tarball** over the `exports`-gated public subpath,
 > in **both CSR and SSR** [V-PRIOR: research/07 sections 7-8].
 >
@@ -586,7 +586,7 @@ in `apps/nfs-demo`, exactly where it already is. Nothing is re-pointed.**
 > as they are** -- `{alert, #fefefe, #cc4b37}`, `{hollow-success, #3adb76,
 > #ffffff}`, `{hollow-warning, #ffae00, #ffffff}` [V-REPO:
 > `nfs-button-a11y.spec.ts:67-98`]. They are NOT collapsed into
-> `$compliant-palette`, nor into any shared map, nor into an import.
+> `$wcag-palette`, nor into any shared map, nor into an import.
 
 ### 7.2 Why the demo app and not Storybook
 
@@ -594,7 +594,7 @@ in `apps/nfs-demo`, exactly where it already is. Nothing is re-pointed.**
    `exports` surface a real npm consumer resolves, in two rendering modes. A
    Storybook scan exercises a dev-only bundle in one mode.
 2. **A Storybook-side scan would prove less, later.** The addon compiles the
-   same `$compliant-palette` from the same `_button.scss` with the same Dart
+   same `$wcag-palette` from the same `_button.scss` with the same Dart
    Sass -- and the output is now byte-identical across **six** producers
    (browser-Terser, browser-esbuild, Node-stringmap, Node-filesystem, jsdom-node
    [V-EXEC Q2], Chromium-browser-build [V-EXEC B2], all sha256
@@ -669,7 +669,7 @@ the README paragraph's value is the measured ratios. Not worth a gate.
 4. **The compliant preset's axe proof is inherited from `apps/nfs-demo`, via a
    data-identity assertion.** Requirement text should state the chain explicitly
    (section 7.3) so nobody later "improves" it by adding a Storybook axe scan.
-5. **The `$compliant-palette` rewire is ONE atomic change with three ordered
+5. **The `$wcag-palette` rewire is ONE atomic change with three ordered
    parts** -- add the constant, re-run `nfs-demo:verify-registry-consumption` and
    commit the refreshed evidence, then re-point `styles.scss`. Splitting it
    leaves a broken demo build. There is no gate for this; the sequencing is the

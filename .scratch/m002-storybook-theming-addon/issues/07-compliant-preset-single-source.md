@@ -29,7 +29,7 @@ WCAG/axe-compliant theme ships in M002" is **not** discharged by M003's work.
 Decide where it lives and how everything consumes it. Options to weigh:
 
 1. **Exported Sass map in the library** -- e.g. `scss/_presets.scss` exporting a
-   `$compliant-palette` map (and possibly a `compliant-theme()` convenience
+   `$wcag-palette` map (and possibly a `compliant-theme()` convenience
    mixin). The demo app, README, and the addon all consume it. Genuinely
    discharges D023. Cost: a public Sass API addition, which touches the exports
    map and `verify-exports-map.mjs`.
@@ -83,10 +83,10 @@ than re-litigating the location.
 
 Full reasoning: `../research/07-compliant-preset-single-source.md`.
 
-**LOCKED: `$compliant-palette` becomes a plain public Sass map inside the
+**LOCKED: `$wcag-palette` becomes a plain public Sass map inside the
 EXISTING public entry point `packages/ngx-foundation-sites/src/scss/_button.scss`**
 (already exported as `ngx-foundation-sites/scss/button`). The demo app reads it
-as `$palette: nfs-button.$compliant-palette`; the addon reads it -- plus
+as `$palette: nfs-button.$wcag-palette`; the addon reads it -- plus
 Foundation's defaults from `internal/_settings.scss` -- through a **custom Sass
 function registered on the `compileString` call it already makes**. No new Sass
 file, no `exports` key, no `verify-exports-map` change, no `ng-package.json`

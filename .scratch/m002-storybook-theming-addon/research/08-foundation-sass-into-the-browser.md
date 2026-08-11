@@ -418,7 +418,7 @@ when:
   option 4) cannot catch until runtime;
 - any of `src/scss/_button.scss`, `internal/_foundation-button.scss`,
   `internal/_settings.scss` changes -- which includes ticket 07's
-  `$compliant-palette` addition;
+  `$wcag-palette` addition;
 - someone hand-edits the generated module.
 
 **Assertion B -- fitness.** Compile the string map through the runtime importer

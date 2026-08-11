@@ -244,7 +244,7 @@ equality checks compare a full resolved control set, not a sparse override map.
   compiling, never hand-enumerated. Amended ticket 06's rule 2 openly, since
   `ngx-foundation-sites/scss/button` is unresolvable from the workspace root.
 - [Where does the WCAG-compliant palette live as a single source of truth?](issues/07-compliant-preset-single-source.md)
-  -- **LOCKED: `$compliant-palette` as a public Sass map inside the EXISTING
+  -- **LOCKED: `$wcag-palette` as a public Sass map inside the EXISTING
   `scss/_button.scss` entry point**, read by the demo app directly and by the
   addon via a custom Sass function on its `compileString` call (verified to
   return a real `SassMap` on the browser path). No new file, no `exports` key,

@@ -83,7 +83,7 @@ tests to await.
     fixture already exercises the real `exports`-gated public subpath in both
     CSR and SSR -- a stronger D023 proof than a Storybook-only scan. Weigh
     keeping it there rather than moving it.
-  - Re-pointing the demo app's `styles.scss` at `$compliant-palette`
+  - Re-pointing the demo app's `styles.scss` at `$wcag-palette`
     **hard-fails against a stale tarball**, so it is one atomic 3-part change
     including a `verify-registry-consumption` re-run. Verification must cover
     that, not assume the tarball is fresh.

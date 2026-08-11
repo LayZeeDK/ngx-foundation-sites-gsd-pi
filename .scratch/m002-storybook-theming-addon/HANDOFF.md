@@ -36,7 +36,7 @@ Six curated controls (five palette colours + radius) map 1:1 onto the library's
 already-shipped `nfs-button.theme()` mixin -- **no public Sass API growth is
 required**. Two presets ship (Foundation default, WCAG-compliant); preset
 "selected" is a *derived* property of live control values, never a stored flag. A
-new public Sass constant `$compliant-palette` becomes the single source of the
+new public Sass constant `$wcag-palette` becomes the single source of the
 WCAG palette, which finally discharges the standing human decision D023.
 Verification is four lanes: Vitest jsdom, Vitest real-Chromium, a new Playwright
 project against the static Storybook build, and build-time `verify-*.mjs` gates.
@@ -173,7 +173,7 @@ stays `active`, Source stays `user`.
 > **No public Sass API growth.** The curated set maps 1:1 onto `theme()`'s
 > existing `$background` / `$palette` keys / `$radius` [VERIFIED against
 > `src/scss/_button.scss:58-63`]. The only Sass addition anywhere in M002 is the
-> `$compliant-palette` data constant (section 3, D033), which emits 0 bytes on
+> `$wcag-palette` data constant (section 3, D033), which emits 0 bytes on
 > `@use`.
 >
 > **Validation (mappable):** R009 is proven by the Playwright lane's P1-P8 and
@@ -236,7 +236,7 @@ Status stays `active`, Source stays `user`.
 > this lane owns: the sources-map fitness digest; per-control differential
 > compilation (compile with A and B, assert the literal **and** `cssA !== cssB`);
 > the preset baseline probe returning Foundation's six defaults and
-> `$compliant-palette`'s three overrides by exact key set; **preset-equality**
+> `$wcag-palette`'s three overrides by exact key set; **preset-equality**
 > (canonicalisation deleting a default-valued key is the load-bearing assertion
 > -- without it the whole "sparse equality is resolved equality" property
 > silently fails and no other test notices); input validation including feeding
@@ -370,7 +370,7 @@ theming only) and D023 (compliant theme ships in M002) and re-decide neither.
 - **When:** M002 wayfinding effort, 2026-08-11
 - **Scope:** library
 - **Decision:** Where the WCAG/axe-compliant palette lives as a single source of truth, given the founding brief's assumption that M003 already produced one was false
-- **Choice:** `$compliant-palette` becomes a plain public Sass map inside the **existing** public entry point `packages/ngx-foundation-sites/src/scss/_button.scss` (already exported as `ngx-foundation-sites/scss/button`) -- a new *member* of an existing module, not a new `scss/_presets.scss`. The demo app reads it as `$palette: nfs-button.$compliant-palette`; the addon reads it, plus Foundation's defaults from `internal/_settings.scss`, through a custom Sass function registered on the `compileString` call it already makes. No new Sass file, no `exports` key, no `verify-exports-map` change, no `ng-package.json` change, no new Nx target, no generated artifact, and **no TypeScript copy of the values anywhere**. The demo-app rewire is M002 scope and is one atomic three-part change (see section 5).
+- **Choice:** `$wcag-palette` becomes a plain public Sass map inside the **existing** public entry point `packages/ngx-foundation-sites/src/scss/_button.scss` (already exported as `ngx-foundation-sites/scss/button`) -- a new *member* of an existing module, not a new `scss/_presets.scss`. The demo app reads it as `$palette: nfs-button.$wcag-palette`; the addon reads it, plus Foundation's defaults from `internal/_settings.scss`, through a custom Sass function registered on the `compileString` call it already makes. No new Sass file, no `exports` key, no `verify-exports-map` change, no `ng-package.json` change, no new Nx target, no generated artifact, and **no TypeScript copy of the values anywhere**. The demo-app rewire is M002 scope and is one atomic three-part change (see section 5).
 - **Rationale:** The palette had **one executable instance and five descriptions** of it across five tracked files; the library shipped nothing, so D023's "a compliant theme ships in M002" was genuinely undischarged. Ticket 01 found the reference project carrying **three mutually inconsistent** compliant palettes at HEAD -- the exact drift this collapse prevents, and the strongest argument against the "accept another copy plus an equality test" baseline. Verified by execution: a custom Sass function returns a real `SassMap` on both the Node and the **browser** code paths, and adding a public variable still emits **0 bytes** on `@use`, so `_button.scss`'s "emits nothing on load" contract survives. `internal/*: null` in the exports map does **not** block reading Foundation's defaults -- Dart Sass ignores `exports` for subpaths entirely -- so the defaults are not promoted to public API. Operates under D023; decides the mechanism, not the substance.
 - **Revisable?:** true
 - **Made By:** agent
@@ -437,19 +437,19 @@ Here is how each clause is discharged in M002.
 
 **Clause 1 -- "Foundation's default theme ships unchanged." Untouched, and
 verifiably so.** `theme()`'s zero-argument path still reads
-`settings.$button-background` and `settings.$button-palette`. `$compliant-palette`
+`settings.$button-background` and `settings.$button-palette`. `$wcag-palette`
 is inert data that emits nothing until a consumer passes it -- verified at **0
 bytes on `@use`**. `verify-foundation-parity` compares compiled *declarations*
 and is structurally blind to a variable, so it stays green **for the right
 reason**, not by luck.
 
 **Clause 2 -- "A WCAG/axe-compliant theme SHIPS in M002." This is the clause
-M003 left open, and D033 closes it literally.** `$compliant-palette` becomes a
+M003 left open, and D033 closes it literally.** `$wcag-palette` becomes a
 member of the library's public Sass API inside the already-exported
 `ngx-foundation-sites/scss/button` entry point, present in the published
 tarball's `scss/_button.scss`, reachable by any consumer as
 `@use 'ngx-foundation-sites/scss/button' as nfs-button;` ->
-`nfs-button.$compliant-palette`. "Ships" becomes true of the **artifact**, not of
+`nfs-button.$wcag-palette`. "Ships" becomes true of the **artifact**, not of
 the demo app.
 
 **Clause 3 -- "the axe suite runs against that compliant theme", and "an exact
@@ -480,7 +480,7 @@ Storybook lane.
 The default theme's three `expectedContrastFailures` entries --
 `{alert, #fefefe, #cc4b37}`, `{hollow-success, #3adb76, #ffffff}`,
 `{hollow-warning, #ffae00, #ffffff}` at `nfs-button-a11y.spec.ts:67-98` -- are
-**FROZEN**. They must **not** be collapsed into `$compliant-palette`, into any
+**FROZEN**. They must **not** be collapsed into `$wcag-palette`, into any
 shared map, or into an import. An exact-set assertion has to *name* what it
 expects; sourcing its expectations from the same map the code under test uses
 makes it assert its input against itself, which is the subtle form of the blanket
@@ -549,9 +549,9 @@ dependents in a single `run-many`. Grounded in `continuous: true` and the
 
 `apps/nfs-demo` consumes a **real published tarball**, not the workspace
 (D014/D015, gated by `verify-registry-consumption.mjs`). The installed tarball is
-a **snapshot**: adding `$compliant-palette` to source does not reach the demo app.
+a **snapshot**: adding `$wcag-palette` to source does not reach the demo app.
 
-If `styles.scss` is re-pointed at `nfs-button.$compliant-palette` without
+If `styles.scss` is re-pointed at `nfs-button.$wcag-palette` without
 refreshing the tarball, the demo's Sass compile fails outright with an undefined
 variable -- and it fails in `nfs-demo:build`, which `serve` / `serve-static` /
 `serve-ssr` / `serve-ssr-node` all feed and which `e2e` depends on. **The axe
@@ -559,7 +559,7 @@ suite would go red for a resolution reason, not a contrast one.**
 
 **So this is one atomic change with three ordered parts:**
 
-1. Add `$compliant-palette` to
+1. Add `$wcag-palette` to
    `packages/ngx-foundation-sites/src/scss/_button.scss`.
 2. Run `nx run nfs-demo:verify-registry-consumption` (rebuild -> republish ->
    reinstall) and commit the refreshed
@@ -567,7 +567,7 @@ suite would go red for a resolution reason, not a contrast one.**
    established workflow -- HEAD's `1c1f770` is literally "Captured fresh,
    current-main execution evidence".
 3. Re-point `apps/nfs-demo/src/styles.scss:27-34` to
-   `$palette: nfs-button.$compliant-palette`.
+   `$palette: nfs-button.$wcag-palette`.
 
 Splitting this across commits leaves a broken demo build in between. Deferring it
 to a follow-up is worse: the demo's copy is the **one executable restatement**,
