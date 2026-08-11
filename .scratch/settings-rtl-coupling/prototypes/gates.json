@@ -1,0 +1,1967 @@
+{
+  "sites": [
+    {
+      "file": "components/_accordion-menu.scss",
+      "line": 62,
+      "text": "#{$global-right}: 1rem;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin zf-accordion-menu-left-right-arrows"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_accordion-menu.scss",
+      "line": 107,
+      "text": "&.align-#{$global-right} {",
+      "cls": "BROKEN class-NAME interpolation",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-accordion-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_accordion-menu.scss",
+      "line": 135,
+      "text": "margin-#{$global-right}: $accordionmenu-submenu-toggle-width;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-accordion-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_accordion-menu.scss",
+      "line": 142,
+      "text": "#{$global-right}: 0;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-accordion-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_accordion-menu.scss",
+      "line": 149,
+      "text": "border-#{$global-left}: $accordion-submenu-toggle-border;",
+      "cls": "SAFE border longhand/shorthand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-accordion-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_accordion.scss",
+      "line": 61,
+      "text": "margin-#{$global-left}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_accordion.scss",
+      "line": 116,
+      "text": "#{$global-right}: 1rem;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if $accordion-plusminus"
+        }
+      ],
+      "gateVars": [
+        "accordion-plusminus"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_breadcrumbs.scss",
+      "line": 72,
+      "text": "float: #{$global-left};",
+      "cls": "UNCLASSIFIED",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin breadcrumbs-container"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_breadcrumbs.scss",
+      "line": 97,
+      "text": "margin-#{$global-right}: $breadcrumbs-item-margin;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin breadcrumbs-container"
+        },
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 57,
+      "text": "margin-#{$global-right}: $spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 66,
+      "text": "margin-#{$global-right}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 73,
+      "text": "border-top-#{$global-left}-radius: $button-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 74,
+      "text": "border-bottom-#{$global-left}-radius: $button-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 78,
+      "text": "border-top-#{$global-right}-radius: $button-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 79,
+      "text": "border-bottom-#{$global-right}-radius: $button-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 92,
+      "text": "margin-#{$global-right}: rem-calc(-$border-width);",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 95,
+      "text": "border-#{$global-left}-color: transparent;",
+      "cls": "SAFE border longhand/shorthand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 109,
+      "text": "margin-#{$global-right}: -$spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $global-flexbox"
+        }
+      ],
+      "gateVars": [
+        "global-flexbox"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 135,
+      "text": "margin-#{$global-right}: $spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@else",
+          "header": "@else"
+        },
+        {
+          "kind": "@for",
+          "header": "@for $i from 2 through $buttongroup-expand-max"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-expand-max"
+      ],
+      "guardKinds": [
+        "@else",
+        "@for"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 138,
+      "text": "margin-#{$global-right}: $spacing * -$buttongroup-expand-max;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@else",
+          "header": "@else"
+        },
+        {
+          "kind": "@for",
+          "header": "@for $i from 2 through $buttongroup-expand-max"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-expand-max"
+      ],
+      "guardKinds": [
+        "@else",
+        "@for"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 172,
+      "text": "border-top-#{$global-left}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 173,
+      "text": "border-top-#{$global-right}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 177,
+      "text": "border-bottom-#{$global-left}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 178,
+      "text": "border-bottom-#{$global-right}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 200,
+      "text": "border-top-#{$global-left}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 201,
+      "text": "border-top-#{$global-right}-radius: 0;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 202,
+      "text": "border-bottom-#{$global-left}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 206,
+      "text": "border-top-#{$global-right}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 207,
+      "text": "border-bottom-#{$global-right}-radius: $global-radius;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 208,
+      "text": "border-bottom-#{$global-left}-radius: 0;",
+      "cls": "BROKEN corner radius",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if not $buttongroup-radius-on-each"
+        }
+      ],
+      "gateVars": [
+        "buttongroup-radius-on-each"
+      ],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 293,
+      "text": "margin-#{$global-right}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-button-group"
+        },
+        {
+          "kind": "@include breakpoint",
+          "header": "@include breakpoint(small only)"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@include breakpoint"
+      ]
+    },
+    {
+      "file": "components/_button-group.scss",
+      "line": 304,
+      "text": "margin-#{$global-right}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-button-group"
+        },
+        {
+          "kind": "@include breakpoint",
+          "header": "@include breakpoint(medium down)"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@include breakpoint"
+      ]
+    },
+    {
+      "file": "components/_button.scss",
+      "line": 305,
+      "text": "float: #{$global-right};",
+      "cls": "UNCLASSIFIED",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_button.scss",
+      "line": 306,
+      "text": "margin-#{$global-left}: $offset;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_button.scss",
+      "line": 418,
+      "text": "margin-#{$global-left}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-button"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_drilldown.scss",
+      "line": 50,
+      "text": "@include css-triangle($drilldown-arrow-size, $drilldown-arrow-color, $global-right);",
+      "cls": "BROKEN css-triangle keyword arg",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin zf-drilldown-left-right-arrows"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_drilldown.scss",
+      "line": 54,
+      "text": "#{$global-right}: 1rem;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin zf-drilldown-left-right-arrows"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_drilldown.scss",
+      "line": 98,
+      "text": "#{$global-left}: 100%;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-drilldown-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_drilldown.scss",
+      "line": 133,
+      "text": "@include css-triangle($drilldown-arrow-size, $drilldown-arrow-color, $global-left);",
+      "cls": "BROKEN css-triangle keyword arg",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-drilldown-menu"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $drilldown-arrows"
+        }
+      ],
+      "gateVars": [
+        "drilldown-arrows"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_drilldown.scss",
+      "line": 136,
+      "text": "margin-#{$global-right}: 0.75rem; // Creates space between the arrow and the text",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-drilldown-menu"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $drilldown-arrows"
+        }
+      ],
+      "gateVars": [
+        "drilldown-arrows"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_dropdown-menu.scss",
+      "line": 68,
+      "text": "#{$global-right}: 14px;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin zf-dropdown-left-right-arrows"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_dropdown-menu.scss",
+      "line": 103,
+      "text": "padding-#{$global-right}: $dropdownmenu-arrow-padding;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin dropdown-menu-direction($dir: horizontal)"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $dir == horizontal"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $dropdownmenu-arrows"
+        }
+      ],
+      "gateVars": [
+        "dropdownmenu-arrows"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_dropdown-menu.scss",
+      "line": 108,
+      "text": "#{$global-right}: 5px;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin dropdown-menu-direction($dir: horizontal)"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $dir == horizontal"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $dropdownmenu-arrows"
+        }
+      ],
+      "gateVars": [
+        "dropdownmenu-arrows"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_dropdown-menu.scss",
+      "line": 109,
+      "text": "#{$global-left}: auto;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin dropdown-menu-direction($dir: horizontal)"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $dir == horizontal"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $dropdownmenu-arrows"
+        }
+      ],
+      "gateVars": [
+        "dropdownmenu-arrows"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_dropdown-menu.scss",
+      "line": 214,
+      "text": "#{$global-right}: 5px;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-dropdown-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_dropdown-menu.scss",
+      "line": 215,
+      "text": "#{$global-left}: auto;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-dropdown-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_dropdown-menu.scss",
+      "line": 244,
+      "text": "#{$global-left}: 100%;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-dropdown-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_media-object.scss",
+      "line": 55,
+      "text": "padding-#{$global-right}: $padding;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin media-object-section($padding: $mediaobject-section-padding)"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_media-object.scss",
+      "line": 59,
+      "text": "padding-#{$global-left}: $padding;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin media-object-section($padding: $mediaobject-section-padding)"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 118,
+      "text": "text-align: $global-left;",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-align($alignment)"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $alignment == left"
+        },
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@if",
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 134,
+      "text": "text-align: $global-right;",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-align($alignment)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if $alignment == right"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $global-flexbox"
+        }
+      ],
+      "gateVars": [
+        "global-flexbox"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@else if",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 137,
+      "text": "text-align: $global-right;",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-align($alignment)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if $alignment == right"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $global-flexbox"
+        }
+      ],
+      "gateVars": [
+        "global-flexbox"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@else if",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 142,
+      "text": "text-align: $global-right;",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-align($alignment)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if $alignment == right"
+        },
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@else if",
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 145,
+      "text": "text-align: $global-left;",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-align($alignment)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if $alignment == right"
+        },
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@else if",
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 150,
+      "text": "text-align: $global-right;",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-align($alignment)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if $alignment == right"
+        },
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@else if",
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 170,
+      "text": "text-align: $global-left;",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-align($alignment)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if $alignment == center"
+        },
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@else if",
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 207,
+      "text": "/// @param {Keyword} $dir [$global-left] - Direction of the menu. This effects the side of the `<li>` that receives the margin.",
+      "cls": "UNCLASSIFIED",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 209,
+      "text": "@mixin menu-simple($dir: $global-left, $margin: $menu-simple-margin) {",
+      "cls": "UNCLASSIFIED",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 231,
+      "text": "margin-#{$global-right}: $margin;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if $nested-alignment == right"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 232,
+      "text": "margin-#{$global-left}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@if",
+          "header": "@if $nested-alignment == right"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 235,
+      "text": "margin-#{$global-right}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 236,
+      "text": "margin-#{$global-left}: $margin;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@else",
+          "header": "@else"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@else"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 299,
+      "text": "margin-#{$global-right}: $spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-icon-position($position: left, $spacing: $menu-icon-spacing)"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $position == left"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 316,
+      "text": "margin-#{$global-left}: $spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin menu-icon-position($position: left, $spacing: $menu-icon-spacing)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if $position == right"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@else if"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 490,
+      "text": "&.align-#{$global-left} {",
+      "cls": "BROKEN class-NAME interpolation",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_menu.scss",
+      "line": 495,
+      "text": "&.align-#{$global-right} {",
+      "cls": "BROKEN class-NAME interpolation",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-menu"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_orbit.scss",
+      "line": 120,
+      "text": "#{$global-left}: 0;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin orbit-previous"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_orbit.scss",
+      "line": 125,
+      "text": "#{$global-left}: auto;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin orbit-next"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_orbit.scss",
+      "line": 126,
+      "text": "#{$global-right}: 0;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin orbit-next"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_pagination.scss",
+      "line": 86,
+      "text": "margin-#{$global-left}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_pagination.scss",
+      "line": 92,
+      "text": "margin-#{$global-right}: $spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_pagination.scss",
+      "line": 190,
+      "text": "margin-#{$global-right}: 0.5rem;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-pagination"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $pagination-arrows"
+        }
+      ],
+      "gateVars": [
+        "pagination-arrows"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_pagination.scss",
+      "line": 197,
+      "text": "margin-#{$global-left}: 0.5rem;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-pagination"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $pagination-arrows"
+        }
+      ],
+      "gateVars": [
+        "pagination-arrows"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "components/_responsive-embed.scss",
+      "line": 38,
+      "text": "#{$global-left}: 0;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin responsive-embed($ratio: default)"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_switch.scss",
+      "line": 129,
+      "text": "#{$global-left}: $switch-paddle-offset;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin switch-paddle"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_switch.scss",
+      "line": 147,
+      "text": "#{$global-left}: $paddle-active-offest;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin switch-paddle"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_switch.scss",
+      "line": 186,
+      "text": "#{$global-left}: 8%;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin switch-text-active"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_switch.scss",
+      "line": 196,
+      "text": "#{$global-right}: 15%;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin switch-text-inactive"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_switch.scss",
+      "line": 228,
+      "text": "#{$global-left}: $paddle-offset;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_switch.scss",
+      "line": 234,
+      "text": "#{$global-left}: $paddle-active-offest;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_table.scss",
+      "line": 150,
+      "text": "text-align: #{$global-left};",
+      "cls": "BROKEN text-align value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin -zf-table-children-styles($stripe: $table-stripe, $is-striped: $table-is-striped)"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_tabs.scss",
+      "line": 87,
+      "text": "float: #{$global-left};",
+      "cls": "UNCLASSIFIED",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_tabs.scss",
+      "line": 128,
+      "text": "border-#{$global-left}: 0;",
+      "cls": "SAFE border longhand/shorthand",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "components/_title-bar.scss",
+      "line": 53,
+      "text": "margin-#{$global-left}: $titlebar-icon-spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-title-bar"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_title-bar.scss",
+      "line": 54,
+      "text": "margin-#{$global-right}: $titlebar-icon-spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-title-bar"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_top-bar.scss",
+      "line": 62,
+      "text": "margin-#{$global-right}: 1rem;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin top-bar-container"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "components/_top-bar.scss",
+      "line": 68,
+      "text": "margin-#{$global-right}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin top-bar-container"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "forms/_checkbox.scss",
+      "line": 22,
+      "text": "margin-#{$global-left}: $form-spacing * 0.5;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-form-checkbox"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "forms/_checkbox.scss",
+      "line": 23,
+      "text": "margin-#{$global-right}: $form-spacing;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-form-checkbox"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "forms/_checkbox.scss",
+      "line": 34,
+      "text": "margin-#{$global-right}: $form-spacing * 0.5;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-form-checkbox"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "forms/_fieldset.scss",
+      "line": 33,
+      "text": "margin-#{$global-left}: rem-calc(-3);",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin fieldset"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "forms/_input-group.scss",
+      "line": 81,
+      "text": "border-#{$global-right}: 0;",
+      "cls": "SAFE border longhand/shorthand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-form-prepostfix"
+        },
+        {
+          "kind": "@if",
+          "header": "@if has-value($input-prefix-border)"
+        }
+      ],
+      "gateVars": [
+        "input-prefix-border"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "forms/_input-group.scss",
+      "line": 85,
+      "text": "border-#{$global-left}: 0;",
+      "cls": "SAFE border longhand/shorthand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-form-prepostfix"
+        },
+        {
+          "kind": "@if",
+          "header": "@if has-value($input-prefix-border)"
+        }
+      ],
+      "gateVars": [
+        "input-prefix-border"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "forms/_select.scss",
+      "line": 45,
+      "text": "background-position: $global-right (-$form-spacing) center;",
+      "cls": "BROKEN background-position value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin form-select"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $select-triangle-color != transparent"
+        }
+      ],
+      "gateVars": [
+        "select-triangle-color"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "forms/_select.scss",
+      "line": 49,
+      "text": "padding-#{$global-right}: ($form-spacing * 1.5);",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin form-select"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $select-triangle-color != transparent"
+        }
+      ],
+      "gateVars": [
+        "select-triangle-color"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "grid/_column.scss",
+      "line": 30,
+      "text": "float: $global-left;",
+      "cls": "SAFE float/clear value",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "grid/_grid.scss",
+      "line": 38,
+      "text": "$-zf-end-float: if($grid-column-align-edge, $global-right, $global-left);",
+      "cls": "UNCLASSIFIED",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "grid/_layout.scss",
+      "line": 23,
+      "text": "float: $global-left;",
+      "cls": "SAFE float/clear value",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "grid/_layout.scss",
+      "line": 55,
+      "text": "float: $global-left;",
+      "cls": "SAFE float/clear value",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    },
+    {
+      "file": "grid/_position.scss",
+      "line": 21,
+      "text": "float: $global-left;",
+      "cls": "SAFE float/clear value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin grid-column-position($position)"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $position == auto"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@if"
+      ]
+    },
+    {
+      "file": "grid/_position.scss",
+      "line": 28,
+      "text": "float: $global-right;",
+      "cls": "SAFE float/clear value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin grid-column-position($position)"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $position == auto"
+        },
+        {
+          "kind": "@if",
+          "header": "@if $grid-column-align-edge"
+        }
+      ],
+      "gateVars": [
+        "grid-column-align-edge"
+      ],
+      "guardKinds": [
+        "@mixin",
+        "@if",
+        "@if"
+      ]
+    },
+    {
+      "file": "grid/_position.scss",
+      "line": 38,
+      "text": "#{$global-left}: $offset;",
+      "cls": "BROKEN bare-side positioning",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin grid-column-position($position)"
+        },
+        {
+          "kind": "@else if",
+          "header": "@else if type-of($position) == ''"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin",
+        "@else if"
+      ]
+    },
+    {
+      "file": "grid/_position.scss",
+      "line": 67,
+      "text": "margin-#{$global-left}: grid-column($n);",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin grid-column-offset($n)"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "grid/_position.scss",
+      "line": 74,
+      "text": "float: $global-left;",
+      "cls": "SAFE float/clear value",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin grid-column-end"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "typography/_base.scss",
+      "line": 393,
+      "text": "margin-#{$global-left}: $list-side-margin;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-typography-base"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "typography/_base.scss",
+      "line": 399,
+      "text": "margin-#{$global-left}: $list-side-margin;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-typography-base"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "typography/_base.scss",
+      "line": 405,
+      "text": "margin-#{$global-left}: $list-nested-side-margin;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-typography-base"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "typography/_base.scss",
+      "line": 424,
+      "text": "border-#{$global-left}: $blockquote-border;",
+      "cls": "SAFE border longhand/shorthand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-typography-base"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "typography/_helpers.scss",
+      "line": 162,
+      "text": "margin-#{$global-left}: 0;",
+      "cls": "SAFE margin/padding longhand",
+      "guards": [
+        {
+          "kind": "@mixin",
+          "header": "@mixin foundation-typography-helpers"
+        }
+      ],
+      "gateVars": [],
+      "guardKinds": [
+        "@mixin"
+      ]
+    },
+    {
+      "file": "xy-grid/_position.scss",
+      "line": 54,
+      "text": "$direction: if($vertical, 'top', $global-left);",
+      "cls": "UNCLASSIFIED",
+      "guards": [],
+      "gateVars": [],
+      "guardKinds": []
+    }
+  ],
+  "gates": [
+    [
+      "accordion-plusminus",
+      [
+        "components/_accordion.scss:116 [BROKEN bare-side positioning]"
+      ]
+    ],
+    [
+      "buttongroup-radius-on-each",
+      [
+        "components/_button-group.scss:73 [BROKEN corner radius]",
+        "components/_button-group.scss:74 [BROKEN corner radius]",
+        "components/_button-group.scss:78 [BROKEN corner radius]",
+        "components/_button-group.scss:79 [BROKEN corner radius]",
+        "components/_button-group.scss:172 [BROKEN corner radius]",
+        "components/_button-group.scss:173 [BROKEN corner radius]",
+        "components/_button-group.scss:177 [BROKEN corner radius]",
+        "components/_button-group.scss:178 [BROKEN corner radius]",
+        "components/_button-group.scss:200 [BROKEN corner radius]",
+        "components/_button-group.scss:201 [BROKEN corner radius]",
+        "components/_button-group.scss:202 [BROKEN corner radius]",
+        "components/_button-group.scss:206 [BROKEN corner radius]",
+        "components/_button-group.scss:207 [BROKEN corner radius]",
+        "components/_button-group.scss:208 [BROKEN corner radius]"
+      ]
+    ],
+    [
+      "global-flexbox",
+      [
+        "components/_button-group.scss:109 [SAFE margin/padding longhand]",
+        "components/_menu.scss:134 [BROKEN text-align value]",
+        "components/_menu.scss:137 [BROKEN text-align value]"
+      ]
+    ],
+    [
+      "buttongroup-expand-max",
+      [
+        "components/_button-group.scss:135 [SAFE margin/padding longhand]",
+        "components/_button-group.scss:138 [SAFE margin/padding longhand]"
+      ]
+    ],
+    [
+      "drilldown-arrows",
+      [
+        "components/_drilldown.scss:133 [BROKEN css-triangle keyword arg]",
+        "components/_drilldown.scss:136 [SAFE margin/padding longhand]"
+      ]
+    ],
+    [
+      "dropdownmenu-arrows",
+      [
+        "components/_dropdown-menu.scss:103 [SAFE margin/padding longhand]",
+        "components/_dropdown-menu.scss:108 [BROKEN bare-side positioning]",
+        "components/_dropdown-menu.scss:109 [BROKEN bare-side positioning]"
+      ]
+    ],
+    [
+      "pagination-arrows",
+      [
+        "components/_pagination.scss:190 [SAFE margin/padding longhand]",
+        "components/_pagination.scss:197 [SAFE margin/padding longhand]"
+      ]
+    ],
+    [
+      "input-prefix-border",
+      [
+        "forms/_input-group.scss:81 [SAFE border longhand/shorthand]",
+        "forms/_input-group.scss:85 [SAFE border longhand/shorthand]"
+      ]
+    ],
+    [
+      "select-triangle-color",
+      [
+        "forms/_select.scss:45 [BROKEN background-position value]",
+        "forms/_select.scss:49 [SAFE margin/padding longhand]"
+      ]
+    ],
+    [
+      "grid-column-align-edge",
+      [
+        "grid/_position.scss:28 [SAFE float/clear value]"
+      ]
+    ]
+  ]
+}

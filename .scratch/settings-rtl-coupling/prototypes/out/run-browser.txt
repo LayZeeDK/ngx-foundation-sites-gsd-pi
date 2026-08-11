@@ -1,0 +1,137 @@
+
+========================================================================
+1. CSSOM VALIDITY ORACLE (real Chromium: setProperty + read-back)
+========================================================================
+  R004 rebind generalised            declarations Chromium DROPS: 142
+      x 19  display: none !important
+      x 14  -webkit-overflow-scrolling: touch
+      x  7  display: block !important
+      x  6  -ms-overflow-style: -ms-autohiding-scrollbar
+      x  6  border-bottom-inline-start-radius: 0
+      x  6  border-top-inline-end-radius: 0
+  Foundation unmodified (LTR)        declarations Chromium DROPS: 86
+      x 19  display: none !important
+      x 14  -webkit-overflow-scrolling: touch
+      x  7  display: block !important
+      x  6  -ms-overflow-style: -ms-autohiding-scrollbar
+      x  2  display: table-cell !important
+      x  2  position: absolute !important
+  ELIMINATOR single sheet            declarations Chromium DROPS: 86
+      x 19  display: none !important
+      x 14  -webkit-overflow-scrolling: touch
+      x  7  display: block !important
+      x  6  -ms-overflow-style: -ms-autohiding-scrollbar
+      x  2  display: table-cell !important
+      x  2  position: absolute !important
+
+========================================================================
+2. SELECTOR VALIDITY -- where the :dir() goes inside a compound
+========================================================================
+  [WARN] .x::after:dir(rtl)   <- Chromium DROPS the whole rule
+  [OK]   .x:dir(rtl)::after
+  [OK]   .x:dir(rtl)
+  [OK]   .menu.align-right li:dir(rtl)
+
+========================================================================
+3. BEHAVIOUR -- eliminator in an rtl subtree vs Foundation's own RTL build
+========================================================================
+  rtl subtree vs Foundation RTL build                  [OK] IDENTICAL
+  ltr subtree vs Foundation LTR build                  [OK] IDENTICAL
+
+  CONTROL -- the naive construction (:dir() adds specificity, layer appended):
+  naive rtl subtree vs Foundation RTL build            [WARN] 30 differing computed values
+      paddle { margin-inline-end: got 16px | want 0px }
+      paddle { margin-inline-start: got 8px | want 0px }
+      paddle { margin-left: got 16px | want 0px }
+      paddle { margin-right: got 8px | want 0px }
+      menu { inline-size: got 1260px | want 1280px }
+      menu { margin-inline-start: got 20px | want 0px }
+      menu { margin-right: got 20px | want 0px }
+      menu { perspective-origin: got 630px 19.1875px | want 640px 19.1875px }
+      menu { transform-origin: got 630px 19.1875px | want 640px 19.1875px }
+      menu { width: got 1260px | want 1280px }
+      dda::after { border-inline-start-width: got 3px | want 6px }
+      dda::after { border-right-width: got 3px | want 6px }
+
+  SIDE BY SIDE in ONE document (the shape the shipped `Rtl` story needs):
+    th      mirrors on: textAlign left -> right
+    b1      mirrors on: marginLeft 0px -> 1px | marginRight 1px -> 0px
+    sel     mirrors on: backgroundPosition calc(100% + 16px) 50% -> -16px 50%
+    dd      mirrors on: borderLeftWidth 6px -> 0px | borderRightWidth 0px -> 6px | left 18px -> 16px | right 16px -> 18px
+    menu    mirrors on: (nothing)
+    paddle  mirrors on: left 4px -> 36px | right 36px -> 4px
+
+========================================================================
+4. NESTED OPPOSITE-DIRECTION ISLAND -- element-scoped vs descendant-scoped
+========================================================================
+  ltr island inside an rtl region  element-scoped: 10px/0px  descendant-scoped: 0px/30px
+  plain rtl region                 element-scoped: 0px/20px  descendant-scoped: 0px/30px
+  expected for the ltr island: the LTR base (10px/0px, 5px/0px) must survive.
+  element-scoped correct: true   descendant-scoped correct: false
+
+========================================================================
+5. R008 -- unlayered consumer rule vs @layer nfs-defaults + :dir()
+========================================================================
+  consumer rule authored FIRST, unlayered:  margin-right = 99px  (want 99px)
+  consumer rule authored LAST,  unlayered:  margin-right = 99px   (want 99px)
+  layered :dir() override still applies:    margin-left  = 3px    (want 3px)
+  revert-layer inside the layer:            margin-left  = 77px   (want 77px -- consumer value restored)
+  revert-layer, no consumer rule:           margin-left  = 0px    (want 0px -- initial)
+  revert-layer in an UNLAYERED sheet:       margin-left  = 0px    (rolls back to the UA origin, NOT to 77px)
+
+========================================================================
+6. DEGRADATION -- is `:where()` forgiving, so an unknown :dir() costs nothing?
+========================================================================
+  rules Chromium kept: [".probe",".probe:where()",".probe"]
+  computed margin-left: 1px (want 1px -- the base survives, the twin matches nothing)
+  computed padding-left: 1px (want 1px -- a later rule is unaffected either way)
+
+  SIMULATED :dir()-less engine, split-twin sheet:
+  ltr subtree vs Foundation LTR build                  [WARN] 47 differing computed values
+      th { text-align: got center | want left }
+      th::before { text-align: got center | want left }
+      th::after { text-align: got center | want left }
+      paddle::after { inset-inline-end: got 40px | want 36px }
+      paddle::after { inset-inline-start: got 0px | want 4px }
+      paddle::after { left: got 0px | want 4px }
+      paddle::after { right: got 40px | want 36px }
+      b1 { margin-inline-end: got 0px | want 1px }
+      b1 { margin-right: got 0px | want 1px }
+      menu { justify-content: got normal | want flex-end }
+      mli { display: got list-item | want flex }
+      mli { justify-content: got normal | want flex-end }
+  rtl subtree vs TODAY (Foundation LTR sheet, rtl subtree) [WARN] 47 differing computed values
+      th { text-align: got center | want left }
+      th::before { text-align: got center | want left }
+      th::after { text-align: got center | want left }
+      paddle::after { inset-inline-end: got 40px | want 4px }
+      paddle::after { inset-inline-start: got 0px | want 36px }
+      paddle::after { left: got 40px | want 4px }
+      paddle::after { right: got 0px | want 36px }
+      b1 { margin-inline-start: got 0px | want 1px }
+      b1 { margin-right: got 0px | want 1px }
+      menu { justify-content: got normal | want flex-end }
+      mli { display: got list-item | want flex }
+      mli { justify-content: got normal | want flex-end }
+
+  GRACEFUL variant (LTR values stay in the base rule):
+  rtl subtree vs Foundation RTL build (exactness)      [WARN] 32 differing computed values
+      paddle::after { inset-inline-end: got 4px | want 36px }
+      paddle::after { left: got 4px | want 36px }
+      b1 { margin-inline-start: got 1px | want 0px }
+      b1 { margin-right: got 1px | want 0px }
+      mli { display: got flex | want list-item }
+      mli { justify-content: got flex-end | want normal }
+      mli::before { display: got block | want inline }
+      mli::after { display: got block | want inline }
+      ddp { inline-size: got 1240px | want 1260px }
+      ddp { perspective-origin: got 620px 25.5938px | want 630px 25.5938px }
+      ddp { transform-origin: got 620px 25.5938px | want 630px 25.5938px }
+      ddp { width: got 1240px | want 1260px }
+  on a :dir()-less engine, vs TODAY (Foundation LTR sheet) [OK] IDENTICAL
+
+========================================================================
+SUMMARY
+========================================================================
+  Chromium-dropped declarations -- rebind: 142 | Foundation: 86 | ELIMINATOR: 86
+  computed-style diffs vs the dual build -- rtl: 0 | ltr: 0 | naive control: 30

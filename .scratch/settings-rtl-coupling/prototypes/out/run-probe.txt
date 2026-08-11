@@ -1,0 +1,181 @@
+
+========================================================================
+A. SUBSTITUTION SWEEP -- is there ANY value the rebind could use?
+========================================================================
+
+--- Foundation defaults ---
+  $global-left: left               invalid declarations:   0  (unknown property 0, invalid value 0)   Foundation UNMODIFIED (no rebind)
+  $global-left: inline-start       invalid declarations:  36  (unknown property 32, invalid value 4)   R004 rebind, as shipped for Button
+      x  1  background-position: inline-end -1rem center
+      x  2  inline-end: 0
+      x  4  inline-end: 14px
+      x  1  inline-end: 15%
+  $global-left: start              invalid declarations: 160  (unknown property 156, invalid value 4)   text-align/logical-value keywords
+      x  1  background-position: end -1rem center
+      x  1  border-end: 0
+      x  1  border-start-color: transparent
+      x  2  border-start: 0
+  $global-left: inset-inline-start invalid declarations: 131  (unknown property 124, invalid value 7)   bare-side positioning fix
+      x  1  background-position: inset-inline-end -1rem center
+      x  1  border-inset-inline-end: 0
+      x  1  border-inset-inline-start-color: transparent
+      x  2  border-inset-inline-start: 0
+
+--- settings that unlock the latent sites ---
+  $global-left: left               invalid declarations:   0  (unknown property 0, invalid value 0)   Foundation UNMODIFIED (no rebind)
+  $global-left: inline-start       invalid declarations:  56  (unknown property 52, invalid value 4)   R004 rebind, as shipped for Button
+      x  1  background-position: inline-end -1rem center
+      x  4  border-bottom-inline-end-radius: 0
+      x  6  border-bottom-inline-start-radius: 0
+      x  6  border-top-inline-end-radius: 0
+  $global-left: start              invalid declarations: 180  (unknown property 176, invalid value 4)   text-align/logical-value keywords
+      x  1  background-position: end -1rem center
+      x  4  border-bottom-end-radius: 0
+      x  6  border-bottom-start-radius: 0
+      x  1  border-end: 0
+  $global-left: inset-inline-start invalid declarations: 151  (unknown property 144, invalid value 7)   bare-side positioning fix
+      x  1  background-position: inset-inline-end -1rem center
+      x  4  border-bottom-inset-inline-end-radius: 0
+      x  6  border-bottom-inset-inline-start-radius: 0
+      x  1  border-inset-inline-end: 0
+
+========================================================================
+B. HOOK INVENTORY -- what can be intercepted after the @import?
+========================================================================
+B1  mixin shadowing after @import honoured by Foundation's @include: [OK] YES
+    emitted: probe-shadow: hit; / probe-direction: inline-end; / probe-shadow: hit; / probe-direction: right; / probe-shadow: hit; / probe-direction: left;
+B2  function shadowing after @import honoured: [OK] YES
+
+B3  the css-triangle ARGUMENT-level defect (class 6):
+    rebind only  -- solid square (no @if branch matched): true
+      .drilldown .is-drilldown-submenu-parent>a::after { display: block; width: 0; height: 0; border-style: solid; border-width: 6px; content: ""; position: absolute; top: 50%; margin-top: -6px; inline-end: 1rem }
+      .drilldown.align-left .is-drilldown-submenu-parent>a::after { display: block; width: 0; height: 0; border-style: solid; border-width: 6px; content: ""; border-right-width: 0; border-color: transparent transparent transparent #1779ba; right: 1rem; left: auto }
+      .drilldown.align-right .is-drilldown-submenu-parent>a::after { display: block; width: 0; height: 0; border-style: solid; border-width: 6px; content: ""; border-left-width: 0; border-color: transparent #1779ba transparent transparent; right: auto; left: 1rem }
+    rebind + shadowed css-triangle -- solid square: false
+      .drilldown .is-drilldown-submenu-parent>a::after { display: block; width: 0; height: 0; border-style: solid; border-width: 6px; content: ""; border-right-width: 0; border-color: transparent transparent transparent #1779ba }
+      .drilldown .is-drilldown-submenu-parent>a::after:dir(rtl) { border-right-width: 6px; border-left-width: 0; border-color: transparent #1779ba transparent transparent }
+      .drilldown .is-drilldown-submenu-parent>a::after { position: absolute; top: 50%; margin-top: -6px; inline-end: 1rem }
+      .drilldown.align-left .is-drilldown-submenu-parent>a::after { display: block; width: 0; height: 0; border-style: solid; border-width: 6px; content: ""; border-right-width: 0; border-color: transparent transparent transparent #1779ba; right: 1rem; left: auto }
+      .drilldown.align-right .is-drilldown-submenu-parent>a::after { display: block; width: 0; height: 0; border-style: solid; border-width: 6px; content: ""; border-left-width: 0; border-color: transparent #1779ba transparent transparent; right: auto; left: 1rem }
+
+B3  invalid declarations, rebind only:      56
+B3  invalid declarations, rebind + shadow:  56
+    => the mixin hook fixes class 6 and NOTHING else: the invalid-CSS count is
+       unchanged because classes 1-5 are literal property-name / class-name
+       interpolation with no callable anywhere in the path.
+
+B4  the class-NAME rename (class 5), counted as SELECTORS:
+    rebind:      .align-inline-* selectors emitted: 8
+                 Foundation's public .align-left/.align-right survivors: 12
+    unmodified:  .align-inline-* selectors emitted: 0
+                 Foundation's public .align-left/.align-right survivors: 20
+
+========================================================================
+C. THE ELIMINATOR -- Foundation unmodified + a :dir(rtl) override layer
+========================================================================
+base sheet (Foundation LTR, unmodified):  138075 bytes, 1357 rules
+direction twins added:                    19525 bytes  (+14.1%)
+single sheet serving both directions:     157600 bytes
+
+declaration diffs between the two passes: 321
+  of which selector-level (class 5 shape): 25
+  present in LTR, ABSENT in RTL (no reset value exists): 145
+
+INVALID declarations, Foundation unmodified LTR: 0
+INVALID declarations, Foundation unmodified RTL: 0
+INVALID declarations, R004 rebind generalised:   36
+INVALID declarations, ELIMINATOR single sheet:   0
+
+EQUIVALENCE to Foundation's own RTL build: [OK] EXACT (0 mismatches)
+
+override rows a logical-property mapping COULD collapse: 282 of 321
+  irreducible rows (no logical property exists):         39
+
+========================================================================
+D. SETTINGS MATRIX -- can any consumer setting reintroduce a defect?
+========================================================================
+config                                 rebind INVALID   eliminator INVALID   overrides   equiv
+Foundation defaults                           36                   0         321   [OK] exact
+buttongroup-radius-on-each: false             56                   0         337   [OK] exact
+global-flexbox: false                         36                   0         321   [OK] exact
+global-radius: 3px                            36                   0         323   [OK] exact
+arrows on                                     36                   0         321   [OK] exact
+spacing tweaks                                36                   0         321   [OK] exact
+flexbox off + radius-on-each off              56                   0         337   [OK] exact
+all latent sites + radii                      56                   0         347   [OK] exact
+
+========================================================================
+E. PER-DEFECT-CLASS -- the emitted override for one site of each class
+========================================================================
+
+--- class 1  text-align: 7 override rows ---
+  Foundation LTR:  .menu.align-left.vertical li { text-align: (absent) }
+  Foundation RTL:  .menu.align-left.vertical li { text-align: left }
+  emitted override:
+    .menu.align-left.vertical li:dir(rtl) {
+      display: block;
+      text-align: left;
+    }
+
+--- class 2  bare-side positioning: 56 override rows ---
+  Foundation LTR:  .switch-paddle::after { left: 0.25rem }
+  Foundation RTL:  .switch-paddle::after { left: (absent) }
+  emitted override:
+    .switch-paddle:dir(rtl)::after {
+      left: revert-layer;
+      right: 0.25rem;
+    }
+
+--- class 3  corner radius (2-D): 24 override rows ---
+  Foundation LTR:  .button-group .button:last-child { border-top-right-radius: 6px }
+  Foundation RTL:  .button-group .button:last-child { border-top-right-radius: (absent) }
+  emitted override:
+    .button-group .button:last-child:dir(rtl) {
+      margin-right: revert-layer;
+      border-top-right-radius: revert-layer;
+      border-bottom-right-radius: revert-layer;
+      margin-left: 0;
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+--- class 4  background-position: 1 override rows ---
+  Foundation LTR:  select { background-position: right -1rem center }
+  Foundation RTL:  select { background-position: left -1rem center }
+  emitted override:
+    select:dir(rtl) {
+      background-position: left -1rem center;
+      padding-right: revert-layer;
+      padding-left: 1.5rem;
+    }
+
+--- class 5  class-NAME interpolation: 24 override rows ---
+  Foundation LTR:  .menu.align-right { justify-content: (absent) }
+  Foundation RTL:  .menu.align-right { justify-content: flex-start }
+  emitted override:
+    .menu.align-right:dir(rtl) {
+      justify-content: flex-start;
+    }
+
+--- class 6  css-triangle argument: 6 override rows ---
+  Foundation LTR:  .drilldown .is-drilldown-submenu-parent>a::after { border-right-width: 0 }
+  Foundation RTL:  .drilldown .is-drilldown-submenu-parent>a::after { border-right-width: (absent) }
+  emitted override:
+    .drilldown .is-drilldown-submenu-parent>a:dir(rtl)::after {
+      border-right-width: revert-layer;
+      border-color: transparent #1779ba transparent transparent;
+      right: revert-layer;
+      border-left-width: 0;
+      left: 1rem;
+    }
+node:fs:2431
+    validateStringAfterArrayBufferView(data, 'data');
+    ^
+
+TypeError [ERR_INVALID_ARG_TYPE]: The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received undefined
+    at writeFileSync (node:fs:2431:5)
+    at file:///D:/projects/github/LayZeeDK/ngx-foundation-sites-gsd-pi/.scratch/settings-rtl-coupling/prototypes/rtl-eliminability-probe.mjs:400:3 {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+
+Node.js v24.18.0

@@ -1,0 +1,34 @@
+
+==============================================================================
+WHICH COMPONENT IS WORST -- direction-dependent declarations per component
+==============================================================================
+component                      base bytes   rules   dir-dependent decls   twin bytes   twin rules
+foundation-everything              143399    1363                   337        20486          326
+foundation-xy-grid-classes          45289     516                   144         7452          144
+foundation-button-group             27157      86                    72        16787           67
+foundation-switch                    2646      29                    20         1057           20
+foundation-menu                      4396      47                    18         1812           18
+foundation-drilldown-menu            2166      15                    14          867           10
+foundation-forms                     5865      43                    13          743           12
+foundation-accordion-menu            2048      16                    12          637           10
+foundation-button                    9619      54                     5          239            4
+foundation-table                     1964      21                     1          243            2
+
+worst single component by direction-dependent declarations: foundation-xy-grid-classes
+
+==============================================================================
+COMPILE COST -- 7 replicates per cell, interleaved and SHUFFLED
+==============================================================================
+component                       BASE ms   REBIND ms    TWINS ms   TWINS delta      GEN ms
+foundation-everything            1350.0     1362.5      1340.1  -9.9 ms (-1%)      2608.2
+foundation-xy-grid-classes        366.9      383.7       393.6  +26.8 ms (7%)       791.6
+foundation-button-group           272.5      249.4       260.3  -12.1 ms (-4%)       497.6
+foundation-menu                   150.1      149.4       155.6   +5.5 ms (4%)       299.0
+foundation-button                 242.7      246.9       245.2   +2.4 ms (1%)       476.1
+
+spread check (min..max ms per cell, to show the medians are not noise):
+  foundation-everything          BASE 1249..1413   REBIND 1256..1495   TWINS 1275..1404   GEN 2523..3099
+  foundation-xy-grid-classes     BASE 352..439   REBIND 355..411   TWINS 359..446   GEN 775..910
+  foundation-button-group        BASE 245..312   REBIND 231..263   TWINS 227..274   GEN 469..552
+  foundation-menu                BASE 137..156   REBIND 135..163   TWINS 142..174   GEN 281..333
+  foundation-button              BASE 224..269   REBIND 225..301   TWINS 222..274   GEN 456..500

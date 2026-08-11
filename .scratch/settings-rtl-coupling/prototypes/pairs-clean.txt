@@ -1,0 +1,115 @@
+=== MONOTONICITY / ADDITIVITY: pairwise combinations of activating settings ===
+additive means  count(A+B) - base == (count(A) - base) + (count(B) - base)  for every class
+  [ADDITIVE] buttongroup-radius-on-each=false  +  global-flexbox=false
+  [ADDITIVE] buttongroup-radius-on-each=false  +  dropdownmenu-arrows=false
+  [ADDITIVE] buttongroup-radius-on-each=false  +  drilldown-arrows=false
+  [ADDITIVE] buttongroup-radius-on-each=false  +  accordion-plusminus=false
+  [ADDITIVE] buttongroup-radius-on-each=false  +  select-triangle-color=transparent
+  [ADDITIVE] buttongroup-radius-on-each=false  +  accordionmenu-arrows=false
+  [ADDITIVE] buttongroup-radius-on-each=false  +  grid-column-count=6
+  [ADDITIVE] buttongroup-radius-on-each=false  +  grid-column-count=24
+  [ADDITIVE] buttongroup-radius-on-each=false  +  breakpoint-classes=(small)
+  [ADDITIVE] buttongroup-radius-on-each=false  +  breakpoint-classes=(small medium)
+  [ADDITIVE] buttongroup-radius-on-each=false  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [ADDITIVE] buttongroup-radius-on-each=false  +  breakpoints += 2 extra + all classes
+  [ADDITIVE] global-flexbox=false  +  dropdownmenu-arrows=false
+  [ADDITIVE] global-flexbox=false  +  drilldown-arrows=false
+  [ADDITIVE] global-flexbox=false  +  accordion-plusminus=false
+  [ADDITIVE] global-flexbox=false  +  select-triangle-color=transparent
+  [ADDITIVE] global-flexbox=false  +  accordionmenu-arrows=false
+  [ADDITIVE] global-flexbox=false  +  grid-column-count=6
+  [ADDITIVE] global-flexbox=false  +  grid-column-count=24
+  [ADDITIVE] global-flexbox=false  +  breakpoint-classes=(small)
+  [ADDITIVE] global-flexbox=false  +  breakpoint-classes=(small medium)
+  [ADDITIVE] global-flexbox=false  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [ADDITIVE] global-flexbox=false  +  breakpoints += 2 extra + all classes
+  [ADDITIVE] dropdownmenu-arrows=false  +  drilldown-arrows=false
+  [ADDITIVE] dropdownmenu-arrows=false  +  accordion-plusminus=false
+  [ADDITIVE] dropdownmenu-arrows=false  +  select-triangle-color=transparent
+  [ADDITIVE] dropdownmenu-arrows=false  +  accordionmenu-arrows=false
+  [ADDITIVE] dropdownmenu-arrows=false  +  grid-column-count=6
+  [ADDITIVE] dropdownmenu-arrows=false  +  grid-column-count=24
+  [NON-ADDITIVE] dropdownmenu-arrows=false  +  breakpoint-classes=(small)
+      c2_bareSidePositioning: predicted 38, measured 44
+  [NON-ADDITIVE] dropdownmenu-arrows=false  +  breakpoint-classes=(small medium)
+      c2_bareSidePositioning: predicted 63, measured 66
+  [NON-ADDITIVE] dropdownmenu-arrows=false  +  breakpoint-classes=(small medium large xlarge xxlarge)
+      c2_bareSidePositioning: predicted 138, measured 132
+  [NON-ADDITIVE] dropdownmenu-arrows=false  +  breakpoints += 2 extra + all classes
+      c2_bareSidePositioning: predicted 188, measured 176
+  [ADDITIVE] drilldown-arrows=false  +  accordion-plusminus=false
+  [ADDITIVE] drilldown-arrows=false  +  select-triangle-color=transparent
+  [ADDITIVE] drilldown-arrows=false  +  accordionmenu-arrows=false
+  [ADDITIVE] drilldown-arrows=false  +  grid-column-count=6
+  [ADDITIVE] drilldown-arrows=false  +  grid-column-count=24
+  [ADDITIVE] drilldown-arrows=false  +  breakpoint-classes=(small)
+  [ADDITIVE] drilldown-arrows=false  +  breakpoint-classes=(small medium)
+  [ADDITIVE] drilldown-arrows=false  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [ADDITIVE] drilldown-arrows=false  +  breakpoints += 2 extra + all classes
+  [ADDITIVE] accordion-plusminus=false  +  select-triangle-color=transparent
+  [ADDITIVE] accordion-plusminus=false  +  accordionmenu-arrows=false
+  [ADDITIVE] accordion-plusminus=false  +  grid-column-count=6
+  [ADDITIVE] accordion-plusminus=false  +  grid-column-count=24
+  [ADDITIVE] accordion-plusminus=false  +  breakpoint-classes=(small)
+  [ADDITIVE] accordion-plusminus=false  +  breakpoint-classes=(small medium)
+  [ADDITIVE] accordion-plusminus=false  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [ADDITIVE] accordion-plusminus=false  +  breakpoints += 2 extra + all classes
+  [ADDITIVE] select-triangle-color=transparent  +  accordionmenu-arrows=false
+  [ADDITIVE] select-triangle-color=transparent  +  grid-column-count=6
+  [ADDITIVE] select-triangle-color=transparent  +  grid-column-count=24
+  [ADDITIVE] select-triangle-color=transparent  +  breakpoint-classes=(small)
+  [ADDITIVE] select-triangle-color=transparent  +  breakpoint-classes=(small medium)
+  [ADDITIVE] select-triangle-color=transparent  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [ADDITIVE] select-triangle-color=transparent  +  breakpoints += 2 extra + all classes
+  [ADDITIVE] accordionmenu-arrows=false  +  grid-column-count=6
+  [ADDITIVE] accordionmenu-arrows=false  +  grid-column-count=24
+  [ADDITIVE] accordionmenu-arrows=false  +  breakpoint-classes=(small)
+  [ADDITIVE] accordionmenu-arrows=false  +  breakpoint-classes=(small medium)
+  [ADDITIVE] accordionmenu-arrows=false  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [ADDITIVE] accordionmenu-arrows=false  +  breakpoints += 2 extra + all classes
+  [SKIP same-variable pair] grid-column-count=6  +  grid-column-count=24
+  [NON-ADDITIVE] grid-column-count=6  +  breakpoint-classes=(small)
+      c2_bareSidePositioning: predicted 12, measured 36
+  [NON-ADDITIVE] grid-column-count=6  +  breakpoint-classes=(small medium)
+      c2_bareSidePositioning: predicted 37, measured 49
+  [NON-ADDITIVE] grid-column-count=6  +  breakpoint-classes=(small medium large xlarge xxlarge)
+      c2_bareSidePositioning: predicted 112, measured 88
+  [NON-ADDITIVE] grid-column-count=6  +  breakpoints += 2 extra + all classes
+      c2_bareSidePositioning: predicted 162, measured 114
+  [NON-ADDITIVE] grid-column-count=24  +  breakpoint-classes=(small)
+      c2_bareSidePositioning: predicted 120, measured 72
+  [NON-ADDITIVE] grid-column-count=24  +  breakpoint-classes=(small medium)
+      c2_bareSidePositioning: predicted 145, measured 121
+  [NON-ADDITIVE] grid-column-count=24  +  breakpoint-classes=(small medium large xlarge xxlarge)
+      c2_bareSidePositioning: predicted 220, measured 268
+  [NON-ADDITIVE] grid-column-count=24  +  breakpoints += 2 extra + all classes
+      c2_bareSidePositioning: predicted 270, measured 366
+  [SKIP same-variable pair] breakpoint-classes=(small)  +  breakpoint-classes=(small medium)
+  [SKIP same-variable pair] breakpoint-classes=(small)  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [SKIP same-variable pair] breakpoint-classes=(small)  +  breakpoints += 2 extra + all classes
+  [SKIP same-variable pair] breakpoint-classes=(small medium)  +  breakpoint-classes=(small medium large xlarge xxlarge)
+  [SKIP same-variable pair] breakpoint-classes=(small medium)  +  breakpoints += 2 extra + all classes
+  [SKIP same-variable pair] breakpoint-classes=(small medium large xlarge xxlarge)  +  breakpoints += 2 extra + all classes
+
+  valid pairs tested: 71   additive: 59   NON-additive: 12   (same-variable pairs skipped: 7)
+
+  adding settings combined: buttongroup-radius-on-each=false | global-flexbox=false | grid-column-count=24 | breakpoint-classes=(small medium large xlarge xxlarge)
+
+  worst case (all 4 adding settings at once): invalid=296 (base 102)
+    invalid=296 c1_textAlign=7 c2_bareSide=268 c3_radius=20 c4_bgPos=1 c5_className=6 c6_triangle=2 valid=533
+
+=== SUMMARY ===
+perturbations: 23   ACTIVATE/MASK: 13
+  buttongroup-radius-on-each=false  ->  c3_logicalRadius +20
+  global-flexbox=false  ->  c1_textAlignValue +4, c5_classNameRename -7
+  dropdownmenu-arrows=false  ->  c2_bareSidePositioning -10
+  drilldown-arrows=false  ->  c2_bareSidePositioning -1, c6_triangleDegenerate -2
+  accordion-plusminus=false  ->  c2_bareSidePositioning -1
+  select-triangle-color=transparent  ->  c4_backgroundPosition -1
+  accordionmenu-arrows=false  ->  c2_bareSidePositioning -1
+  grid-column-count=6  ->  c2_bareSidePositioning -36
+  grid-column-count=24  ->  c2_bareSidePositioning +72
+  breakpoint-classes=(small)  ->  c2_bareSidePositioning -50
+  breakpoint-classes=(small medium)  ->  c2_bareSidePositioning -25
+  breakpoint-classes=(small medium large xlarge xxlarge)  ->  c2_bareSidePositioning +50
+  breakpoints += 2 extra + all classes  ->  c2_bareSidePositioning +100

@@ -1,0 +1,8 @@
+pinned browserslist query resolves to 136 targets
+
+feature                supported / total   verdict
+css-dir-pseudo               134 / 136    [WARN] fails 2: chrome 119=n d #1, edge 119=n d #1   :dir()  -- the direction selector the twins use
+css-matches-pseudo           136 / 136    [OK] all targets   :where()/:is() -- zero-specificity wrapper
+css-cascade-layers           136 / 136    [OK] all targets   @layer -- R008 unlayered-beats-layered split
+css-revert-value             136 / 136    [OK] all targets   revert / revert-layer -- ONLY the naive construction
+css-logical-props            136 / 136    [OK] all targets   logical properties -- the R004 rebind (for comparison)

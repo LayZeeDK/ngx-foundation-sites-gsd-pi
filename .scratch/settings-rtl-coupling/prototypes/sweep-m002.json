@@ -1,0 +1,257 @@
+{
+  "base": {
+    "c1_textAlignValue": 3,
+    "c2_bareSidePositioning": 32,
+    "c3_logicalRadius": 0,
+    "c4_backgroundPosition": 1,
+    "c5_classNameRename": 13,
+    "c6_triangleDegenerate": 2,
+    "otherInvalidProp": 0,
+    "otherInvalidValue": 0,
+    "validLogical": 127,
+    "totalInvalidDecl": 36
+  },
+  "baseBytes": 143020,
+  "rows": [
+    {
+      "id": "M002 $foundation-palette.primary",
+      "bytes": 142501,
+      "bytesDelta": -519,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $foundation-palette.secondary",
+      "bytes": 143018,
+      "bytesDelta": -2,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $foundation-palette.success",
+      "bytes": 142760,
+      "bytesDelta": -260,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $foundation-palette.alert",
+      "bytes": 142765,
+      "bytesDelta": -255,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $foundation-palette.warning",
+      "bytes": 142959,
+      "bytesDelta": -61,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $global-radius: 1px",
+      "bytes": 143148,
+      "bytesDelta": 128,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $global-radius: 4px",
+      "bytes": 143148,
+      "bytesDelta": 128,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $global-radius: 0.25rem",
+      "bytes": 143284,
+      "bytesDelta": 264,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $global-radius: 1rem",
+      "bytes": 143182,
+      "bytesDelta": 162,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $global-radius: 50%",
+      "bytes": 143148,
+      "bytesDelta": 128,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 $global-radius: 9999px",
+      "bytes": 143250,
+      "bytesDelta": 230,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    },
+    {
+      "id": "M002 ALL SIX controls at once",
+      "bytes": 142935,
+      "bytesDelta": -85,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 32,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 127,
+        "totalInvalidDecl": 36
+      },
+      "deltas": {},
+      "changed": false,
+      "cssChanged": true
+    }
+  ]
+}

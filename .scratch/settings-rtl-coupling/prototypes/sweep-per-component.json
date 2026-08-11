@@ -1,0 +1,530 @@
+{
+  "base": {
+    "c1_textAlignValue": 3,
+    "c2_bareSidePositioning": 98,
+    "c3_logicalRadius": 0,
+    "c4_backgroundPosition": 1,
+    "c5_classNameRename": 13,
+    "c6_triangleDegenerate": 2,
+    "otherInvalidProp": 0,
+    "otherInvalidValue": 0,
+    "validLogical": 257,
+    "totalInvalidDecl": 102
+  },
+  "baseBytes": 187013,
+  "rows": [
+    {
+      "id": "buttongroup-radius-on-each=false",
+      "pre": [
+        "$buttongroup-radius-on-each: false;"
+      ],
+      "bytes": 188588,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 20,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 122
+      },
+      "deltas": {
+        "c3_logicalRadius": 20
+      },
+      "changed": true
+    },
+    {
+      "id": "global-flexbox=false",
+      "pre": [
+        "$global-flexbox: false;"
+      ],
+      "bytes": 195678,
+      "counts": {
+        "c1_textAlignValue": 7,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 6,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 279,
+        "totalInvalidDecl": 106
+      },
+      "deltas": {
+        "c1_textAlignValue": 4,
+        "c5_classNameRename": -7
+      },
+      "changed": true
+    },
+    {
+      "id": "xy-grid=false",
+      "pre": [
+        "$xy-grid: false;"
+      ],
+      "bytes": 187013,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "dropdownmenu-arrows=false",
+      "pre": [
+        "$dropdownmenu-arrows: false;"
+      ],
+      "bytes": 183143,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 88,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 254,
+        "totalInvalidDecl": 92
+      },
+      "deltas": {
+        "c2_bareSidePositioning": -10
+      },
+      "changed": true
+    },
+    {
+      "id": "drilldown-arrows=false",
+      "pre": [
+        "$drilldown-arrows: false;"
+      ],
+      "bytes": 185917,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 97,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 0,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 256,
+        "totalInvalidDecl": 101
+      },
+      "deltas": {
+        "c2_bareSidePositioning": -1,
+        "c6_triangleDegenerate": -2
+      },
+      "changed": true
+    },
+    {
+      "id": "accordion-plusminus=false",
+      "pre": [
+        "$accordion-plusminus: false;"
+      ],
+      "bytes": 186833,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 97,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 101
+      },
+      "deltas": {
+        "c2_bareSidePositioning": -1
+      },
+      "changed": true
+    },
+    {
+      "id": "select-triangle-color=transparent",
+      "pre": [
+        "$select-triangle-color: transparent;"
+      ],
+      "bytes": 186185,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 0,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 256,
+        "totalInvalidDecl": 101
+      },
+      "deltas": {
+        "c4_backgroundPosition": -1
+      },
+      "changed": true
+    },
+    {
+      "id": "pagination-arrows=false",
+      "pre": [
+        "$pagination-arrows: false;"
+      ],
+      "bytes": 186731,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 255,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "input-prefix-border=none",
+      "pre": [
+        "$input-prefix-border: none;"
+      ],
+      "bytes": 186881,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 255,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "grid-column-align-edge=false",
+      "pre": [
+        "$grid-column-align-edge: false;"
+      ],
+      "bytes": 186320,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 252,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "buttongroup-expand-max=2",
+      "pre": [
+        "$buttongroup-expand-max: 2;"
+      ],
+      "bytes": 187013,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "global-text-direction=rtl",
+      "pre": [
+        "$global-text-direction: rtl;"
+      ],
+      "bytes": 187070,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "menu-centered-back-compat=false",
+      "pre": [
+        "$menu-centered-back-compat: false;"
+      ],
+      "bytes": 186811,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "accordionmenu-arrows=false",
+      "pre": [
+        "$accordionmenu-arrows: false;"
+      ],
+      "bytes": 186238,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 97,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 101
+      },
+      "deltas": {
+        "c2_bareSidePositioning": -1
+      },
+      "changed": true
+    },
+    {
+      "id": "grid-column-count=6",
+      "pre": [
+        "$grid-column-count: 6;"
+      ],
+      "bytes": 180200,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 62,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 221,
+        "totalInvalidDecl": 66
+      },
+      "deltas": {
+        "c2_bareSidePositioning": -36
+      },
+      "changed": true
+    },
+    {
+      "id": "grid-column-count=24",
+      "pre": [
+        "$grid-column-count: 24;"
+      ],
+      "bytes": 200960,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 170,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 329,
+        "totalInvalidDecl": 174
+      },
+      "deltas": {
+        "c2_bareSidePositioning": 72
+      },
+      "changed": true
+    },
+    {
+      "id": "global-radius=6px  [M002 CONTROL]",
+      "pre": [
+        "$global-radius: 6px;"
+      ],
+      "bytes": 187141,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "foundation-palette all five  [M002 CONTROLS]",
+      "pre": [
+        "$foundation-palette: (primary: #123456, secondary: #654321, success: #0f0f0f, warning: #abcdef, alert: #fedcba);"
+      ],
+      "bytes": 186800,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "ALL SIX M002 CONTROLS at once",
+      "pre": [
+        "$foundation-palette: (primary: #123456, secondary: #654321, success: #0f0f0f, warning: #abcdef, alert: #fedcba);",
+        "$global-radius: 6px;"
+      ],
+      "bytes": 186928,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 98,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 257,
+        "totalInvalidDecl": 102
+      },
+      "deltas": {},
+      "changed": false
+    },
+    {
+      "id": "breakpoint-classes=(small)",
+      "pre": [
+        "$breakpoint-classes: (small);"
+      ],
+      "bytes": 119863,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 48,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 123,
+        "totalInvalidDecl": 52
+      },
+      "deltas": {
+        "c2_bareSidePositioning": -50
+      },
+      "changed": true
+    },
+    {
+      "id": "breakpoint-classes=(small medium)",
+      "pre": [
+        "$breakpoint-classes: (small medium);"
+      ],
+      "bytes": 154905,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 73,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 190,
+        "totalInvalidDecl": 77
+      },
+      "deltas": {
+        "c2_bareSidePositioning": -25
+      },
+      "changed": true
+    },
+    {
+      "id": "breakpoint-classes=(small medium large xlarge xxlarge)",
+      "pre": [
+        "$breakpoint-classes: (small medium large xlarge xxlarge);"
+      ],
+      "bytes": 257184,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 148,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 391,
+        "totalInvalidDecl": 152
+      },
+      "deltas": {
+        "c2_bareSidePositioning": 50
+      },
+      "changed": true
+    },
+    {
+      "id": "breakpoints += 2 extra + all classes",
+      "pre": [
+        "$breakpoints: (small: 0, medium: 640px, large: 1024px, xlarge: 1200px, xxlarge: 1440px, huge: 1800px, giant: 2400px);",
+        "$breakpoint-classes: (small medium large xlarge xxlarge huge giant);"
+      ],
+      "bytes": 332225,
+      "counts": {
+        "c1_textAlignValue": 3,
+        "c2_bareSidePositioning": 198,
+        "c3_logicalRadius": 0,
+        "c4_backgroundPosition": 1,
+        "c5_classNameRename": 13,
+        "c6_triangleDegenerate": 2,
+        "otherInvalidProp": 0,
+        "otherInvalidValue": 0,
+        "validLogical": 525,
+        "totalInvalidDecl": 202
+      },
+      "deltas": {
+        "c2_bareSidePositioning": 100
+      },
+      "changed": true
+    }
+  ]
+}
