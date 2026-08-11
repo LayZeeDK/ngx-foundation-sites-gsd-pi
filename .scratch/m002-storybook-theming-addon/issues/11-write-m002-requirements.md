@@ -2,7 +2,22 @@
 
 Type: task
 Status: resolved
-Blocked by: 06, 07, 08, 09, 10
+Blocked by: 06, 07, 08, 09, 10, 12, 13, 14, 15
+
+**REOPENED.** A standing user instruction landed after this ticket resolved:
+`ngx-foundation-sites` must support **all** Foundation for Sites components,
+Button being merely the first, and **anything in this map optimising for a
+single component must be re-evaluated or corrected** (see the multi-component
+constraint in `map.md`'s Notes). `HANDOFF.md` as written carries the
+single-component premise in several places -- R009's control-set framing, the
+`$wcag-palette` home, the compile target, and the fog closure on
+multi-component growth.
+
+Tickets 12 (architecture) and 13 (scaling/performance) produce the corrections.
+Regenerate the hand-off from the corrected decision set once both resolve --
+do not patch `HANDOFF.md` around the edges, and make sure every superseded
+decision is carried as superseded rather than silently contradicting the
+research documents that recorded it.
 
 ## Question
 
@@ -80,102 +95,127 @@ of scope. Do not let it silently vanish.
 
 ## Answer
 
-Hand-off written to `../HANDOFF.md`. Route-agnostic throughout: it states what
-must end up in GSD, never which interface applies it. No repo file outside
-`.scratch/` was touched; `.gsd/` was read only.
+**RESOLVED a second time. `../HANDOFF.md` was REGENERATED from the corrected
+decision set (tickets 06-10 plus corrections 12, 13, 14, 15), not patched.** No
+repo file outside `.scratch/` was touched; `.gsd/` was read only. Route-agnostic
+throughout: it states what must end up in GSD, never which interface applies it.
 
-**All six deliverables produced.**
+### The correction pass, and how it is carried
 
-1. **R009 sharpened.** The curated set is now an exact six-row table (primary /
-   secondary / success / alert / warning -> `$background` and `$palette` keys,
-   plus radius -> `$radius`), each with its Foundation default and its wire
-   format -- no "etc.", and font-size / padding / hover-lightness explicitly
-   excluded as API growth. Delivery shape is named (workspace-local,
-   `.storybook/`-resident, auto-discovered, no new package or exports-map
-   change). The preset model is stated with its derived, never-stored
-   "selected only on exact match" semantics, the canonical-minimal sparse map
-   that makes sparse equality *equal* resolved equality, the literal `Custom`
-   entry, and the by-design `loading -> ready` first panel open. Validation is
-   mapped to named P1-P8 / G2a assertions instead of `unmapped`.
-2. **R021 sharpened** to ticket 10's FOUR lanes on ticket 04's harness, each
-   naming what it proves and why it is the cheapest lane that can fail for the
-   right reason: `test` (jsdom, Node sass build, all compilation/preset/
-   equality/validation/error-shape), `test-browser` (browser sass build, real
-   `Worker`, and the only real cascade -- jsdom **discards** `@layer` rules),
-   Playwright at `apps/nfs-storybook-e2e/` (manager only, against
-   `static-storybook`, which makes it the static-build proof), and build-time
-   gates (`verify-theming-sources`, new `verify-theming-bundle`). Both vacuity
-   traps, the anti-vacuity discipline, and the five-entry negative-control
-   evidence file are carried as requirement text.
-3. **Decision list D032-D036**, one per resolved ticket 06-10, in the register's
-   exact eight-column shape (`# | When | Scope | Decision | Choice | Rationale |
-   Revisable? | Made By`). D031 is the highest existing row, so D032 is next
-   free. Each entry states which standing HUMAN decisions it operates under
-   (D020 / D023) and that it re-decides neither. One optional split is flagged
-   rather than taken: research/09 G.6 wants R026's newly-drawn boundary as its
-   own row; it lives as clause (f) of D035, with the split spelled out if the
-   planner prefers it findable.
-4. **D023 closure statement**, clause by clause. Clause 1 untouched and green
-   *for the right reason* (`verify-foundation-parity` is declaration-level and
-   structurally blind to a variable). Clause 2 becomes literally true --
-   `$wcag-palette` ships in the tarball's `scss/_button.scss`. Clause 3 is
-   discharged **in place**: the axe proof STAYS in `apps/nfs-demo`, nothing is
-   re-pointed, and the preset is bound to it by a three-link identity chain
-   (fixture -> unit identity assertion -> rendered-colour assertion) rather than
-   a second scanner. The default theme's three `expectedContrastFailures`
-   literals are stated as **FROZEN**, with the reason (an exact-set assertion
-   sourcing its expectations from the map under test asserts its input against
-   itself -- the subtle form of the blanket suppression D023 forbids).
-5. **Requirements M002 touches but does not own** -- R003 (its scoping note goes
-   stale the moment M002 lands), R008, R026, R019, R007 -- flagged in a table,
-   not edited. Plus the two items that change EXISTING wiring, each with its own
-   section: the **port-4400 collision** (refactor `test-storybook` off
-   `concurrently` onto `dependsOn: static-storybook`, keep `wait-on`, named
-   fallback if continuous-task sharing misbehaves) and the **atomic 3-part
-   demo-app rewire** (add the constant -> re-run
-   `verify-registry-consumption` and commit refreshed evidence -> re-point
-   `styles.scss`; no gate, the sequencing IS the requirement).
-6. **D020 recorded as load-bearing, unusual and costed.** Zero Storybook addons
-   compile Sass in the browser; no first-party design system ships a compiler
-   (all chose the CSS-custom-property mechanism D020 forbids); the one
-   architectural precedent is dead since 2021 and its author published an
-   abandonment report. The section names exactly where the browser compiler
-   earns its keep (evaluating Foundation's own `scale-color` /
-   `color-pick-contrast` against live input) and the single condition under
-   which D020 should be revisited (if the controls ever reduce to literal
-   pass-through values). The payload cost is attributed to **D020, not to the
-   addon**. Number hygiene applied: **802 KiB gzip / 436 KiB brotli** (ticket
-   05, measured) is authoritative; ticket 03's ~916 KiB was a raw-file estimate.
+The hand-off now opens with a **supersession ledger (section 0.1)** -- 19 rows,
+each naming the superseded claim and what supersedes it, so nothing silently
+contradicts the research record. **No single-component premise survives as a live
+rationale anywhere**; the hand-off was grepped for its known phrasings and every
+remaining occurrence sits inside the ledger, explicitly marked superseded or
+false-as-stated.
 
-**The fog is closed -- all three items, none silently dropped.**
+What changed, ticket by ticket:
 
-- **Preset extensibility and persistence** -- SPLIT, and reconciled with ticket
-  09 rather than treated as untouched. **Persistence is answered**: the URL is
-  the mechanism, the sparse canonical-minimal map makes post-reload state
-  byte-identical to in-session state, globals survive story navigation, no
-  `localStorage`. The "one invalid value drops the ENTIRE theme" hazard is
-  named and mitigated by making the panel the validation boundary, which turns
-  the shareable-link guarantee total. **User-saved presets ruled OUT OF SCOPE**
-  (new line in map.md).
-- **Behavior as more `nfs-*` components land** -- folded into R009. The control
-  surface is **global by decision, not by accident** (the addon passes no
-  `$selector`), with three grounds recorded. Growth to a second theme mixin is a
-  bounded open question explicitly outside M002 scope; per-component control
-  surfaces ruled out of scope.
-- **Docs surface** -- folded into R009 as one named deliverable (a README
-  section covering controls/units, presets, the exact-match rule, URL sharing,
-  and the story-mode-only panel limitation). **Extending
-  `verify-autodocs-coverage` ruled OUT OF SCOPE** -- that gate proves component
-  input tables render JSDoc and the addon has no component; extending a docs
-  gate to an undocumented surface invents the requirement.
+- **T12 (architecture).** `$wcag-palette` moves out of `_button.scss` into a NEW
+  `src/scss/_theme.scss` exported `"./scss/theme"`. The compile call becomes a
+  generated `THEMEABLE_MODULES` list of `{url, namespace}` object literals, one
+  entry today. The generator takes **N entry points TODAY** -- not a
+  generalisation, because a single-entry closure is provably blind to
+  `_theme.scss` (negative control). Closure re-measured (16 files / 84.4 KiB /
+  24.1 KiB gzip today; 52 files / 46.2 KiB gzip for all 35 Foundation
+  components; floor-dominated at 12 of 13 shared partials). The **"no
+  exports-map change" claim is SPLIT** -- true of the addon (D032), false of
+  M002 (D033 adds one key) -- and **"no public Sass API growth" is QUALIFIED**
+  to "`theme()`'s signature does not grow; one new public data module appears".
+  The defaults probe reads the Foundation-**global** names.
+- **T13 (scaling).** All four performance decisions survive; **three of four
+  rationales do not**. The curve is **ADDITIVE in emitted components, not
+  floor-dominated** -- T12's *closure* is floor-dominated but *time* is not.
+  Cost tracks **palette colour math**, not component count or CSS volume.
+  **Ceiling ~1.2-1.4 s for the entire library**, less than the reference needed
+  for TWO components. The reference's 20.5% pool figure is recorded as an **N=2
+  artifact**, and **s7's "a pool would convert nothing to nothing" is GONE** as
+  a claim -- it survives only as a ledger row marking it false. Debounce, cache
+  and pool rationales replaced with measured thresholds; the default theme is
+  now explicitly **never compiled**.
+- **T14 (RTL).** Supersedes T12 item 7. The rebind is **not a general
+  mechanism** (~50 of ~109 sites invalid, six defect classes, silent).
+  `$global-text-direction` becomes **ACCEPT AND HONOUR** -- in as a settings
+  entry with an inert-today disclosure, out only as an addon control. Dual build
+  ruled out by a shipped artifact (the side-by-side `Rtl` story). `:dir()`
+  re-opened, needing no decision reversal. `verify-foundation-parity.mjs`'s
+  `text-align` mapping **blesses the worst defect class** -- recorded as a known
+  defect with no M002 code change and a do-not-propagate constraint.
+- **T15 (settings).** M002 owns **NOTHING** of the settings API. Seven
+  non-foreclosure constraints, all zero-cost but one (two README sentences).
+  `_theme.scss` stays a **DATA** module -- a module consumers READ can never be
+  the one they CONFIGURE. Today's **silent ignore** is documented as a named
+  known limitation, which is M002's one positive obligation under the
+  seamless-migration constraint.
 
-**VERIFIED-vs-INFERRED carried forward** as its own section, including the four
-items untestable under the no-code-changes constraint (sass in the *real*
-preview bundle, cold HTTP-cache timing, `build-storybook` with `test: true`,
-non-Chromium engines), thirteen `[INFERRED]` items with their catch mechanisms,
-and the three **silently-green** failure classes whose gates are therefore not
-optional (the Worker not being bundled at all with zero errors and zero
-warnings; the R026 carve-out going inert under Nx's cwd; a green build proving
-nothing about whether the addon loaded).
+### The six deliverables, all present
+
+1. **R009 sharpened.** Control table is now the three-column form (Foundation
+   global / how it reaches Button's mixin today / default / wire format) with
+   the NF7 footnote that the global column is **vocabulary, not wiring** (those
+   names are provably inert as inputs). Delivery shape names the
+   `THEMEABLE_MODULES` list, the N-entry-point generator, the ordered
+   config-first entry string, the self-tuning coalescer, and the never-compiled
+   default theme. Preset model unchanged in substance, with the probe corrected
+   to the global names. `$global-text-direction` is an explicit, reasoned
+   exclusion. Validation mapped to P1-P8 / G2a.
+2. **R021 sharpened** to four lanes on ticket 04's harness, plus: a new lane-1
+   assertion that the generated sources module contains `nfs:/_theme.scss`;
+   module-agnostic subject framings; "no literal file count" as a gate rule; the
+   do-not-narrow constraint on `test-browser` (it is the only place a CSS
+   validity oracle can live); and one conditional island-preamble item that
+   cannot fire until component #2.
+3. **Decision list D032-D040** in the register's exact eight-column shape.
+   **D031 is the highest existing row [verified], so D032 is next free.** D033 /
+   D034 / D035 carry rewritten Choice and Rationale text; **D037** ($global-text-
+   direction contract), **D038** (no cache / pool / pre-compile), **D039**
+   (cross-component RTL strategy) and **D040** (settings scoping + seven
+   non-foreclosure constraints) are new. The optional R026-boundary split is
+   renumbered to **D041**.
+4. **D023 closure statement**, clause by clause, and the discharge is now
+   **stronger**: the palette ships as a *theme* artifact rather than as a member
+   of one component's module, still reaching its axe proof through the real
+   `exports`-gated subpath in CSR and SSR. The three `expectedContrastFailures`
+   literals remain **FROZEN**.
+5. **Requirements touched but not owned** -- R003, R008, R026, R019, R007 and
+   now **R004** -- flagged, not edited. Plus the two changes to EXISTING wiring
+   (port-4400 refactor; the atomic 3-part demo rewire, whose part 1 now also
+   adds the `exports` key) and a third flagged item: the latent
+   **under-imported island** T13 found (needs sassy-lists + typography for
+   EMISSION, +8 ms once, invisible until component #2, and inside the Worker
+   where the diagnostic degrades).
+6. **D020 recorded as load-bearing, unusual and costed**, reinforced from a new
+   angle -- T13 showed compile time goes into exactly the palette colour math
+   the payload exists to evaluate, which strengthens both the justification and
+   the single revisit condition. 802 KiB gzip / 436 KiB brotli remains
+   authoritative (ticket 03's ~916 KiB was a raw-file estimate); the emitted
+   worker chunk is ~825 KiB gzip today, ~890 KiB at full coverage. D020's scope
+   is clarified: it governs the *theming surface*, so a direction-sign custom
+   property is not forbidden by it.
+
+### Also carried
+
+- **A dedicated section 8 for the cross-ticket coupling neither T14 nor T15 owns
+  alone:** `button-group`'s RTL defects are LATENT and activated by consumer
+  settings, and a seamless settings surface is precisely what activates them --
+  so the settings milestone's success condition is the RTL milestone's trigger.
+  Four consequences, including that no fixed-settings gate can bound the class.
+- **VERIFIED vs INFERRED** as its own section, including the four items
+  untestable under the no-code-changes constraint, T13's caveat that every
+  multi-component performance figure is a **projection** anchored on one measured
+  Worker median, and **four** silently-green failure classes (the fourth being
+  browser-dropped invalid CSS, not gated in M002 and not required to be).
+  Ticket 07's `exports`-partial-name inference graduates OUT as VERIFIED TRUE.
+
+### Fog and scope
+
+**`map.md`'s "Not yet specified" is empty and stays empty** -- re-checked after
+the corrections. The four correction tickets opened no new fog: everything they
+deferred is deferred to a **named owner** (a later milestone, or a
+component-onboarding obligation), which is a scope ruling rather than an
+unknown. **"Out of scope" was updated**: the withdrawn `theme()`-API entry is
+re-made on T15's grounds, and four new rulings are recorded (cross-component RTL
+design, performance machinery, direction as an addon control, and the settings
+API itself), each with its owner.
 
 The map is closed. Nothing remains before M002 milestone planning.

@@ -52,6 +52,57 @@ build-time `verify-*.mjs` gates for anything only observable in the emitted
 artifact. The axis that matters between the first three is "can it reach the
 Storybook **manager**", not "is there a browser".
 
+**BINDING: `ngx-foundation-sites` must support ALL Foundation for Sites
+components. Button is merely the FIRST.** Standing user instruction, added
+after tickets 01-11 resolved, and it **supersedes any reasoning in this map
+that treated "one component" as a premise rather than a snapshot**.
+
+The error class it corrects: several decisions were justified on the repo
+having exactly one component -- and they are individually defensible *today*
+while encoding an assumption that expires the moment component #2 lands. The
+reference project's own measured data (ticket 01, sections C7 and 2.2) shows
+precisely what expires: it needed **four stacked mitigations at just TWO
+components** (300 ms debounce, compile coalescing, two-level per-component and
+combined LRU caching, and pre-compiling the default theme at init), because
+per-component compile cost is additive and the slowest component dominates.
+This map decided "no debounce, no cache, single worker, no pool" at N=1.
+
+The correction is NOT "build for N components now" -- that would be the
+speculative generality this map has rejected throughout, and there is still
+only one component to build against. It is the sharper test:
+
+> For each decision, does generalising cost anything **now**? If it is a
+> *placement* or *shape* choice that costs nothing today and forces rework
+> later, generalise it. If it is *machinery* with real cost and no present
+> benefit, do not build it -- but restate the rationale as "one component
+> exists today", never "this repo has one component", and keep the seam.
+
+Tickets 12 and 13 carry out that re-evaluation; ticket 11 regenerates the
+hand-off from the corrected decisions.
+
+**BINDING: migrating SCSS settings from Foundation for Sites to
+`ngx-foundation-sites` must be as SEAMLESS AS POSSIBLE** -- except that modern
+Sass modules (`@use`) are preferred over Foundation's legacy global-`!default`
+idiom where possible. Standing user instruction, added after ticket 12.
+
+Measured gap: Foundation's `settings/_settings.scss` declares **490 variables**;
+`internal/_settings.scss` seeds **26**, privately (`internal/*: null`), and the
+public surface is `theme()`'s four arguments. Migration is currently very far
+from seamless, and no ticket scoped it.
+
+This also exposes the error class a THIRD time: the Out-of-scope entry
+"extending `theme()`'s public Sass API" was justified by *what the addon's
+curated control set needs*. A library API boundary must not be set by an addon's
+requirements. Corrected below and re-opened as ticket 15.
+
+Note the tension a ticket must reconcile rather than assume away: `@use ...
+with (...)` was **measured and rejected** for the theme API (it forced consumers
+to type bare Foundation-shaped globals, could not be invoked twice in one
+compilation, and emitted 5490 bytes to read one token -- see
+`src/scss/_button.scss`'s header). A settings *module* and a theme *mixin* may
+legitimately want different mechanisms; "prefer `@use`" is not automatically
+"use `@use ... with`".
+
 **No human in the loop.** By explicit user instruction, no ticket may ask the
 user to decide. There are therefore no `grilling` tickets. Every ticket is
 `research` (including synthesis/decision tickets, resolved AFK), `prototype`
@@ -110,6 +161,14 @@ historically accurate but architecturally superseded -- do not treat its
   proving the rule fires. RTL is logical-properties-only (no `[dir]`, no
   rtlcss). `verify-exports-map.mjs` is a build-wired Nx gate.
 
+  **CORRECTED by ticket 14:** "logical-properties-only (no `[dir]`, no rtlcss)"
+  is accurate as a description of **what M003 built for Button**, and is **not**
+  a library-wide prohibition. M003's `:dir()` rejection (D021) is Button-scoped
+  and *comparative*; rtlcss and postcss-logical are ruled out library-wide, but
+  `:dir()` is re-opened for the residue and needs no decision reversal. The
+  `$global-left`/`$global-right` rebind is Button's mechanism, not the
+  library's -- it emits invalid CSS at ~50 of ~109 sites elsewhere, silently.
+
 **The public theming API M002 must drive** is
 `packages/ngx-foundation-sites/src/scss/_button.scss`, exported as
 `ngx-foundation-sites/scss/button`. It is a **theme mixin, not module
@@ -132,6 +191,15 @@ both properties M002's preset/live-tweak model depends on. Its output is
 **The curated control set maps 1:1 onto this existing API** -- primary =
 `$background`, the other four = `$palette` keys, plus `$radius`. Confirmed: no
 public Sass API extension is needed to build the addon as described.
+
+**QUALIFIED by tickets 12 and 15.** All six are **Foundation globals**
+(`$foundation-palette` keys + `$global-radius`) that Button's mixin happens to
+consume -- vocabulary, not wiring, since seeding those upstream names is
+provably inert. `theme()`'s signature does not grow, and that narrow claim
+stands. But M002 does add **one new public Sass data module**,
+`ngx-foundation-sites/scss/theme`, for `$wcag-palette` -- so "no exports-map
+change" is true of the ADDON and false of M002. And the panel must never be
+cited as evidence about the library's settings API.
 
 ### Standing constraints M002 inherits
 
@@ -187,26 +255,93 @@ equality checks compare a full resolved control set, not a sparse override map.
 
 <!-- one line per closed ticket -->
 
+- [Re-evaluate the performance decisions against N components](issues/13-scaling-performance-re-evaluation.md)
+  -- **all four decisions SURVIVE; three of the four rationales do not**, and are
+  replaced with measured thresholds. Curve measured across 4 architectures, 2
+  runs: **additive in emitted components, NOT floor-dominated** -- ticket 12's
+  *closure* is floor-dominated but *time* is not, and inferring one from the
+  other would have been wrong. Cost tracks palette colour math, not component
+  count or CSS volume (`off-canvas`: 8945 bytes for ~10 ms; `badge`: 479 bytes
+  for ~133-173 ms), so the set is bounded by the **controls** -- only 19 of 35
+  partials read them. **Ceiling ~1.2-1.4 s for the ENTIRE library, less than the
+  reference needed for TWO components.** The reference's 20.5% pool gain is an
+  N=2 artifact (measured 4.1x by N=20) but a pool is still rejected on price.
+  Caught and discarded its own fake finding -- declaration-order sampling
+  reproduced ticket 05's "1.7x regime shift" as an artifact.
+- [The Foundation settings migration surface, and what M002 must not foreclose](issues/15-foundation-settings-migration-surface.md)
+  -- **M002 owns NOTHING of the settings API; it belongs to a dedicated later
+  milestone.** 481 of Foundation's 490 settings are read only by component
+  partials this library has not wrapped (only 42 reachable in the button
+  closure), so an API designed now would be validated by one component -- the
+  expiring premise inverted. `@use ... with` applies **once per compilation,
+  before any other load**, so a half-shipped surface publishes an ordering
+  constraint every later addition inherits. **Silent ignore confirmed as
+  today's behaviour**: pasting Foundation's entire 490-variable settings file
+  compiles byte-identically (5839 B) with no warning. Seven non-foreclosure
+  constraints, all zero-cost but one (two README sentences) -- notably
+  `_theme.scss` must stay a DATA module, since a module consumers READ can never
+  be the module they CONFIGURE.
+- [How RTL/LTR works across the whole Foundation component set](issues/14-rtl-across-the-component-set.md)
+  -- **the rebind is NOT a general mechanism**: invalid CSS at ~50 of ~109
+  source sites, SIX defect classes, ~11 components, all silent. Three classes
+  went beyond the coordinator's report, including **class-NAME interpolation**
+  (`.align-#{$global-left}` silently renames Foundation's public `.align-right`
+  -- valid CSS matching nothing, which no validity oracle can catch) and
+  `css-triangle` emitting a solid square. `button-group`'s radius defects are
+  **LATENT and activated by consumer settings**, so no fixed-settings gate can
+  bound them. "Extend the rebind" is CLOSED on measurement; `:dir()` re-opened;
+  **dual build ruled out by a shipped artifact** (the `Rtl` story renders both
+  directions in ONE document). `$global-text-direction`: **accept and honour**
+  -- it composes correctly, reaching only the residue.
+- [Correct the single-component ARCHITECTURE assumptions](issues/12-multi-component-architecture-corrections.md)
+  -- **total bill for every correction: one new Sass file, one `exports` line,
+  one cache invalidation, and wording.** `$wcag-palette` moves to a new
+  `src/scss/_theme.scss` exported as `./scss/theme` (ticket 07's cost argument
+  did not survive -- Angular's own Sass importer falls back past `exports`
+  entirely, which ticket 07 did not know). The compile call becomes a generated
+  `THEMEABLE_MODULES` list, one entry today, and **one compile over two modules
+  serves the Foundation island once** -- 13 partials, not 26. The generator MUST
+  take N entry points today: a single-entry closure is structurally blind to
+  `_theme.scss`. Closure re-measured -- the shared floor is 12 of 13 partials,
+  so marginal cost per component is ~1 file, and all 35 Foundation components
+  come to 46.2 KiB gzip. Tickets 04, 06, 10 verified UNAFFECTED. **Its item 7
+  ($global-text-direction "ruled OUT, inert twice over") is SUPERSEDED by ticket
+  14** -- correct for Button, wrong forward: direction is IN as a public settings
+  entry, OUT only as an addon control.
 - [Write M002's locked decisions and sharpened requirements](issues/11-write-m002-requirements.md)
-  -- **THE MAP IS CLOSED. Hand-off written to [`HANDOFF.md`](HANDOFF.md)**,
-  route-agnostic (states what must end up in GSD, never which interface applies
-  it). Contains: sharpened **R009** (exact six-row control table with wire
-  formats, named delivery shape, derived never-stored preset selection, the
-  canonical-minimal sparse map that makes sparse equality *equal* resolved
-  equality, and mappable validation replacing `unmapped`); sharpened **R021**
-  (four lanes, each naming what it proves, plus both vacuity traps and the
-  five-entry negative-control evidence deliverable); **D032-D036** in the
-  register's exact eight-column shape, each naming the standing HUMAN decisions
-  it operates under (D020/D023) rather than re-deciding them, with D032 as the
-  next free number; the **D023 closure** clause by clause, including the three
-  `expectedContrastFailures` literals stated as **FROZEN**; the
-  touched-but-not-owned requirements (R003/R008/R026/R019/R007) plus the two
-  changes to EXISTING wiring -- the port-4400 refactor and the atomic 3-part
-  demo-app rewire; and **D020 recorded as a deliberate, costed choice**, with
-  the 802 KiB gzip payload attributed to the decision rather than the addon
-  (ticket 03's ~916 KiB was a raw-file estimate; ticket 05's measured figure
-  governs). VERIFIED-vs-INFERRED carried forward, including the three
-  silently-green failure classes whose gates are therefore not optional.
+  -- **THE MAP IS CLOSED. [`HANDOFF.md`](HANDOFF.md) REGENERATED** from the
+  corrected decision set (06-10 plus corrections 12-15), not patched, and
+  route-agnostic throughout. It opens with a **19-row supersession ledger**, and
+  **no single-component premise survives as a live rationale anywhere** -- the
+  output was grepped for its known phrasings and every hit sits inside the
+  ledger marked superseded or false-as-stated ("no second component exists",
+  "6 controls and one component", "a pool would convert nothing to nothing").
+  Contains: sharpened **R009** (three-column control table -- Foundation global /
+  how it reaches Button's mixin today / default / wire format -- with the
+  inertness footnote; `THEMEABLE_MODULES` compile call; N-entry-point generator;
+  ordered config-first entry string; self-tuning coalescer; default theme never
+  compiled; the **split** exports-map claim and **qualified** API-growth claim;
+  `$global-text-direction` as a reasoned exclusion; mappable validation);
+  sharpened **R021** (four lanes, plus the `_theme.scss`-in-closure assertion,
+  module-agnostic subject framings, the no-literal-file-count gate rule, the
+  do-not-narrow constraint on `test-browser`, and one conditional
+  island-preamble item); **D032-D040** in the register's exact eight-column
+  shape (D032 next free, verified against `.gsd/DECISIONS.md`) -- D033/D034/D035
+  rewritten, and new **D037** (direction: accept and honour), **D038** (no cache
+  / pool / pre-compile), **D039** (cross-component RTL), **D040** (settings
+  scoping + seven non-foreclosure constraints); the **D023 closure** clause by
+  clause, now a *stronger* discharge, with the three `expectedContrastFailures`
+  literals **FROZEN**; touched-but-not-owned requirements
+  (R003/R008/R026/R019/R007/**R004**) plus the port-4400 refactor, the atomic
+  3-part demo rewire (part 1 now adds the `exports` key), and the latent
+  **under-imported island** defect; **D020 recorded as deliberate, costed and
+  reinforced** (compile time goes into exactly the palette colour math the
+  payload buys); a dedicated section for the **cross-ticket coupling neither T14
+  nor T15 owns** -- a more seamless settings surface activates more latent RTL
+  defects; and VERIFIED-vs-INFERRED carried forward, including that every
+  multi-component performance figure is a **projection** and a **fourth**
+  silently-green failure class (browser-dropped invalid CSS, not gated in M002
+  and not required to be).
 - [What Vitest proves, what Playwright proves](issues/10-r021-verification-design.md)
   -- **LOCKED: four lanes.** The lane boundary moved BOTH ways, measured: `test`
   (jsdom) resolves the **Node** sass build and compiles the real chain to the
@@ -311,6 +446,15 @@ equality checks compare a full resolved control set, not a sparse override map.
 **NOTHING REMAINS. All three items were closed by ticket 11; each is recorded
 below with where it landed, so nothing vanished silently.**
 
+**Re-checked after the correction pass (tickets 12-15): still empty.** The four
+correction tickets opened no new fog -- everything they deferred is deferred to a
+**named owner** (a later milestone, or a component-onboarding obligation), which
+is a scope ruling rather than an unknown, and each is recorded under Out of scope
+below. One item that could have become fog did not: the latent
+under-imported-island defect ticket 13 found is a *flagged, no-code-in-M002*
+finding with a named trigger (the 2nd themeable module), carried in `HANDOFF.md`
+section 5.3 and as a conditional R021 assertion.
+
 <!-- CLOSED by ticket 11 (HANDOFF.md section 6.1): "Preset extensibility and
      persistence" -- SPLIT. PERSISTENCE IS ANSWERED, reconciled with ticket 09
      rather than treated as untouched: the URL is the mechanism, the sparse
@@ -353,26 +497,64 @@ below with where it landed, so nothing vanished silently.**
 - **Publishing the addon (or anything else) to npm** -- R019 defers publishing
   for M001 and M002. Delivery-shape decisions stop at "does it live in a
   publishable directory", never at "ship it".
-- **Extending `theme()`'s public Sass API** beyond `$selector` / `$background` /
-  `$palette` / `$radius`. The curated control set maps 1:1 onto what exists;
-  font-size, padding and hover-lightness controls would need API growth and are
-  ruled out of this effort.
+- **The Foundation settings API** -- out of scope, **ruling RE-MADE on ticket
+  15's grounds** after the original entry ("extending `theme()`'s public Sass
+  API") was withdrawn for justifying a *library* API boundary with *what the
+  addon's control set needs*. M002 owns **NOTHING** of the settings surface; it
+  belongs to a dedicated later milestone. Measured grounds: 481 of Foundation's
+  490 settings are read only by component partials this library has not wrapped;
+  every viable mechanism requires rewriting `internal/_settings.scss`; and
+  `@use ... with` applies once per compilation before any other load, so a
+  half-shipped surface publishes an ordering constraint every later addition
+  inherits. What M002 DOES own is seven non-foreclosure constraints (D040) plus
+  one README limitation. The narrow claim survives -- M002's addon needs no
+  public Sass API extension -- but it must never bound the library's settings
+  surface.
+- **Cross-component RTL design** (ticket 14). The full per-component strategy
+  belongs to the milestone that adds component #2, and it is a
+  *component-onboarding* obligation: each new island classifies its own
+  `$global-left`/`$global-right` sites against the six-class table. M002's bill
+  is zero code plus one README paragraph. Three constraints would cost real
+  rework if broken -- do not lift the `!global` rebind into a shared partial, do
+  not copy `verify-foundation-parity.mjs`'s physical-to-logical value tables into
+  a new gate, do not narrow or remove the `test-browser` lane.
+- **`$global-text-direction` as an addon control** (ticket 14 D3) -- out on
+  merit, not omission: mechanically unreachable through the addon's entry, it
+  breaks the six-scalar preset equality, and the existing side-by-side `Rtl`
+  story already meets the demonstration need better than a preview-wide toggle
+  could. It is **IN** as an accepted-and-honoured library *settings* entry
+  (D037); out of scope here means out of the panel, not out of the contract.
+- **Performance machinery** (ticket 13) -- no cache, no worker pool, no debounce
+  timer. Pre-compiling the default theme and any persistent cache are **rejected
+  outright rather than deferred**. The other three have measured thresholds
+  rather than a component-count premise (see `HANDOFF.md` D038).
 - **CSS custom property theming** -- forbidden by D020. Ticket 11 records D020
   as load-bearing, unusual and deliberately costed: no Storybook addon compiles
   Sass in the browser, and every first-party design system surveyed chose this
   forbidden mechanism. See `HANDOFF.md` section 7 for the single condition under
-  which D020 should be revisited.
+  which D020 should be revisited. **Scope clarified by ticket 14:** every clause
+  of D020 is scoped to the *theming surface*, so a custom property carrying an
+  RTL transform's direction sign is not forbidden by it -- though it is also not
+  an independent option, since something must still set it with `:dir()`.
 - **User-saved presets** (ticket 11, closing the "preset extensibility" fog).
   Two presets ship -- Foundation default and WCAG-compliant -- which is what
   D023 requires and what the Destination describes. User-saved presets need a
   storage mechanism the globals/URL model does not provide, plus naming and
   management UI and a collision story against the shipped presets. Persistence
   itself is NOT out of scope -- it is answered (the URL), and folded into R009.
-- **Per-component control surfaces** (ticket 11, closing the "more nfs-*
-  components" fog). The addon's surface is one global theme. Growing the compile
-  call when a second `nfs-*` theme mixin lands is a bounded open question for a
-  later milestone; building the extension point now is speculative generality,
-  since no second component exists.
+- **Per-component control surfaces** -- STILL out of scope, but the reasoning is
+  CORRECTED (see the multi-component constraint in Notes). The original entry
+  justified this with "no second component exists", which is exactly the
+  expiring premise the constraint forbids. The decision survives on a better
+  argument: the curated variables are **Foundation-global concepts**
+  (`$foundation-palette` keys and `$global-radius`), not button properties, so a
+  global surface is the *correct* shape and becomes more correct as components
+  land -- not a shortcut taken because only one exists.
+
+  What that original entry wrongly bundled in, and is now **back in scope** for
+  ticket 12: the compile call being hard-wired to `nfs-button.theme()` and the
+  `.button` selector with no extension point. That is plumbing, not surface, and
+  deferring it was the single-component error.
 - **Extending `verify-autodocs-coverage` to the addon** (ticket 11, closing the
   "docs surface" fog, and consistent with ticket 10 section 6.3). That gate
   proves Angular component input tables render JSDoc; the addon has no component

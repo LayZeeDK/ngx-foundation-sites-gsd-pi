@@ -1,0 +1,139 @@
+samples per point: 7 (interleaved, shuffled, 2 warm-up passes)
+node v24.18.0  sass dart-sass 1.102.0 (Sass Compiler) [Dart] dart2js 3.12.2 (Dart Compiler) [Dart]
+
+=== 1. CUMULATIVE PREFLIGHT: emit through the SHARED island -- 31/34 OK ===
+  EXCLUDED progress-bar: Undefined variable.
+  EXCLUDED drilldown: Undefined variable.
+  EXCLUDED slider: Undefined variable.
+
+=== 2. SOLO-ISLAND PREFLIGHT: one component per island -- 27/31 OK ===
+  CANNOT be islanded alone -- button-group: Undefined variable.
+  CANNOT be islanded alone -- accordion-menu: Undefined mixin.
+  CANNOT be islanded alone -- dropdown-menu: Undefined mixin.
+  CANNOT be islanded alone -- menu-icon: Undefined variable.
+
+=== 3. ANCHOR + panel-init probe ===
+real nfs button chain, default theme : median 147.1 ms (min 137.5, max 182.9) | css 5839 B | 16 files served, 16 load() calls
+real nfs button chain, themed        : median 146.5 ms | css 5807 B
+panel-init DATA probe (no island)    : median 0.7 ms | 2 files | css 78 B
+
+=== 4. ISLAND FLOOR (island @used, no component rules emitted) ===
+repo's real 3-import shape (util + global + 1 component) | median    35.9 ms |  14 files (12 fnd) | css 0 B
+multi-component-capable (+ sassy-lists + typography)     | median    40.6 ms |  26 files (24 fnd) | css 0 B
+same, with all 31 component partials imported            | median    59.2 ms |  57 files (55 fnd) | css 0 B
+
+=== A. SHARED island, N distinct REAL components, ONE compile ===
+  N | median ms |   min |   max | css KiB | files | load() | ms per component
+  1 |     183.2 | 166.9 | 195.6 |     9.3 |    28 |     28 |  183.2
+  2 |     239.3 | 229.3 | 252.7 |    13.8 |    30 |     30 |  119.6
+  3 |     241.0 | 228.5 | 268.0 |    14.2 |    32 |     32 |   80.3
+  5 |     545.7 | 511.0 | 584.5 |    15.8 |    36 |     36 |  109.1
+ 10 |     706.4 | 669.9 | 807.8 |    21.8 |    46 |     46 |   70.6
+ 20 |     871.2 | 860.8 | 953.4 |    54.2 |    66 |     66 |   43.6
+ 31 |     905.0 | 862.5 | 1066.0 |    75.6 |    88 |     88 |   29.2
+
+=== B. N emissions of the REPO'S REAL button theme(), ONE compile ===
+(no synthetic Sass: the real _button.scss, N selectors, full palette loop)
+  N | median ms |   min |   max | css KiB | files | load() | ms per component
+  1 |     139.9 | 133.6 | 158.1 |     5.8 |    16 |     16 |  139.9
+  2 |     258.2 | 231.0 | 261.9 |    11.6 |    16 |     16 |  129.1
+  3 |     354.2 | 318.9 | 366.8 |    17.3 |    16 |     16 |  118.1
+  5 |     525.1 | 503.8 | 551.4 |    28.9 |    16 |     16 |  105.0
+ 10 |    1051.0 | 1034.7 | 1201.6 |    57.8 |    16 |     16 |  105.1
+ 20 |    2031.1 | 1935.6 | 2185.3 |   116.8 |    16 |     16 |  101.6
+ 31 |    3145.3 | 2995.8 | 3416.9 |   181.6 |    16 |     16 |  101.5
+
+=== C. PER-COMPONENT island (repo's real file shape), N components, ONE compile ===
+  N | median ms |   min |   max | css KiB | files | load() | ms per component
+  1 |     181.4 | 175.9 | 194.3 |     9.3 |    28 |     28 |  181.4
+  2 |     263.8 | 250.6 | 324.9 |    13.8 |    31 |     31 |  131.9
+  3 |     304.7 | 285.6 | 317.3 |    14.2 |    34 |     34 |  101.6
+  5 |     652.9 | 625.4 | 677.0 |    15.8 |    40 |     40 |  130.6
+ 10 |     983.7 | 938.3 | 1071.0 |    21.8 |    55 |     55 |   98.4
+ 20 |    1322.5 | 1313.9 | 1393.3 |    39.6 |    85 |     85 |   66.1
+ 27 |    1607.4 | 1512.8 | 1722.2 |    50.1 |   106 |    106 |   59.5
+
+=== D. N SEPARATE compiles, one per component (the reference's shape) ===
+  N | median ms |   min |   max | css KiB | files | load() | ms per component
+  1 |     179.5 | 175.4 | 196.6 |       - |     - |      - |  179.5
+  2 |     300.0 | 257.5 | 313.6 |       - |     - |      - |  150.0
+  3 |     330.2 | 312.4 | 355.9 |       - |     - |      - |  110.1
+  5 |     698.5 | 648.0 | 966.5 |       - |     - |      - |  139.7
+ 10 |    1093.4 | 1023.9 | 1185.0 |       - |     - |      - |  109.3
+ 20 |    1517.2 | 1477.5 | 1656.6 |       - |     - |      - |   75.9
+ 27 |    1859.4 | 1828.6 | 2003.5 |       - |     - |      - |   68.9
+
+=== E. PER-COMPONENT cost ===
+emission cost = compile(union island, emit ONE) - compile(union island, emit none = 59.2 ms), so the parse floor is held constant.
+solo cost     = compile(own island holding only that component, emit it) -- what a worker POOL would schedule.
+component            | emit-one ms | emission ms | solo ms | css B
+button               |       194.4 |       135.2 |   181.8 |   9531
+menu                 |       117.4 |        58.2 |   104.8 |   4582
+dropdown             |        59.7 |         0.5 |    41.9 |    465
+callout              |       216.8 |       157.7 |   192.9 |   1074
+label                |       201.8 |       142.6 |   183.5 |    507
+badge                |       192.3 |       133.1 |   172.1 |    479
+card                 |        66.0 |         6.8 |    41.6 |    553
+accordion            |        59.7 |         0.6 |    41.1 |   1123
+tabs                 |        90.5 |        31.4 |    69.0 |   1361
+switch               |        61.6 |         2.5 |    43.6 |   2614
+table                |        65.0 |         5.8 |    45.3 |   1863
+button-group         |       209.8 |       150.6 |     n/a |  16300
+off-canvas           |        69.0 |         9.8 |    57.4 |   8945
+breadcrumbs          |        58.8 |        -0.4 |    45.2 |    634
+close-button         |        62.1 |         3.0 |    42.3 |    411
+pagination           |        65.0 |         5.9 |    46.3 |   1373
+reveal               |        65.0 |         5.9 |    51.0 |   2077
+thumbnail            |        58.0 |        -1.1 |    41.0 |    387
+title-bar            |        64.0 |         4.9 |    42.6 |    426
+media-object         |        61.6 |         2.4 |    43.2 |    797
+top-bar              |        64.0 |         4.8 |    45.9 |   1333
+orbit                |        75.3 |        16.2 |    51.9 |   1457
+accordion-menu       |        62.2 |         3.1 |     n/a |   1985
+dropdown-menu        |        64.8 |         5.7 |     n/a |   6983
+tooltip              |        59.4 |         0.2 |    47.6 |   1927
+sticky               |        60.3 |         1.1 |    40.9 |    411
+float                |        62.1 |         2.9 |    42.0 |    306
+flex                 |        63.3 |         4.2 |    51.4 |   3049
+visibility           |        79.7 |        20.6 |    61.9 |   3057
+menu-icon            |        60.1 |         0.9 |     n/a |    891
+responsive-embed     |        57.6 |        -1.6 |    42.3 |    483
+
+ADDITIVITY CHECK: floor 59.2 + sum of 31 emission costs 913.5 = 972.7 ms predicted vs 905.0 ms measured for ONE compile emitting all 31 (predicted / measured = 1.07)
+
+=== F. POOL arithmetic from the measured SOLO costs ===
+(split = one compile per component, each paying its own island floor;
+ LPT-packed into P workers; wall = the busiest worker. Excludes
+ postMessage and CSS-recombination overhead, so it FAVOURS the pool.)
+  N | shared ONE compile | split total | P=2 wall | P=4 wall | P=8 wall | best gain
+  1 |              183.2 |       181.8 |    181.8 |    181.8 |    181.8 | 1.01x
+  2 |              239.3 |       286.5 |    181.8 |    181.8 |    181.8 | 1.32x
+  3 |              241.0 |       328.5 |    181.8 |    181.8 |    181.8 | 1.33x
+  5 |              545.7 |       704.8 |    365.3 |    192.9 |    192.9 | 2.83x
+ 10 |              706.4 |      1072.2 |    552.7 |    276.9 |    192.9 | 3.66x
+ 20 |              871.2 |      1532.5 |    780.0 |    405.4 |    213.1 | 4.09x
+ 27 |                  - |      1870.6 |    943.1 |    473.3 |    248.8 | -
+
+=== G. LINEAR FIT  T(N) = fixed + marginal * N  (Node ms) ===
+series                     | fixed ms | marginal ms/comp |   T(1) | T(35) predicted
+A shared, real components  |    274.3 |             24.6 |  298.9 |   1135.4
+B shared, N x real button  |     45.6 |             99.8 |  145.4 |   3538.5
+C per-component islands    |    232.9 |             54.2 |  287.1 |   2130.2
+D N separate compiles      |    235.6 |             63.7 |  299.3 |   2463.8
+
+=== H. Projected browser-WORKER time (anchored, NOT measured) ===
+anchor: real button chain 147.1 ms here == 197.4 ms measured in a real Worker (ticket 05 s5) -> factor 1.34x
+  N | A worker ms | B worker ms | C worker ms | D worker ms
+  1 |       245.8 |       187.7 |       243.4 |       240.9
+  2 |       321.1 |       346.5 |       354.1 |       402.7
+  3 |       323.4 |       475.4 |       408.9 |       443.2
+  5 |       732.4 |       704.8 |       876.3 |       937.5
+ 10 |       948.1 |      1410.6 |      1320.3 |      1467.5
+ 20 |      1169.2 |      2725.9 |      1775.0 |      2036.3
+ 31 |      1214.6 |      4221.4 |           - |           -
+
+=== I. Cache-hit cost: JSON key + Map.get on the canonical theme ===
+0.28 us per hit (0.00028 ms), sink 1168000000
+asymmetry vs the N=1 worker compile (197.4 ms): 715,539x
+
+FLOOR reference: multi-capable island floor 40.6 ms
