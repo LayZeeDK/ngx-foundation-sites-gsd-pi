@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ticket 05 harness</title>
+    <style id="nfs-theme"></style>
+    <!-- Foundation's button rules include a background-color transition. Left
+         on, getComputedStyle samples a mid-flight interpolated colour and the
+         readings lag one case behind. Killed here; this is a harness artefact,
+         not a Sass one. -->
+    <style>
+      * {
+        transition: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="button">Primary</button>
+    <button class="button success">Success</button>
+    <button class="button dropdown">Dropdown</button>
+    <div id="log"></div>
+    <script>
+      // Long-task observer: main-thread blocking evidence.
+      window.__longTasks = [];
+      try {
+        new PerformanceObserver((list) => {
+          for (const e of list.getEntries()) {
+            window.__longTasks.push({ name: e.name, duration: e.duration });
+          }
+        }).observe({ entryTypes: ['longtask'] });
+      } catch (e) {
+        window.__longTaskError = String(e);
+      }
+
+      window.__navStart = performance.now();
+      window.__errors = [];
+      window.addEventListener('error', (e) => window.__errors.push(String(e.message)));
+    </script>
+    <script src="./sass-bundle.BUNDLE.js"></script>
+  </body>
+</html>

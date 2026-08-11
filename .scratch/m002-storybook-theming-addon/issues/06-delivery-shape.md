@@ -1,7 +1,7 @@
 # Decision: workspace-local addon or publishable package?
 
 Type: research
-Status: open
+Status: resolved
 Blocked by: 01, 02
 
 ## Question
@@ -68,3 +68,60 @@ consequences (which files/targets/gates are touched, which are not).
 Out of scope regardless of outcome: actually publishing anything (R019). This
 decision stops at "does it live in a publishable directory and with what
 boundary", never at "ship it".
+
+## Answer
+
+Full reasoning: `../research/06-delivery-shape.md`.
+
+**LOCKED: the addon ships as workspace-local Storybook tooling resident inside
+`packages/ngx-foundation-sites/.storybook/`**, entry points auto-discovered
+(`.storybook/manager.ts` manager-side, the existing `.storybook/preview.ts`
+preview-side) -- option 1. No new package, no `addons: []` wiring, no
+`local-preset.ts`, and no change to the library's `package.json`, `exports` map,
+or the `verify-exports-map` gate.
+
+Honest correction to this ticket's own framing: it is 2 files and *near*-zero
+config, not literally zero. `.storybook/tsconfig.json`'s `include` lists
+`"*.ts"`, a **non-recursive** glob, so a preview-side subdirectory costs one
+`include` line.
+
+**Why the alternatives lose, on repo-specific evidence:**
+
+- **Local preset in its own directory** loses on a cache-coupling asymmetry
+  verified in `nx.json`: the `production` named input is `default` minus
+  `"!{projectRoot}/.storybook/**/*"`. An addon directory at
+  `packages/ngx-foundation-sites/storybook-addon-theming/` falls *inside*
+  `production`, so every addon edit invalidates the library `build` ->
+  `verify-exports-map` (dependsOn build) -> `lint`. `.storybook/`-resident code
+  is explicitly excluded and triggers none of it.
+- **Publishable package** loses four ways: `workspaces: ["packages/*"]` is live
+  (verified symlink + lockfile entry); the library package is non-private and
+  `nx.json`'s `release` has no `projects` filter, so honouring R019 would mean
+  writing config to neutralise what you just created; a separate package sits
+  outside `{projectRoot}` so `build-storybook` would go **stale-cache silent**;
+  and it converts the ~916 KiB gzip `sass` cost into a consumer cost. Zero
+  functional gain -- `resolveAddonName` records are identical either way.
+
+**Middle option: accepted, and defined in file terms** (costs nothing today) --
+one directory whose entries are literally named `manager.ts` / `preview.ts`; the
+addon reaches the library only via `ngx-foundation-sites` and
+`ngx-foundation-sites/scss/button`, never `../src/**`; nothing outside imports
+in except the two one-line auto-discovery shims. Extraction later is: move the
+directory, add a `package.json`, swap shims for one `addons: []` entry.
+**Rejected** as speculative generality: any addon `package.json`, `exports` map,
+`dist/` build, `bundler` field, addon-kit scaffold, Nx project or path alias
+written "for later".
+
+**Two findings this ticket did not anticipate, both routed onward:**
+
+1. **R026 blocks the addon, verified by execution.** `.storybook/*.ts` IS in the
+   library's ESLint scope, and linting research/02's exact preview skeleton
+   against `packages/ngx-foundation-sites/eslint.config.mjs` produced **2 R026
+   errors** (`createElement('style')` and `node.textContent = css`). Note this
+   is the strongest-*looking* argument for a separate package and it is a bad
+   one -- relocating would escape the rule silently rather than resolve it.
+   Routed to ticket 09.
+2. **The load assertion has a precise, verified target.**
+   `sanitizeBase`/`wrapManagerEntries` predicts
+   `sb-addons/packages-ngx-foundation-sites-storybook-<N>/manager-bundle.js`,
+   where `<N>` is an order-dependent index. Routed to ticket 10.

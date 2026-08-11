@@ -6,8 +6,14 @@ Label: `wayfinder:map`
 
 Every architecture decision M002 needs is **locked with evidence**, and M002's
 requirements (R009, R021) are sharpened from one-line wishes into text a GSD
-planning pass can decompose into slices. The map ends where `/gsd plan M002`
-picks up.
+planning pass can decompose into slices. The map ends where GSD milestone
+planning picks up.
+
+Two routes into GSD, and the hand-off is written to suit both: the
+**`gsd-workflow` MCP tools** (`gsd_plan_milestone`, then `gsd_plan_slice` /
+`gsd_plan_task`), which are the only interface available in *this* session; or
+the `/gsd ...` slash commands in a later dedicated `gsd` session. The hand-off
+states what must end up in GSD, not which route applies it.
 
 The thing being decided: a **Storybook addon that compiles Foundation's Sass in
 the browser** (via the `sass` package's browser build, supported since Dart Sass
@@ -23,7 +29,7 @@ browser behavior).
 
 **Execution is OUT of scope.** This map produces locked decisions and
 requirement text, not built code. GSD owns M002's execution -- it is a `queued`
-milestone with 0 slices, and decomposing it is `/gsd plan M002`'s job.
+milestone with 0 slices, and decomposing it belongs to `gsd_plan_milestone`.
 
 ## Notes
 
@@ -36,11 +42,15 @@ Vite-specific technique (`?raw`, `import.meta.glob`). `sass ^1.102.0`,
 `@playwright/test ^1.37`, `vitest ^4.0.8`, `@storybook/test-runner ^0.24.4` are
 already dependencies.
 
-**Verification lanes.** There are **three**, not two (ticket 04's correction):
-`test` (Vitest, jsdom), `test-browser` (Vitest, real Chromium -- already used
-for hydration specs), and a new Playwright lane for anything touching
-Storybook's manager UI. The axis that matters is "can it reach the Storybook
-**manager**", not "is there a browser".
+**Verification lanes.** There are **four** (ticket 04 corrected two to three;
+ticket 10 added the gate lane): `test` (Vitest, jsdom -- resolves the **Node**
+sass build and compiles the real chain there, verified), `test-browser` (Vitest,
+real Chromium -- resolves the **browser** sass build, has a real `Worker`, and
+is the only Vitest lane with a real cascade, because **jsdom discards `@layer`
+rules**), a Playwright lane for anything touching Storybook's manager UI, and
+build-time `verify-*.mjs` gates for anything only observable in the emitted
+artifact. The axis that matters between the first three is "can it reach the
+Storybook **manager**", not "is there a browser".
 
 **No human in the loop.** By explicit user instruction, no ticket may ask the
 user to decide. There are therefore no `grilling` tickets. Every ticket is
@@ -177,6 +187,92 @@ equality checks compare a full resolved control set, not a sparse override map.
 
 <!-- one line per closed ticket -->
 
+- [Write M002's locked decisions and sharpened requirements](issues/11-write-m002-requirements.md)
+  -- **THE MAP IS CLOSED. Hand-off written to [`HANDOFF.md`](HANDOFF.md)**,
+  route-agnostic (states what must end up in GSD, never which interface applies
+  it). Contains: sharpened **R009** (exact six-row control table with wire
+  formats, named delivery shape, derived never-stored preset selection, the
+  canonical-minimal sparse map that makes sparse equality *equal* resolved
+  equality, and mappable validation replacing `unmapped`); sharpened **R021**
+  (four lanes, each naming what it proves, plus both vacuity traps and the
+  five-entry negative-control evidence deliverable); **D032-D036** in the
+  register's exact eight-column shape, each naming the standing HUMAN decisions
+  it operates under (D020/D023) rather than re-deciding them, with D032 as the
+  next free number; the **D023 closure** clause by clause, including the three
+  `expectedContrastFailures` literals stated as **FROZEN**; the
+  touched-but-not-owned requirements (R003/R008/R026/R019/R007) plus the two
+  changes to EXISTING wiring -- the port-4400 refactor and the atomic 3-part
+  demo-app rewire; and **D020 recorded as a deliberate, costed choice**, with
+  the 802 KiB gzip payload attributed to the decision rather than the addon
+  (ticket 03's ~916 KiB was a raw-file estimate; ticket 05's measured figure
+  governs). VERIFIED-vs-INFERRED carried forward, including the three
+  silently-green failure classes whose gates are therefore not optional.
+- [What Vitest proves, what Playwright proves](issues/10-r021-verification-design.md)
+  -- **LOCKED: four lanes.** The lane boundary moved BOTH ways, measured: `test`
+  (jsdom) resolves the **Node** sass build and compiles the real chain to the
+  same **sha256 `49bfb1a2e67bf91a`** as ticket 05's producers, so all
+  compilation / preset / equality / validation / error-shape assertions land
+  there -- but **jsdom DISCARDS `@layer` rules**, making any R008 cascade
+  assertion vacuous, so cascade + real `Worker` + the **browser** sass build go
+  to `test-browser`. Playwright owns only the manager. Two vacuity traps found
+  in the inherited gate design: `iframe.html` has **zero** `<script src=...>`
+  (it uses `import './...'`), and the addon bundle index is order-dependent --
+  so the new `verify-theming-bundle` globs + content-matches `ADDON_ID` and
+  asserts `index.html` **imports** it. **D023's axe proof STAYS in
+  `apps/nfs-demo`** (tarball route, CSR+SSR); the preset is bound to it by a
+  unit identity assertion, and the default theme's three expected-failure
+  literals are frozen. Port 4400 resolved by moving `test-storybook` off
+  `concurrently` onto `dependsOn: static-storybook`.
+- [Control surface, preset semantics, and CSS injection](issues/09-control-surface-and-state-model.md)
+  -- **the Worker spike CLOSED positively** (webpack emits a separate worker
+  chunk; Angular's `worker: false` parser option is discarded by Storybook's
+  merge), so no fallback is needed. Panel-only; globals hold a **sparse
+  canonical-minimal** override map, which makes sparse equality equal resolved
+  equality and reduces preset matching to six scalars. One
+  `<style id="nfs-theming">` in `document.head`; R008's unlayered cascade win
+  verified in real Chromium across all four insertion orders. No debounce timer
+  -- a **latest-wins coalescer**. R026 resolved by one `ignores` on the existing
+  block, keeping the count at 2.
+- [How does Foundation's Sass reach the browser?](issues/08-foundation-sass-into-the-browser.md)
+  -- **LOCKED: build-time inlining.** A generator compiles the chain in Node,
+  records the URLs its importer served, and emits a **committed** TS data module
+  under `.storybook/`, gated by a new `verify-theming-sources` on `lint`.
+  Bundler raw imports are *blocked*, not merely worse: Angular's unconditional
+  `.scss` rule means `asset/source` returns compiled CSS, not raw Sass. `sass`
+  is lazy by construction (worker chunk = split point), so preview boot stays
+  1140 KiB gzip. Staleness is caught because the closure is discovered by
+  compiling, never hand-enumerated. Amended ticket 06's rule 2 openly, since
+  `ngx-foundation-sites/scss/button` is unresolvable from the workspace root.
+- [Where does the WCAG-compliant palette live as a single source of truth?](issues/07-compliant-preset-single-source.md)
+  -- **LOCKED: `$compliant-palette` as a public Sass map inside the EXISTING
+  `scss/_button.scss` entry point**, read by the demo app directly and by the
+  addon via a custom Sass function on its `compileString` call (verified to
+  return a real `SassMap` on the browser path). No new file, no `exports` key,
+  no gate change. The palette turned out to have **one executable instance and
+  five descriptions** of it. `internal/*: null` does not block reading
+  Foundation's defaults -- Dart Sass ignores `exports` for subpaths. Discharges
+  D023 clause 2 literally. Surfaced that `apps/nfs-demo` consumes a real
+  published tarball, which makes `ngx-foundation-sites/scss/button` unresolvable
+  from the workspace root.
+- [Compile the real theme() chain in a browser and measure it](issues/05-compile-the-real-chain-and-measure.md)
+  -- **the approach holds, measured in real Chromium.** Output is byte-identical
+  across four producers (same sha256); the RTL `!global` rebind survives
+  (`margin-left` -> `margin-right` flip from one stylesheet, no `[dir]`); warm
+  compile 280-305 ms median, cold 556 ms. The Terser contradiction is settled in
+  ticket 03's favour by real-build evidence, and the `--test` branch is harmless
+  (byte-identical output even when mangled). **A single Worker is required and
+  free**: it removes a 337 ms main-thread block and is ~30% faster (197 ms
+  median). Real cost 802 KiB gzip, +70% on the current preview bundle.
+- [Workspace-local addon or publishable package?](issues/06-delivery-shape.md)
+  -- **LOCKED: workspace-local, resident in
+  `packages/ngx-foundation-sites/.storybook/`** with auto-discovered entry
+  points. No new package, no `addons: []` wiring, no exports-map or
+  `verify-exports-map` change. A separate directory loses on `nx.json` cache
+  coupling (`.storybook/**` is excluded from the `production` input; a sibling
+  addon dir is not); a package loses on live `workspaces`, R019, stale-cache
+  silence, and pushing the ~916 KiB `sass` cost onto consumers. Surfaced two
+  onward findings: **R026 actually fires** on the addon's injection code (2
+  errors, verified), and the addon-load assertion has a precise bundle target.
 - [Prior art: how next themed, and what the ecosystem already built](issues/01-prior-art-next-and-ecosystem.md)
   -- **prior art is thin, and that is the answer**: zero Storybook addons
   compile Sass in the browser, and no first-party design system (Carbon,
@@ -208,25 +304,49 @@ equality checks compare a full resolved control set, not a sparse override map.
 
 ## Not yet specified
 
-- **Recompile trigger and loading/error UX.** Debounce policy, whether
-  compilation is sync or worker-backed, what the panel shows mid-compile or on
-  a Sass error. Cannot be phrased sharply until ticket 05 measures real compile
-  latency.
-- **Preset extensibility and persistence.** Whether users can save their own
-  presets, and whether control state survives a Storybook reload or story
-  switch.
-- **Behavior as more `nfs-*` components land.** `theme()` is button-only today.
-  Whether the addon's control surface is per-component or global, and what the
-  addon does with a component that has no theme mixin yet.
-- **D023's axe obligation under a preset model.** Half of this cleared: ticket
-  02 verified addon CSS **does** survive `build-storybook`, so `test-storybook`
-  will see it. What remains foggy is what "the axe suite runs against the
-  compliant theme" means once the compliant theme is a *selectable preset*
-  rather than a compiled stylesheet -- possibly re-pointing the existing
-  `@storybook/addon-a11y` scan or the `nfs-demo` axe fixture. Ticket 10 owns
-  deciding it once ticket 07 has created the source.
-- **Docs surface.** README and Storybook docs coverage for the addon, and
-  whether `verify-autodocs-coverage` should extend to it.
+<!-- GRADUATED: "Recompile trigger and loading/error UX" moved into ticket 09
+     once ticket 05 measured the latency (280-305 ms warm, worker-backed 197 ms,
+     main thread otherwise blocked for 337 ms). It is now specifiable, so it
+     lives as part of the control-surface decision rather than as fog. -->
+**NOTHING REMAINS. All three items were closed by ticket 11; each is recorded
+below with where it landed, so nothing vanished silently.**
+
+<!-- CLOSED by ticket 11 (HANDOFF.md section 6.1): "Preset extensibility and
+     persistence" -- SPLIT. PERSISTENCE IS ANSWERED, reconciled with ticket 09
+     rather than treated as untouched: the URL is the mechanism, the sparse
+     canonical-minimal map makes post-reload state byte-identical to in-session
+     state, globals survive story navigation, and there is no localStorage. The
+     "one invalid value drops the ENTIRE theme from ?globals=" hazard is named
+     and mitigated by making the panel the validation boundary, which turns the
+     shareable-link guarantee from best-effort into total. All folded into R009.
+     USER-SAVED PRESETS are ruled out of scope -- see Out of scope below. -->
+<!-- CLOSED by ticket 11 (HANDOFF.md section 6.2): "Behavior as more nfs-*
+     components land" -- folded into R009 as a stated decision plus a bounded
+     open question. The control surface is GLOBAL by decision, not by accident:
+     the addon passes no $selector, so it compiles the mixin's default `.button`
+     and rethemes everything. Grounds recorded (it is what the addon is for; it
+     has zero divergence from what a consumer writes; scoping would need
+     story-wrapper machinery that exists only to undo the first ground). A
+     component with no theme mixin is simply unaffected. Growing the compile
+     call when a second nfs-* theme mixin lands is explicitly NOT M002 scope --
+     no second component exists. Per-component control surfaces are ruled out of
+     scope below. -->
+<!-- CLOSED by ticket 11 (HANDOFF.md section 6.3): "Docs surface" -- folded into
+     R009 as ONE named deliverable: a README section covering the six controls
+     with units and ranges, the two presets and the exact-match rule, the
+     URL-sharing guarantee, and the story-mode-only panel limitation. Extending
+     verify-autodocs-coverage to the addon is ruled out of scope below. -->
+<!-- Historical note: ticket 01 found the reference project shipped its addon
+     with ZERO tests and ZERO documentation, so there is no pattern to inherit
+     here -- that absence is precisely what the README deliverable avoids
+     repeating. -->
+
+<!-- GRADUATED: "D023's axe obligation under a preset model" is decided by
+     ticket 10 -- the axe proof STAYS in apps/nfs-demo (real tarball, CSR+SSR),
+     nothing is re-pointed, and the addon's preset is bound to that proof by a
+     data-identity unit assertion plus one rendered-colour Playwright
+     assertion. The default theme's three expected-failure literals are
+     frozen. -->
 
 ## Out of scope
 
@@ -237,6 +357,28 @@ equality checks compare a full resolved control set, not a sparse override map.
   `$palette` / `$radius`. The curated control set maps 1:1 onto what exists;
   font-size, padding and hover-lightness controls would need API growth and are
   ruled out of this effort.
-- **CSS custom property theming** -- forbidden by D020.
-- **Building M002.** GSD owns execution. This map hands off to
-  `/gsd plan M002`.
+- **CSS custom property theming** -- forbidden by D020. Ticket 11 records D020
+  as load-bearing, unusual and deliberately costed: no Storybook addon compiles
+  Sass in the browser, and every first-party design system surveyed chose this
+  forbidden mechanism. See `HANDOFF.md` section 7 for the single condition under
+  which D020 should be revisited.
+- **User-saved presets** (ticket 11, closing the "preset extensibility" fog).
+  Two presets ship -- Foundation default and WCAG-compliant -- which is what
+  D023 requires and what the Destination describes. User-saved presets need a
+  storage mechanism the globals/URL model does not provide, plus naming and
+  management UI and a collision story against the shipped presets. Persistence
+  itself is NOT out of scope -- it is answered (the URL), and folded into R009.
+- **Per-component control surfaces** (ticket 11, closing the "more nfs-*
+  components" fog). The addon's surface is one global theme. Growing the compile
+  call when a second `nfs-*` theme mixin lands is a bounded open question for a
+  later milestone; building the extension point now is speculative generality,
+  since no second component exists.
+- **Extending `verify-autodocs-coverage` to the addon** (ticket 11, closing the
+  "docs surface" fog, and consistent with ticket 10 section 6.3). That gate
+  proves Angular component input tables render JSDoc; the addon has no component
+  and no autodocs page. Extending a docs gate to an undocumented surface invents
+  the requirement. A README hex-literal drift check is out for the same reason:
+  documentation drift is not correctness drift, and the axe fixture is the real
+  gate.
+- **Building M002.** GSD owns execution. This map hands off to GSD milestone
+  planning, by whichever route the consuming session has available.
