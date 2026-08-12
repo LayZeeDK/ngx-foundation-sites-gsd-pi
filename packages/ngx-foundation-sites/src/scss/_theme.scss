@@ -1,0 +1,14 @@
+// NfsButton's WCAG/axe-compliant palette (D033).
+//
+//   @use 'ngx-foundation-sites/scss/theme' as nfs-theme;
+//   @include nfs-button.theme($palette: nfs-theme.$wcag-palette);
+//
+// Plain assignment, not `!default`: this is public DATA read by a theme
+// mixin call, not module configuration a consumer overrides through
+// `@use ... with (...)` -- there is no such surface here to configure.
+// Emits nothing on `@use` (0 bytes).
+$wcag-palette: (
+  success: #238648,
+  warning: #9e6c00,
+  alert: #cb4b37,
+);

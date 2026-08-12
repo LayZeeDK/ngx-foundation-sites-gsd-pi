@@ -9,6 +9,7 @@
   "exports": {
     "./scss/internal/*": null,
     "./scss/button": "./scss/_button.scss",
+    "./scss/theme": "./scss/_theme.scss",
     "./scss/*": "./scss/*",
     "./css/*": "./css/*"
   }
