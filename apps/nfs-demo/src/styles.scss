@@ -13,22 +13,19 @@
 // regardless of DOM insertion order -- which is what the Playwright
 // assertion on rgb(42, 93, 176) actually measures.
 @use 'ngx-foundation-sites/scss/button' as nfs-button;
+@use 'ngx-foundation-sites/scss/theme' as nfs-theme;
 
 @include nfs-button.theme($background: #2a5db0);
 
 // M002-parity compliant theme (S05/D023/R003): a SECOND, additively-scoped
 // theme() invocation under its own selector, never touching Foundation's own
-// default palette above. Reuses the exact compliant colours already
-// published and verified in README.md's Accessibility section --
+// default palette above. Reads the compliant colours from the shipped
+// $wcag-palette data module (D033/D046) rather than a hand-typed copy --
 // success/warning clear 4.5:1 as hollow text on a white page, and alert
 // clears it as a fill -- so nfs-button-a11y.spec.ts's "m002-compliant" axe
 // fixture (added in T02) has real compiled CSS to scan and expect zero
 // violations against.
 @include nfs-button.theme(
   $selector: '.theme-compliant',
-  $palette: (
-    success: #238648,
-    warning: #9e6c00,
-    alert: #cb4b37,
-  )
+  $palette: nfs-theme.$wcag-palette
 );
