@@ -1,3 +1,8 @@
+
+[2m> [22m[2mnx run[22m nfs-demo:verify-registry-consumption
+
+[2m> [22mnode apps/nfs-demo/scripts/verify-registry-consumption.mjs
+
 [verify-registry-consumption] Local Verdaccio registry already running at http://localhost:4873.
 [verify-registry-consumption] Building ngx-foundation-sites from current source...
 [verify-registry-consumption] $ npx nx build ngx-foundation-sites --skip-nx-cache
@@ -34,7 +39,7 @@
 - to:   D:/projects/github/LayZeeDK/ngx-foundation-sites-gsd-pi/dist/packages/ngx-foundation-sites[39m
 [32m------------------------------------------------------------------------------[39m
 [37m[37m
-Build at: [1m2026-08-10T15:59:56.470Z[22m - Time: [1m982[22mms
+Build at: [1m2026-08-13T12:54:11.428Z[22m - Time: [1m1867[22mms
 [39m[39m
 
 [2m[32m[39m[22m
@@ -42,9 +47,9 @@ Build at: [1m2026-08-10T15:59:56.470Z[22m - Time: [1m982[22mms
 [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild[22m for project ngx-foundation-sites and [1m1[22m task it depends on[39m
 
 
-  Run duration:      3.2s
+  Run duration:      6.1s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     3.2s (2 tasks)
+  Critical path:     6.0s (2 tasks)
   Recoverable time:  <1ms
 [verify-registry-consumption] Preparing disposable proof version 0.0.1-registryproof.0 in scratch dir (avoids colliding with the real npmjs-published ngx-foundation-sites@0.0.1)...
 [verify-registry-consumption] Publishing ngx-foundation-sites@0.0.1-registryproof.0 to local Verdaccio only (tag: registry-proof)...
@@ -55,12 +60,13 @@ npm warn using --force Recommended protections disabled.
 npm notice
 npm notice 📦  ngx-foundation-sites@0.0.1-registryproof.0
 npm notice Tarball Contents
-npm notice 20.6kB README.md
+npm notice 21.0kB README.md
 npm notice 6.2kB css/nfs-button.css
 npm notice 17.2kB fesm2022/ngx-foundation-sites.mjs
 npm notice 7.1kB fesm2022/ngx-foundation-sites.mjs.map
 npm notice 1.3kB package.json
 npm notice 5.9kB scss/_button.scss
+npm notice 511B scss/_theme.scss
 npm notice 4.5kB scss/internal/_foundation-button.scss
 npm notice 2.4kB scss/internal/_settings.scss
 npm notice 3.2kB types/ngx-foundation-sites.d.ts
@@ -68,11 +74,11 @@ npm notice Tarball Details
 npm notice name: ngx-foundation-sites
 npm notice version: 0.0.1-registryproof.0
 npm notice filename: ngx-foundation-sites-0.0.1-registryproof.0.tgz
-npm notice package size: 18.5 kB
-npm notice unpacked size: 68.4 kB
-npm notice shasum: 2f786368e951c23334a8af008a327f1226709975
-npm notice integrity: sha512-eevgUK7PAEzv0[...]hdIq/176gcZ2w==
-npm notice total files: 9
+npm notice package size: 19.1 kB
+npm notice unpacked size: 69.3 kB
+npm notice shasum: cfba63eec758e131e18528c1e0755f02a33c7137
+npm notice integrity: sha512-WEtegqOk9rJ16[...]cSk06o/7FiuTQ==
+npm notice total files: 10
 npm notice
 npm notice Publishing to http://localhost:4873/ with tag registry-proof and default access
 + ngx-foundation-sites@0.0.1-registryproof.0
@@ -82,7 +88,7 @@ npm notice Publishing to http://localhost:4873/ with tag registry-proof and defa
 [verify-registry-consumption] Dropped the ngx-foundation-sites lockfile entry so the republished tarball is refetched.
 [verify-registry-consumption] $ npm install --prefer-online
 
-added 1 package in 470ms
+added 1 package in 739ms
 
 15 packages are looking for funding
   run `npm fund` for details
@@ -122,7 +128,7 @@ added 1 package in 470ms
 - to:   D:/projects/github/LayZeeDK/ngx-foundation-sites-gsd-pi/dist/packages/ngx-foundation-sites[39m
 [32m------------------------------------------------------------------------------[39m
 [37m[37m
-Build at: [1m2026-08-10T16:00:04.015Z[22m - Time: [1m988[22mms
+Build at: [1m2026-08-13T12:54:25.661Z[22m - Time: [1m1997[22mms
 [39m[39m
 
 [2m> [22m[2mnx run[22m nfs-demo:build:production
@@ -130,10 +136,10 @@ Build at: [1m2026-08-10T16:00:04.015Z[22m - Time: [1m988[22mms
 [33m❯[39m Building...
 [32m✔[39m Building...
 [37m[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
-[32mmain.js[37m            [2m | [22m[2mmain[22m         [2m | [22m[36m117.48 kB[37m[2m | [22m               [36m34.73 kB[37m
-[32mstyles.css[37m         [2m | [22m[2mstyles[22m       [2m | [22m  [36m4.76 kB[37m[2m | [22m              [36m811 bytes[37m
-[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m122.25 kB[22m[2m | [22m               [1m35.54 kB[22m
-Application bundle generation complete. [1.963 seconds] - 2026-08-10T16:00:06.670Z
+[32mmain.js[37m            [2m | [22m[2mmain[22m         [2m | [22m[36m119.51 kB[37m[2m | [22m               [36m34.93 kB[37m
+[32mstyles.css[37m         [2m | [22m[2mstyles[22m       [2m | [22m [36m10.54 kB[37m[2m | [22m                [36m1.25 kB[37m
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m130.06 kB[22m[2m | [22m               [1m36.19 kB[22m
+Application bundle generation complete. [3.473 seconds] - 2026-08-13T12:54:30.482Z
 [39m
 [37mOutput location: D:\projects\github\LayZeeDK\ngx-foundation-sites-gsd-pi\dist\apps\nfs-demo
 [39m
@@ -143,9 +149,9 @@ Application bundle generation complete. [1.963 seconds] - 2026-08-10T16:00:06.67
 [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild[22m for project nfs-demo and [1m2[22m tasks it depends on[39m
 
 
-  Run duration:      5.8s
+  Run duration:      10.5s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     5.7s (3 tasks)
+  Critical path:     10.4s (3 tasks)
   Recoverable time:  <1ms
 [verify-registry-consumption] Building apps/nfs-demo (SSR target, behind the Express/node and dev-SSR hosts)...
 [verify-registry-consumption] $ npx nx build-ssr nfs-demo --skip-nx-cache
@@ -182,7 +188,7 @@ Application bundle generation complete. [1.963 seconds] - 2026-08-10T16:00:06.67
 - to:   D:/projects/github/LayZeeDK/ngx-foundation-sites-gsd-pi/dist/packages/ngx-foundation-sites[39m
 [32m------------------------------------------------------------------------------[39m
 [37m[37m
-Build at: [1m2026-08-10T16:00:11.302Z[22m - Time: [1m1045[22mms
+Build at: [1m2026-08-13T12:54:38.630Z[22m - Time: [1m1753[22mms
 [39m[39m
 
 [2m> [22m[2mnx run[22m nfs-demo:build-ssr:production
@@ -191,25 +197,24 @@ Build at: [1m2026-08-10T16:00:11.302Z[22m - Time: [1m1045[22mms
 [32m✔[39m Building...
 [37m[35mBrowser bundles[37m     
 [1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
-[32mmain.js[37m             [2m | [22m[2mmain[22m            [2m | [22m[36m170.87 kB[37m[2m | [22m               [36m50.61 kB[37m
-[32mstyles.css[37m          [2m | [22m[2mstyles[22m          [2m | [22m  [36m4.76 kB[37m[2m | [22m              [36m811 bytes[37m
+[32mmain.js[37m             [2m | [22m[2mmain[22m            [2m | [22m[36m172.90 kB[37m[2m | [22m               [36m50.80 kB[37m
+[32mstyles.css[37m          [2m | [22m[2mstyles[22m          [2m | [22m [36m10.54 kB[37m[2m | [22m                [36m1.25 kB[37m
 [32mchunk-AY4LCFTV.js[37m   [2m | [22m[2m-[22m               [2m | [22m[36m720 bytes[37m[2m | [22m              [36m720 bytes[37m
-[1m [22m                   [2m | [22m[1mInitial total[22m   [2m | [22m[1m176.35 kB[22m[2m | [22m               [1m52.14 kB[22m
+[1m [22m                   [2m | [22m[1mInitial total[22m   [2m | [22m[1m184.16 kB[22m[2m | [22m               [1m52.77 kB[22m
 [1mLazy chunk files[22m    [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
 [32mchunk-I22YU7QX.js[37m   [2m | [22m[2mbrowser[22m         [2m | [22m[36m103 bytes[37m[2m | [22m              [36m103 bytes[37m
 [35mServer bundles[37m      
 [1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
 [32mserver.mjs[37m          [2m | [22m[2mserver[22m          [2m | [22m[36m833.31 kB[37m[2m | [22m                       
-[32mmain.server.mjs[37m     [2m | [22m[2mmain.server[22m     [2m | [22m[36m682.61 kB[37m[2m | [22m                       
+[32mmain.server.mjs[37m     [2m | [22m[2mmain.server[22m     [2m | [22m[36m684.68 kB[37m[2m | [22m                       
 [32mpolyfills.server.mjs[37m[2m | [22m[2mpolyfills.server[22m[2m | [22m[36m234.18 kB[37m[2m | [22m                       
 [32mchunk-ITOR7NUX.mjs[37m  [2m | [22m[2m-[22m               [2m | [22m  [36m1.38 kB[37m[2m | [22m                       
 [32mchunk-KYQQYI4M.mjs[37m  [2m | [22m[2m-[22m               [2m | [22m  [36m1.01 kB[37m[2m | [22m                       
 [1mLazy chunk files[22m    [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
-[32mchunk-KUERU4XA.mjs[37m  [2m | [22m[2mxhr2[22m            [2[39m
-[37mm | [22m [36m12.17 kB[37m[2m | [22m                       
+[32mchunk-KUERU4XA.mjs[37m  [2m | [22m[2mxhr2[22m            [2[39m[37mm | [22m [36m12.17 kB[37m[2m | [22m                       
 [32mchunk-LYHAGGDF.mjs[37m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.07 kB[37m[2m | [22m                       
 [35mPrerendered 0 static routes.[37m
-Application bundle generation complete. [2.513 seconds] - 2026-08-10T16:00:14.575Z
+Application bundle generation complete. [5.312 seconds] - 2026-08-13T12:54:45.314Z
 [39m
 [37mOutput location: D:\projects\github\LayZeeDK\ngx-foundation-sites-gsd-pi\dist\apps\nfs-demo-ssr
 [39m
@@ -219,11 +224,26 @@ Application bundle generation complete. [2.513 seconds] - 2026-08-10T16:00:14.57
 [7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mbuild-ssr[22m for project nfs-demo and [1m2[22m tasks it depends on[39m
 
 
-  Run duration:      6.5s
+  Run duration:      12.2s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     6.5s (3 tasks)
+  Critical path:     12.1s (3 tasks)
   Recoverable time:  <1ms
 [verify-registry-consumption] Confirmed CSR build output has no reference to packages/ngx-foundation-sites/src, and does reference the nfsButton selector.
 [verify-registry-consumption] Confirmed SSR build output has no reference to packages/ngx-foundation-sites/src, and does reference the nfsButton selector.
 [verify-registry-consumption] PASS: apps/nfs-demo consumes ngx-foundation-sites from the local Verdaccio registry as a real built package, not the monorepo source - in the CSR build AND the SSR build.
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mverify-registry-consumption[22m for project nfs-demo[39m
+
+
+  Run duration:      44.3s
+  Cache:             0/1 hit (0%)
+  Critical path:     44.3s (1 task)
+  Recoverable time:  <1ms
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://nx.dev/ci/features/remote-cache?utm_source=nx-cli&utm_medium=cli&utm_campaign=performance-report&utm_content=remote-cache.
+    - Speed up or split the longest tasks on the critical path:
+        nfs-demo:verify-registry-consumption    44.3s
 EXIT_CODE:0
