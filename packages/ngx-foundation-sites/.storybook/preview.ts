@@ -9,3 +9,11 @@ import docJson from '../documentation.json';
 // with no description, type or default -- which is exactly what R007's
 // recorded proof claims autodocs shows.
 setCompodocJson(docJson);
+
+// D035 part b: nfsTheme is a sparse, canonical-minimal override map over the
+// Theming panel's six controls (R009). `{}` means "Foundation's default
+// theme" -- a key is present only when its live value differs from that
+// default, so the default theme yields an empty `?globals=`.
+export const initialGlobals = {
+  nfsTheme: {},
+};
