@@ -74,7 +74,14 @@ export function clampRadius(rawValue: string): number | null {
   return parsed;
 }
 
-function withOverride<K extends keyof NfsTheme>(
+/**
+ * Exported so a Vitest `test` (jsdom) lane can exercise the
+ * canonicalisation-deletes-default-key behaviour directly (R021 lane 1):
+ * the whole "sparse equality is resolved equality" property in
+ * theming-presets.ts's `deriveSelectedPreset` depends on this function never
+ * leaving a key present at its default value.
+ */
+export function withOverride<K extends keyof NfsTheme>(
   theme: NfsTheme,
   key: K,
   value: NonNullable<NfsTheme[K]>,
