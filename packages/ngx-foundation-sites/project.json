@@ -70,8 +70,23 @@
       "dependsOn": [
         "@ngx-foundation-sites/source:verify-browserslist",
         "verify-foundation-parity",
-        "verify-exports-map"
+        "verify-exports-map",
+        "verify-theming-sources"
       ]
+    },
+    "verify-theming-sources": {
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{projectRoot}/scripts/generate-theming-sources.mjs",
+        "{projectRoot}/scripts/verify-theming-sources.mjs",
+        "{projectRoot}/.storybook/theming-sources.generated.ts",
+        "{projectRoot}/src/scss/**/*.scss",
+        "{workspaceRoot}/node_modules/foundation-sites/scss/**/*.scss"
+      ],
+      "options": {
+        "command": "node packages/ngx-foundation-sites/scripts/verify-theming-sources.mjs",
+        "cwd": "{workspaceRoot}"
+      }
     },
     "verify-foundation-parity": {
       "executor": "nx:run-commands",
