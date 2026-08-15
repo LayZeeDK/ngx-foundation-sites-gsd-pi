@@ -2,6 +2,7 @@ import { setCompodocJson } from '@storybook/addon-docs/angular';
 // Generated (and gitignored) by the `compodoc: true` option on both Storybook
 // targets, which runs Compodoc against tsconfig.lib.json before the build.
 import docJson from '../documentation.json';
+import { withNfsTheming } from './theming-inject';
 
 // R007: the autodocs ArgTypes table is populated from Compodoc's docgen JSON.
 // @storybook/angular reads it from globalThis.__STORYBOOK_COMPODOC_JSON__ and
@@ -17,3 +18,8 @@ setCompodocJson(docJson);
 export const initialGlobals = {
   nfsTheme: {},
 };
+
+// D035 part d/e: reacts to `nfsTheme` globals changes in this preview iframe
+// -- constructs the Worker lazily, coalesces compiles, and injects the
+// result into the shared `<style id="nfs-theming">` node.
+export const decorators = [withNfsTheming];

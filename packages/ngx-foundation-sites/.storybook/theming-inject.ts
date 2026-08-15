@@ -1,0 +1,199 @@
+import type { Decorator } from '@storybook/angular';
+import type { NfsTheme } from './theming-panel';
+import type { ThemeCompileRequest, ThemeCompileResponse } from './theming-worker';
+
+// D035 part d/e: this module runs in the PREVIEW iframe (via the
+// `withNfsTheming` decorator wired into preview.ts), never in the manager --
+// that is where the story's real DOM lives and where the compiled CSS must
+// apply. It lazily constructs a single Web Worker on the first non-default
+// theme, coalesces rapid changes into a single-slot latest-wins queue (no
+// debounce), and injects into one shared `<style id="nfs-theming">` node.
+
+export type ThemingCompileState =
+  | { readonly kind: 'idle' }
+  | { readonly kind: 'compiling' }
+  | { readonly kind: 'error'; readonly message: string; readonly sourceName: string };
+
+type ThemingStateListener = (state: ThemingCompileState) => void;
+
+const STYLE_ELEMENT_ID = 'nfs-theming';
+const COMPILING_INDICATOR_DELAY_MS = 300;
+
+let styleElement: HTMLStyleElement | null = null;
+let styleSeq = 0;
+
+function getOrCreateStyleElement(): HTMLStyleElement {
+  if (styleElement && styleElement.isConnected) {
+    return styleElement;
+  }
+
+  const existing = document.getElementById(STYLE_ELEMENT_ID);
+  if (existing instanceof HTMLStyleElement) {
+    styleElement = existing;
+    return existing;
+  }
+
+  const created = document.createElement('style');
+  created.id = STYLE_ELEMENT_ID;
+  created.setAttribute('data-nfs-seq', '0');
+  document.head.appendChild(created);
+  styleElement = created;
+  return created;
+}
+
+function injectCss(css: string): void {
+  const element = getOrCreateStyleElement();
+  styleSeq += 1;
+  element.textContent = css;
+  element.setAttribute('data-nfs-seq', String(styleSeq));
+}
+
+function clearInjectedCss(): void {
+  const element = getOrCreateStyleElement();
+  if (element.textContent === '') {
+    return;
+  }
+  styleSeq += 1;
+  element.textContent = '';
+  element.setAttribute('data-nfs-seq', String(styleSeq));
+}
+
+let worker: Worker | null = null;
+let workerSeq = 0;
+let compiling = false;
+let discardCurrentResult = false;
+let pendingTheme: NfsTheme | null = null;
+let compilingIndicatorTimer: ReturnType<typeof setTimeout> | null = null;
+let lastAppliedThemeKey: string | null = null;
+
+const listeners = new Set<ThemingStateListener>();
+
+function notify(state: ThemingCompileState): void {
+  listeners.forEach((listener) => listener(state));
+}
+
+export function subscribeThemingState(listener: ThemingStateListener): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function themeKey(theme: NfsTheme): string {
+  return (Object.keys(theme) as (keyof NfsTheme)[])
+    .sort()
+    .map((key) => `${key}:${theme[key]}`)
+    .join('|');
+}
+
+function ensureWorker(): Worker {
+  if (worker) {
+    return worker;
+  }
+
+  const created = new Worker(new URL('./theming-worker.ts', import.meta.url), { type: 'module' });
+  created.onmessage = (event: MessageEvent<ThemeCompileResponse>) => {
+    handleWorkerMessage(event.data);
+  };
+  worker = created;
+  return created;
+}
+
+function friendlySourceName(sourceUrl: string | null): string {
+  if (!sourceUrl) {
+    return 'the compiled theme';
+  }
+  const lastSegment = sourceUrl.slice(sourceUrl.lastIndexOf('/') + 1);
+  return lastSegment.length > 0 ? lastSegment : sourceUrl;
+}
+
+function handleWorkerMessage(response: ThemeCompileResponse): void {
+  if (compilingIndicatorTimer !== null) {
+    clearTimeout(compilingIndicatorTimer);
+    compilingIndicatorTimer = null;
+  }
+  compiling = false;
+
+  const shouldApply = response.seq === workerSeq && !discardCurrentResult;
+  discardCurrentResult = false;
+
+  if (shouldApply) {
+    if (response.ok) {
+      // D035 part e: the last good CSS is never cleared on error -- achieved
+      // here simply by never overwriting the style node on the error branch.
+      injectCss(response.css);
+      notify({ kind: 'idle' });
+    } else {
+      notify({
+        kind: 'error',
+        message: response.error.sassMessage,
+        sourceName: friendlySourceName(response.error.sourceUrl),
+      });
+    }
+  }
+
+  if (pendingTheme !== null) {
+    const nextTheme = pendingTheme;
+    pendingTheme = null;
+    startCompile(nextTheme);
+  }
+}
+
+function startCompile(theme: NfsTheme): void {
+  compiling = true;
+  workerSeq += 1;
+  const request: ThemeCompileRequest = { seq: workerSeq, theme };
+
+  compilingIndicatorTimer = setTimeout(() => {
+    if (compiling) {
+      notify({ kind: 'compiling' });
+    }
+  }, COMPILING_INDICATOR_DELAY_MS);
+
+  ensureWorker().postMessage(request);
+}
+
+/**
+ * Single-slot latest-wins coalescer, no debounce timer (D035 part e).
+ * Rapid changes collapse into `pendingTheme`, which is dispatched the moment
+ * the in-flight compile resolves; in-flight compiles are superseded, never
+ * cancelled/terminated.
+ */
+export function requestTheme(theme: NfsTheme): void {
+  const key = themeKey(theme);
+  if (key === lastAppliedThemeKey) {
+    return;
+  }
+  lastAppliedThemeKey = key;
+
+  if (key === '') {
+    // D038: the default theme is never compiled -- it is already on screen
+    // as the library's static `@layer nfs-defaults` CSS. If a compile for a
+    // now-stale non-default theme is still in flight, its result must not
+    // land after this reset.
+    pendingTheme = null;
+    if (compiling) {
+      discardCurrentResult = true;
+    }
+    clearInjectedCss();
+    notify({ kind: 'idle' });
+    return;
+  }
+
+  if (compiling) {
+    pendingTheme = theme;
+    return;
+  }
+
+  startCompile(theme);
+}
+
+// D032: preview-side entry point, wired into `.storybook/preview.ts`'s
+// `decorators` alongside T01's `initialGlobals` -- Storybook's `useGlobals()`
+// already syncs the manager-side panel's writes (T01) to this preview
+// iframe's `context.globals`, so no custom channel messaging is needed here.
+export const withNfsTheming: Decorator = (storyFn, context) => {
+  const theme = (context.globals as { nfsTheme?: NfsTheme }).nfsTheme ?? {};
+  requestTheme(theme);
+  return storyFn();
+};
