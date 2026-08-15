@@ -62,8 +62,16 @@ export default [
   {
     // Non-spec source: both the createElement('style') and
     // innerHTML/textContent halves are banned.
+    //
+    // Exemption: `.storybook/theming-inject.ts` is the Theming addon's
+    // Worker-compiled CSS injection point (D035 part d/e) -- it owns the
+    // single shared `<style id="nfs-theming">` node that the addon's
+    // Worker-compiled Sass output is written into. This is Storybook
+    // tooling, never shipped in the published package, so it is exempt from
+    // R026's "no hand-fed CSS-in-JS" default-styling rule the same way the
+    // spec-file DOM-fixture case below is.
     files: ['**/*.ts'],
-    ignores: ['**/*.spec.ts'],
+    ignores: ['**/*.spec.ts', '**/.storybook/theming-inject.ts'],
     rules: {
       'no-restricted-syntax': [
         'error',
