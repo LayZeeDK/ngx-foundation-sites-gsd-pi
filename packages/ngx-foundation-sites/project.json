@@ -196,13 +196,14 @@
     },
     "test-storybook": {
       "executor": "nx:run-commands",
-      "dependsOn": ["verify-autodocs-coverage"],
+      "dependsOn": ["verify-autodocs-coverage", "static-storybook"],
       "options": {
-        "command": "concurrently -k -s first -n server,tests \"nx run ngx-foundation-sites:static-storybook\" \"wait-on tcp:4400 && test-storybook -c packages/ngx-foundation-sites/.storybook --url=http://localhost:4400\""
+        "command": "wait-on tcp:4400 && test-storybook -c packages/ngx-foundation-sites/.storybook --url=http://localhost:4400"
       }
     },
     "static-storybook": {
       "executor": "@nx/web:file-server",
+      "continuous": true,
       "dependsOn": ["build-storybook"],
       "options": {
         "port": 4400,
