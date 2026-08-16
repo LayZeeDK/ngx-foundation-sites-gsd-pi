@@ -3,8 +3,9 @@ import type { Page } from '@playwright/test';
 // A minimal Storybook manager page object, modelled on storybookjs/storybook's
 // own `SbPage` (code/e2e-sandbox/util.ts) -- not vendored, since that helper
 // imports internal Storybook modules (`storybook/internal/csf`, sandbox
-// templates) this workspace does not depend on. Only the ~4 accessors this
-// addon's specs actually need (research/04 section 4.2).
+// templates) this workspace does not depend on. Only the accessors this
+// addon's specs actually need (see
+// .scratch/m002-storybook-theming-addon/research/04 section 4.2).
 const THEMING_PANEL_ID = 'nfs/theming/panel';
 
 // Storybook persists panel size/position in sessionStorage across reloads
@@ -74,13 +75,26 @@ export class SbPage {
    */
   async disablePreviewTransitions(): Promise<void> {
     const frame = this.page.frames().find((candidate) => candidate.url().includes('iframe.html'));
-    await frame?.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
+    // `page.frames()` is a synchronous snapshot with no auto-wait, so this
+    // genuinely can miss. Optional-chaining it made the method return success
+    // having done nothing, and every downstream colour assertion then raced
+    // the 0.25s transition or read the focus-darkened variant -- failing as a
+    // colour mismatch that points at the theming pipeline instead of here.
+    if (!frame) {
+      throw new Error(
+        'disablePreviewTransitions: no preview frame whose URL contains "iframe.html". ' +
+          `Frames present: ${this.page.frames().map((candidate) => candidate.url()).join(', ')}. ` +
+          'Either the preview has not attached yet, or Storybook changed the preview URL.'
+      );
+    }
+
+    await frame.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
     // Storybook's own preview boot moves focus onto the first focusable
     // canvas element (confirmed live: reading a themed button's background
     // right after navigation consistently read Foundation's `:focus`/`:hover`
     // darkened variant, a stable ~20% lightness reduction, not a transient
     // transition artifact). Blur it so colour assertions read the resting
     // state the design's own hex literals describe.
-    await frame?.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    await frame.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   }
 }
