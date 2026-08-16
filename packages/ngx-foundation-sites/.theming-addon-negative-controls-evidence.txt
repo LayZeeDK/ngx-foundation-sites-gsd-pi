@@ -1,13 +1,32 @@
 Theming addon negative-control evidence (M002/S05/T04, R021 lane 4)
 ====================================================================
 
-Five mandatory break-and-observe runs proving verify-theming-bundle and
-nx lint actually catch the regressions they claim to catch, per M002 handoff
-section 10.5. Each entry: the source mutation applied, the command run, the
-observed RED result, the revert, and the observed GREEN result. All five
-were exercised as real fresh nx runs against a real Storybook build (or a
-real Playwright run against a real static-storybook), never a synthetic
-dist/ edit.
+Five mandatory break-and-observe runs proving verify-theming-sources,
+verify-theming-bundle, nx lint and the Playwright lane actually catch the
+regressions they claim to catch, per M002 handoff section 10.5. Each entry:
+the source mutation applied, the command run, the observed RED result, the
+revert, and the observed GREEN result. All five were exercised as real fresh
+nx runs against a real Storybook build (or a real Playwright run against a
+real static-storybook), never a synthetic dist/ edit.
+
+ERRATA (added after the fact; the transcripts below are left verbatim)
+--------------------------------------------------------------------------
+a. The original heading credited only verify-theming-bundle and nx lint.
+   Control 5 is not visible to either -- as its own entry states, it is
+   caught solely by the runtime Playwright lane. Corrected above.
+
+b. The GREEN transcripts for controls 1 and 2 print three summary bullets.
+   They were captured before control 3 added the SASS_PACKAGE_MARKER guard,
+   which is now committed, so re-running them today prints four. Later work
+   added a fifth line and hoisted the iframe.html parse control ahead of both
+   lazy-loading checks, so current output differs again. The transcripts are
+   a record of what was observed at the time, not a reproducible fixture --
+   compare the RED/GREEN verdict, not the bullet count.
+
+c. Controls 1, 2 and 3 remain prose-only: they map onto verify-theming-bundle
+   gates that have no executable test of their own. Control 4 has a standing
+   equivalent (theming-worker.spec.ts T9a-T9d) and control 5 has one in the
+   e2e lane (P2). Converting 1-3 is tracked as follow-up, not done here.
 
 --------------------------------------------------------------------------
 1. Blank a generated source entry
