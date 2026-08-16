@@ -140,7 +140,8 @@ export const ThemingPanel: FC = () => {
   // its own doc comment says "so a future Vitest test (jsdom) lane can
   // exercise it without a real Worker" -- and its real compile cost is the
   // same ~1.1ms the design already measured, negligible on the main thread.
-  const [probeState, setProbeState] = useState<'loading' | 'ready'>('loading');
+  const [probeState, setProbeState] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const [probeError, setProbeError] = useState<string | null>(null);
   const [presets, setPresets] = useState<readonly NfsPreset[]>([]);
 
   // R009's `data-nfs-panel-state="loading|ready|compiling|error"` contract and
@@ -165,16 +166,32 @@ export const ThemingPanel: FC = () => {
         setDefaults(result.defaults);
         setProbeState('ready');
       })
-      .catch(() => {
-        // The probe failing must not surface as a manager console.error
-        // (R021 P1's zero-console-error gate) or leave the panel stuck in
-        // `loading` forever -- fall back to an empty preset list, which
-        // `deriveSelectedPreset` already resolves to the literal `Custom`.
+      .catch((error: unknown) => {
         if (cancelled) {
           return;
         }
+        // Deliberately loud. This catch previously discarded the error object
+        // entirely -- it did not even bind it -- so that a probe failure could
+        // not trip R021 P1's zero-console-error gate. That inverted the gate:
+        // it exists to DETECT breakage, and was instead satisfied by removing
+        // the detection. P1 still passes on a healthy build, because a healthy
+        // probe does not reach here.
+        //
+        // Five distinct causes collapse into this branch (a failed
+        // `import('sass')`, an unresolvable `nfs:/theme` or
+        // `internal/settings`, a renamed `$wcag-palette`, a type change in one
+        // of the six globals, and the explicit "never invoked the probe
+        // function" throw). All of them also predict that live compiles are
+        // broken, since computePresets() and the compile Worker resolve the
+        // same THEMING_SOURCES map -- so this is the earliest warning the
+        // addon gets, and it used to be thrown away.
+        console.error(
+          '[nfs-theming] the preset probe failed; presets and the six controls are unavailable.',
+          error
+        );
         setPresets([]);
-        setProbeState('ready');
+        setProbeError(error instanceof Error ? error.message : String(error));
+        setProbeState('failed');
       });
     return () => {
       cancelled = true;
@@ -278,17 +295,33 @@ export const ThemingPanel: FC = () => {
   // Only the preset probe gates the controls. A compile that is in flight or
   // that errored must leave them live -- the whole point of the error state is
   // that the user can correct the value that caused it.
-  const controlsDisabled = probeState === 'loading';
+  const controlsDisabled = probeState !== 'ready';
 
   // R009's four-state contract. `compiling` is already 300 ms-gated upstream:
   // theming-inject.ts only emits it for a compile still running past
   // COMPILING_INDICATOR_DELAY_MS, so a fast compile never flickers here.
   const panelState: 'loading' | 'ready' | 'compiling' | 'error' =
-    probeState === 'loading' ? 'loading' : compileState.kind === 'idle' ? 'ready' : compileState.kind;
+    probeState === 'loading'
+      ? 'loading'
+      : probeState === 'failed' || compileState.kind === 'error'
+        ? 'error'
+        : compileState.kind === 'idle'
+          ? 'ready'
+          : compileState.kind;
+
+  // A dead probe is reported ahead of a compile error: without Foundation's
+  // defaults the controls cannot render at all, so it is the more fundamental
+  // failure and the one worth showing.
+  const errorText =
+    probeError !== null
+      ? `Could not read the theme presets from Sass: ${probeError}`
+      : compileState.kind === 'error'
+        ? `Could not compile ${compileState.sourceName}: ${compileState.message}`
+        : null;
 
   return (
     <div data-testid="nfs-theming-panel" data-nfs-panel-state={panelState} style={{ padding: 12 }}>
-      {compileState.kind === 'error' && (
+      {errorText !== null && (
         <div
           data-testid="nfs-theming-error"
           role="alert"
@@ -301,7 +334,7 @@ export const ThemingPanel: FC = () => {
             whiteSpace: 'pre-wrap',
           }}
         >
-          {`Could not compile ${compileState.sourceName}: ${compileState.message}`}
+          {errorText}
         </div>
       )}
       {compileState.kind === 'compiling' && (
