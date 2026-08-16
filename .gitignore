@@ -61,4 +61,8 @@ packages/ngx-foundation-sites/documentation.json
 test-results/
 playwright-report/
 
+# ── Vitest ──
+# Browser-mode (R021 lane 2) failure screenshots, written per failing run.
+.vitest-attachments/
+
 .angular
