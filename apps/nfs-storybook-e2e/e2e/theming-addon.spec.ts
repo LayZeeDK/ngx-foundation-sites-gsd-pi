@@ -155,14 +155,14 @@ test.describe('Theming addon panel (R009/R021 lane 3)', () => {
     expect(sb.currentGlobals() || '').toBe('');
   });
 
-  test('P7: a theme that fails to compile surfaces a visible error, and the last good CSS survives', async ({
+  test('P7: an invalid theme from the URL surfaces a visible error, and the last good CSS survives', async ({
     page,
   }) => {
     // The panel is the validation boundary (R009), so an invalid value cannot
     // be typed into a control -- but a hand-edited or stale shared link
-    // bypasses it, which is the real-world route to a failed compile. Storybook
-    // decodes this to the bare string `notacolor`, which reaches
-    // `$background:` and produces the same Sass error T6 pins in lane 1.
+    // bypasses it. The preview refuses the value rather than interpolating it
+    // into SCSS source text, and reports what it refused instead of dropping it
+    // silently.
     const sb = new SbPage(page);
     await sb.gotoStory('nfsbutton--primary', 'nfsTheme.primary:notacolor');
     await sb.disablePreviewTransitions();
@@ -176,8 +176,8 @@ test.describe('Theming addon panel (R009/R021 lane 3)', () => {
 
     const errorBox = page.locator('[data-testid="nfs-theming-error"]');
     await expect(errorBox).toBeVisible();
-    await expect(errorBox).toContainText('is not a color');
-    await expect(errorBox).toContainText('_button.scss');
+    await expect(errorBox).toContainText('primary');
+    await expect(errorBox).toContainText('shared link');
 
     // D035 part e: the last good CSS is never cleared on error. Foundation's
     // default primary must still be on screen -- the preview neither goes
@@ -198,7 +198,7 @@ test.describe('Theming addon panel (R009/R021 lane 3)', () => {
     await sb.themingPanelTab().click();
     await expect(sb.themingPanelTab()).toHaveAttribute('aria-selected', 'true');
     await expect(sb.themingPanelRoot()).toHaveAttribute('data-nfs-panel-state', 'error');
-    await expect(page.locator('[data-testid="nfs-theming-error"]')).toContainText('is not a color');
+    await expect(page.locator('[data-testid="nfs-theming-error"]')).toContainText('shared link');
   });
 
   test('P8: an autodocs page renders under the selected theme and exposes no Theming panel', async ({ page }) => {

@@ -47,7 +47,7 @@
 // logic runs unmodified against real DOM/CSSOM with real compiled CSS --
 // only the cross-thread transport is faked, not the addon logic or the
 // compile result.
-import type { NfsTheme } from '../../.storybook/theming-panel';
+import type { NfsTheme } from '../../.storybook/theming-model';
 import type { ThemeCompileRequest, ThemeCompileResponse } from '../../.storybook/theming-worker';
 import type { ThemingCompileState } from '../../.storybook/theming-inject';
 

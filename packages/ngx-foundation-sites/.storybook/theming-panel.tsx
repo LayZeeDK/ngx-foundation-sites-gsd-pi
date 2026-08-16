@@ -14,6 +14,14 @@ import {
   type ThemingCompileState,
 } from './theming-channel';
 import {
+  clampRadius,
+  NFS_COLOR_KEYS,
+  normalizeHexColor,
+  withOverride,
+  type NfsColorKey,
+  type NfsTheme,
+} from './theming-model';
+import {
   computePresets,
   deriveSelectedPreset,
   NFS_CUSTOM_PRESET_NAME,
@@ -22,85 +30,11 @@ import {
   type NfsThemeDefaults,
 } from './theming-presets';
 
-// D035 part a/b: the six curated Foundation-global controls (R009), and the
-// sparse canonical-minimal override map they read from / write to. This file
-// owns the panel UI and the validation boundary only -- the Worker-backed
-// compile pipeline (D035 d/e) and the preset probe (D035 c) land in T02/T03.
-
-export type NfsColorKey = 'primary' | 'secondary' | 'success' | 'warning' | 'alert';
-
-export const NFS_COLOR_KEYS: readonly NfsColorKey[] = [
-  'primary',
-  'secondary',
-  'success',
-  'warning',
-  'alert',
-];
-
-export interface NfsTheme {
-  readonly primary?: string;
-  readonly secondary?: string;
-  readonly success?: string;
-  readonly warning?: string;
-  readonly alert?: string;
-  readonly radius?: number;
-}
-
 interface NfsGlobals {
   nfsTheme?: NfsTheme;
 }
 
 const EMPTY_THEME: NfsTheme = {};
-
-const HEX_COLOR_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
-
-export function normalizeHexColor(rawValue: string): string | null {
-  const trimmed = rawValue.trim();
-  if (!HEX_COLOR_PATTERN.test(trimmed)) {
-    return null;
-  }
-  const digits = trimmed.slice(1);
-  const expanded =
-    digits.length === 3
-      ? digits
-          .split('')
-          .map((digit) => digit + digit)
-          .join('')
-      : digits;
-  return `#${expanded.toLowerCase()}`;
-}
-
-export function clampRadius(rawValue: string): number | null {
-  if (rawValue.trim() === '') {
-    return null;
-  }
-  const parsed = Number(rawValue);
-  if (!Number.isInteger(parsed) || parsed < 0 || parsed > 32) {
-    return null;
-  }
-  return parsed;
-}
-
-/**
- * Exported so a Vitest `test` (jsdom) lane can exercise the
- * canonicalisation-deletes-default-key behaviour directly (R021 lane 1):
- * the whole "sparse equality is resolved equality" property in
- * theming-presets.ts's `deriveSelectedPreset` depends on this function never
- * leaving a key present at its default value.
- */
-export function withOverride<K extends keyof NfsTheme>(
-  theme: NfsTheme,
-  key: K,
-  value: NonNullable<NfsTheme[K]>,
-  defaultValue: NonNullable<NfsTheme[K]>
-): NfsTheme {
-  if (value === defaultValue) {
-    const next = { ...theme };
-    delete next[key];
-    return next;
-  }
-  return { ...theme, [key]: value };
-}
 
 type ColorTextState = Record<NfsColorKey, string>;
 type ColorErrorState = Partial<Record<NfsColorKey, boolean>>;
@@ -345,7 +279,12 @@ export const ThemingPanel: FC = () => {
     probeError !== null
       ? `Could not read the theme presets from Sass: ${probeError}`
       : compileState.kind === 'error'
-        ? `Could not compile ${compileState.sourceName}: ${compileState.message}`
+        ? // An empty `sourceName` means the message is already self-contained
+          // (a refused `?globals=` value, say) rather than a Sass failure in a
+          // named source.
+          compileState.sourceName === ''
+          ? compileState.message
+          : `Could not compile ${compileState.sourceName}: ${compileState.message}`
         : null;
 
   return (

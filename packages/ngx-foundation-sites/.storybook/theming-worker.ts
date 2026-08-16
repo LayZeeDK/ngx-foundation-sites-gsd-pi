@@ -1,7 +1,7 @@
 import * as sass from 'sass';
 import { THEMEABLE_MODULES } from './theming-sources.generated';
 import { createSourcesImporter } from './theming-sources-importer';
-import type { NfsTheme } from './theming-panel';
+import type { NfsTheme } from './theming-model';
 
 // D035 part d/e: this module is the addon's ONLY import of `sass`, so
 // webpack's native worker split (`new Worker(new URL('./theming-worker.ts',

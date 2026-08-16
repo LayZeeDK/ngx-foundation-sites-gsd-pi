@@ -25,7 +25,7 @@ import eslintConfig from '../../eslint.config.mjs';
 import type { ThemingCompileState } from '../../.storybook/theming-inject';
 import { THEMING_SOURCES } from '../../.storybook/theming-sources.generated';
 import { createSourcesImporter } from '../../.storybook/theming-sources-importer';
-import type { NfsTheme } from '../../.storybook/theming-panel';
+import type { NfsTheme } from '../../.storybook/theming-model';
 import type { ThemeCompileResponse } from '../../.storybook/theming-worker';
 
 interface WorkerScope {

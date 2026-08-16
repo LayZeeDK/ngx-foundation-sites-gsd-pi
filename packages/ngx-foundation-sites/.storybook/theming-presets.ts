@@ -1,4 +1,4 @@
-import { NFS_COLOR_KEYS, type NfsTheme } from './theming-panel';
+import { NFS_CANONICAL_KEYS, type NfsTheme } from './theming-model';
 import { createSourcesImporter } from './theming-sources-importer';
 import type * as Sass from 'sass';
 
@@ -70,26 +70,8 @@ export interface PresetProbeResult {
 export const NFS_CUSTOM_PRESET_NAME = 'Custom';
 export const NFS_PRESET_SELECT_ID = 'nfs-preset-select';
 
-// Computed inside a function rather than as a module-top-level constant: the
-// panel imports this module statically (`computePresets`,
-// `deriveSelectedPreset`, `NFS_CUSTOM_PRESET_NAME`, `NFS_PRESET_SELECT_ID`),
-// which makes this module part of a real import cycle back to
-// theming-panel.tsx. The cycle is a property of that static import, not of
-// which particular symbol is used, so removing any one of them does not make
-// it safe to inline this back to the top level.
-// A top-level `[...NFS_COLOR_KEYS, 'radius']` would read
-// NFS_COLOR_KEYS while theming-panel.ts's own module body is still mid-
-// evaluation (whichever side of the cycle loads first), which is a TDZ
-// ReferenceError under real ESM/webpack semantics -- deferring the read into
-// a function body means it only ever runs after both modules have finished
-// evaluating.
-function canonicalKeys() {
-  return [...NFS_COLOR_KEYS, 'radius'] as const;
-}
-
 function canonicalSignature(theme: NfsTheme): string {
-  return canonicalKeys()
-    .filter((key) => theme[key] !== undefined)
+  return NFS_CANONICAL_KEYS.filter((key) => theme[key] !== undefined)
     .map((key) => `${key}:${theme[key]}`)
     .join('|');
 }

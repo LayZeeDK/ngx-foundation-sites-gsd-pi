@@ -5,7 +5,7 @@ import {
   NFS_THEMING_STATE_REQUEST_EVENT,
   type ThemingCompileState,
 } from './theming-channel';
-import type { NfsTheme } from './theming-panel';
+import { sanitizeTheme, type NfsTheme } from './theming-model';
 import type { ThemeCompileRequest, ThemeCompileResponse } from './theming-worker';
 
 // D035 part d/e: this module runs in the PREVIEW iframe (via the
@@ -115,6 +115,13 @@ function ensureStateReplay(): void {
     channel.emit(NFS_THEMING_STATE_EVENT, currentState);
   });
   stateReplayRegistered = true;
+
+  // Publish immediately as well. The two sides race: the panel may mount and
+  // request a replay before this responder exists (its request is then lost),
+  // and the state may already have moved before the channel existed at all --
+  // `withNfsTheming` validates `?globals=` on its very first run. Emitting here
+  // covers both orderings; a redundant `idle` costs nothing.
+  channel.emit(NFS_THEMING_STATE_EVENT, currentState);
 }
 
 function notify(state: ThemingCompileState): void {
@@ -331,9 +338,41 @@ export function requestTheme(theme: NfsTheme): void {
 // `decorators` alongside T01's `initialGlobals` -- Storybook's `useGlobals()`
 // already syncs the manager-side panel's writes (T01) to this preview
 // iframe's `context.globals`, so no custom channel messaging is needed here.
+// Reported once per distinct set, not once per story render -- the decorator
+// runs on every render and the offending `?globals=` persists across them.
+let lastReportedDropped = '';
+
 export const withNfsTheming: Decorator = (storyFn, context) => {
-  ensureStateReplay();
-  const theme = (context.globals as { nfsTheme?: NfsTheme }).nfsTheme ?? {};
+  // R009 makes the panel the validation boundary, and it is -- for values the
+  // panel writes. `?globals=` is a second writer it does not mediate, and these
+  // values are interpolated into SCSS source text by the Worker. Refuse
+  // anything the panel's own validators would have refused, and say so rather
+  // than dropping it silently, which would be the same invisible failure this
+  // addon already had elsewhere.
+  const { theme, dropped } = sanitizeTheme((context.globals as { nfsTheme?: unknown }).nfsTheme);
+
+  // Before the report: `requestTheme` notifies `idle` on the default-theme
+  // branch and on a successful compile, which would overwrite the error below.
   requestTheme(theme);
+
+  const droppedSignature = dropped.join(',');
+
+  if (droppedSignature !== lastReportedDropped) {
+    lastReportedDropped = droppedSignature;
+
+    if (dropped.length > 0) {
+      notify({
+        kind: 'error',
+        message: `Ignored ${dropped.length === 1 ? 'an invalid value' : 'invalid values'} for ${dropped.join(', ')} in the shared link. Fix the value in the URL, or set the control in this panel.`,
+        // Empty: the message above is self-contained, and this is a refused
+        // value rather than a compile failure in a named Sass source.
+        sourceName: '',
+      });
+    }
+  }
+
+  // Last, so a first-run registration publishes the settled state rather than
+  // a stale `idle`.
+  ensureStateReplay();
   return storyFn();
 };

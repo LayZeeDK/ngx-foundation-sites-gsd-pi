@@ -6,18 +6,19 @@
 // precedent): the `test` target's `include` defaults to `**/*.spec.ts` with
 // `cwd: sourceRoot` (`src/`), and `.storybook/` is a sibling of `src/`, not a
 // descendant -- confirmed via `nx run ngx-foundation-sites:test --listTests`,
-// which discovers nothing under `.storybook/`. `tsconfig.spec.json` also
-// gained `"jsx": "react-jsx"` (this task) because `theming-worker.ts`'s
-// `import type { NfsTheme } from './theming-panel'` resolves into the
-// `.tsx` file even for a type-only import, and TS6142s without it.
+// which discovers nothing under `.storybook/`. The subjects live in
+// theming-model.ts, which is React-free -- `tsconfig.spec.json` briefly needed
+// `"jsx": "react-jsx"` when they lived in theming-panel.tsx, because a
+// type-only import still resolves into the `.tsx` file and TS6142s.
 import { buildArgsParam } from 'storybook/internal/router';
 
 import {
   clampRadius,
   normalizeHexColor,
+  sanitizeTheme,
   withOverride,
   type NfsTheme,
-} from '../../.storybook/theming-panel';
+} from '../../.storybook/theming-model';
 import {
   computePresets,
   deriveSelectedPreset,
@@ -115,6 +116,46 @@ describe('withOverride -- canonicalisation-deletes-default-key (T4a, load-bearin
       FOUNDATION_DEFAULTS.primary
     );
     expect(afterDetour).toEqual(original);
+  });
+});
+
+describe('sanitizeTheme -- the ?globals= trust boundary (T12)', () => {
+  it('T12a: refuses a value that would break out of the Sass argument list', () => {
+    // The worker interpolates theme values into SCSS source text. This exact
+    // shape compiles and emits attacker-chosen CSS if it reaches the compiler.
+    const hostile = 'red); @import url("https://example.invalid/evil.css");  $__z: (0';
+    const { theme, dropped } = sanitizeTheme({ primary: hostile });
+
+    expect(theme).toEqual({});
+    expect(dropped).toEqual(['primary']);
+  });
+
+  it('T12b: keeps the valid keys and reports only the refused ones', () => {
+    const { theme, dropped } = sanitizeTheme({
+      primary: '#ABC',
+      secondary: 'notacolor',
+      radius: '4',
+      alert: '#cb4b37',
+    });
+
+    // Per-key, not whole-theme: one bad key from a truncated link must not
+    // discard the good ones.
+    expect(theme).toEqual({ primary: '#aabbcc', radius: 4, alert: '#cb4b37' });
+    expect(dropped).toEqual(['secondary']);
+  });
+
+  it('T12c: refuses a radius that is out of range, non-integer, or not a scalar', () => {
+    expect(sanitizeTheme({ radius: 33 }).dropped).toEqual(['radius']);
+    expect(sanitizeTheme({ radius: 3.5 }).dropped).toEqual(['radius']);
+    expect(sanitizeTheme({ radius: { toString: () => '4' } }).dropped).toEqual(['radius']);
+  });
+
+  it('T12d: a valid canonical theme passes through untouched, and non-objects yield the empty theme', () => {
+    const valid: NfsTheme = { success: '#238648', radius: 8 };
+
+    expect(sanitizeTheme(valid)).toEqual({ theme: valid, dropped: [] });
+    expect(sanitizeTheme(undefined)).toEqual({ theme: {}, dropped: [] });
+    expect(sanitizeTheme('nope')).toEqual({ theme: {}, dropped: [] });
   });
 });
 
