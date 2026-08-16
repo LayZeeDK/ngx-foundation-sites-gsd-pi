@@ -14,7 +14,6 @@ import { buildArgsParam } from 'storybook/internal/router';
 
 import {
   clampRadius,
-  NFS_THEME_DEFAULTS,
   normalizeHexColor,
   withOverride,
   type NfsTheme,
@@ -24,7 +23,23 @@ import {
   deriveSelectedPreset,
   NFS_CUSTOM_PRESET_NAME,
   type NfsPreset,
+  type NfsThemeDefaults,
 } from '../../.storybook/theming-presets';
+
+// Foundation for Sites 6.9.0's own values for the six controls (R009's control
+// table). These live HERE, in the spec, as hand-written literals -- production
+// code reads them from Sass via the probe, which is what R009's "no TypeScript
+// copy of any of the six values exists anywhere" requires. Keeping them as the
+// assertion TARGET rather than the source is what lets T3d actually fail when
+// a foundation-sites bump moves one (the dependency is a `^6.9.0` range).
+const FOUNDATION_DEFAULTS: NfsThemeDefaults = {
+  primary: '#1779ba',
+  secondary: '#767676',
+  success: '#3adb76',
+  warning: '#ffae00',
+  alert: '#cc4b37',
+  radius: 0,
+};
 
 describe('normalizeHexColor', () => {
   it('normalizes 6-digit hex to lowercase', () => {
@@ -72,14 +87,14 @@ describe('clampRadius', () => {
 
 describe('withOverride -- canonicalisation-deletes-default-key (T4a, load-bearing)', () => {
   it('deletes the key when the written value equals the Foundation default', () => {
-    const withPrimarySet = withOverride({}, 'primary', '#ff0000', NFS_THEME_DEFAULTS.primary);
+    const withPrimarySet = withOverride({}, 'primary', '#ff0000', FOUNDATION_DEFAULTS.primary);
     expect(withPrimarySet).toEqual({ primary: '#ff0000' });
 
     const backToDefault = withOverride(
       withPrimarySet,
       'primary',
-      NFS_THEME_DEFAULTS.primary,
-      NFS_THEME_DEFAULTS.primary
+      FOUNDATION_DEFAULTS.primary,
+      FOUNDATION_DEFAULTS.primary
     );
     expect(backToDefault).toEqual({});
     expect('primary' in backToDefault).toBe(false);
@@ -87,17 +102,17 @@ describe('withOverride -- canonicalisation-deletes-default-key (T4a, load-bearin
 
   it('leaves sibling keys untouched when deleting one key', () => {
     const theme: NfsTheme = { primary: '#ff0000', radius: 8 };
-    const result = withOverride(theme, 'primary', NFS_THEME_DEFAULTS.primary, NFS_THEME_DEFAULTS.primary);
+    const result = withOverride(theme, 'primary', FOUNDATION_DEFAULTS.primary, FOUNDATION_DEFAULTS.primary);
     expect(result).toEqual({ radius: 8 });
   });
 
   it('round-trips: repeated set/unset returns to the original canonical-minimal shape', () => {
     const original: NfsTheme = { secondary: '#000000' };
     const afterDetour = withOverride(
-      withOverride(original, 'primary', '#123456', NFS_THEME_DEFAULTS.primary),
+      withOverride(original, 'primary', '#123456', FOUNDATION_DEFAULTS.primary),
       'primary',
-      NFS_THEME_DEFAULTS.primary,
-      NFS_THEME_DEFAULTS.primary
+      FOUNDATION_DEFAULTS.primary,
+      FOUNDATION_DEFAULTS.primary
     );
     expect(afterDetour).toEqual(original);
   });
@@ -105,9 +120,31 @@ describe('withOverride -- canonicalisation-deletes-default-key (T4a, load-bearin
 
 describe('computePresets -- preset baseline probe (T3)', () => {
   let presets: readonly NfsPreset[];
+  let defaults: NfsThemeDefaults;
 
   beforeAll(async () => {
-    presets = await computePresets();
+    const result = await computePresets();
+    presets = result.presets;
+    defaults = result.defaults;
+  });
+
+  it('T3d: returns Foundation\'s six global defaults, read from Sass, by exact key set and value', () => {
+    // R021 lane 1's "the preset baseline probe returning Foundation's six
+    // global defaults ... by exact key set". This is the standing guard on
+    // the drift that used to be undetectable: canonicalisation is defined
+    // against these values, so if a foundation-sites bump moves one and the
+    // addon does not follow, `withOverride` stops deleting the now-non-default
+    // key, every theme carries a spurious override, and `deriveSelectedPreset`
+    // reports `Custom` for the Foundation-default theme forever.
+    expect(Object.keys(defaults).sort()).toEqual([
+      'alert',
+      'primary',
+      'radius',
+      'secondary',
+      'success',
+      'warning',
+    ]);
+    expect(defaults).toEqual(FOUNDATION_DEFAULTS);
   });
 
   it('returns exactly two presets, keyed by exact name', () => {
@@ -167,7 +204,7 @@ describe('deriveSelectedPreset -- preset equality (T4)', () => {
     // omitted must NOT be treated as equal to the empty preset.
     const foundationDefault: NfsPreset = { name: 'Foundation default', theme: {} };
     expect(
-      deriveSelectedPreset([foundationDefault], { primary: NFS_THEME_DEFAULTS.primary })
+      deriveSelectedPreset([foundationDefault], { primary: FOUNDATION_DEFAULTS.primary })
     ).toBe(NFS_CUSTOM_PRESET_NAME);
   });
 });

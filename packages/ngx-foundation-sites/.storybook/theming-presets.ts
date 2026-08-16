@@ -25,8 +25,25 @@ export interface NfsPreset {
   readonly theme: NfsTheme;
 }
 
+/**
+ * Foundation's own values for the six controls, as read from Sass by the
+ * probe. R009: "No TypeScript copy of any of the six values exists anywhere"
+ * -- so this shape is populated only from a live compile, never from literals.
+ * The panel needs them because canonicalisation is defined against them (a key
+ * is present in the sparse map iff it differs from Foundation's default).
+ */
+export interface NfsThemeDefaults {
+  readonly primary: string;
+  readonly secondary: string;
+  readonly success: string;
+  readonly warning: string;
+  readonly alert: string;
+  readonly radius: number;
+}
+
 export interface PresetProbeResult {
   readonly presets: readonly NfsPreset[];
+  readonly defaults: NfsThemeDefaults;
 }
 
 export const NFS_CUSTOM_PRESET_NAME = 'Custom';
@@ -98,14 +115,7 @@ type WcagKey = 'success' | 'warning' | 'alert';
 const WCAG_KEYS: readonly WcagKey[] = ['success', 'warning', 'alert'];
 
 interface RawProbeValues {
-  readonly defaults: {
-    readonly primary: string;
-    readonly secondary: string;
-    readonly success: string;
-    readonly warning: string;
-    readonly alert: string;
-    readonly radius: number;
-  };
+  readonly defaults: NfsThemeDefaults;
   readonly wcagPalette: Readonly<Partial<Record<WcagKey, string>>>;
 }
 
@@ -230,7 +240,7 @@ function buildPresets(raw: RawProbeValues): readonly NfsPreset[] {
  * returning Foundation's six global defaults and $wcag-palette's three
  * overrides by exact key set").
  */
-export async function computePresets(): Promise<readonly NfsPreset[]> {
+export async function computePresets(): Promise<PresetProbeResult> {
   const sassNs = await import('sass');
   let captured: RawProbeValues | null = null;
 
@@ -247,7 +257,8 @@ export async function computePresets(): Promise<readonly NfsPreset[]> {
     throw new Error('nfs theming preset probe: the Sass compiler never invoked the probe function');
   }
 
-  return buildPresets(captured);
+  const raw: RawProbeValues = captured;
+  return { presets: buildPresets(raw), defaults: raw.defaults };
 }
 
 // ---------------------------------------------------------------------------
@@ -259,7 +270,7 @@ interface PresetProbeRequest {
 }
 
 type PresetProbeResponse =
-  | { readonly kind: 'nfs-preset-probe-response'; readonly ok: true; readonly presets: readonly NfsPreset[] }
+  | { readonly kind: 'nfs-preset-probe-response'; readonly ok: true; readonly result: PresetProbeResult }
   | { readonly kind: 'nfs-preset-probe-response'; readonly ok: false; readonly error: string };
 
 // No "webworker" lib, same reason as theming-worker.ts: this tsconfig is
@@ -278,8 +289,8 @@ const workerScope = globalThis as unknown as {
 if (typeof workerScope.importScripts === 'function') {
   workerScope.onmessage = () => {
     computePresets()
-      .then((presets) => {
-        workerScope.postMessage({ kind: 'nfs-preset-probe-response', ok: true, presets });
+      .then((result) => {
+        workerScope.postMessage({ kind: 'nfs-preset-probe-response', ok: true, result });
       })
       .catch((error: unknown) => {
         workerScope.postMessage({
@@ -301,7 +312,7 @@ function requestProbe(): Promise<PresetProbeResult> {
       worker.terminate();
       const message = event.data;
       if (message.ok) {
-        resolvePromise({ presets: message.presets });
+        resolvePromise(message.result);
       } else {
         rejectPromise(new Error(message.error));
       }
