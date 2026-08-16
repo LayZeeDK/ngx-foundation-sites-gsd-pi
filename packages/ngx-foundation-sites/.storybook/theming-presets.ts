@@ -1,5 +1,5 @@
 import { NFS_COLOR_KEYS, type NfsTheme } from './theming-panel';
-import { THEMING_SOURCES } from './theming-sources.generated';
+import { createSourcesImporter } from './theming-sources-importer';
 import type * as Sass from 'sass';
 
 // D035 part c: the two-preset model, read from Sass at runtime via a custom
@@ -184,65 +184,6 @@ function createProbeFunctions(
   };
 }
 
-/**
- * Mirrors (does not share) theming-worker.ts's `createSourcesImporter` --
- * same rationale as that module's own header comment: each Worker entry
- * resolves `THEMING_SOURCES` independently rather than importing a runtime
- * helper across files, keeping T03 self-contained to this one file.
- */
-function candidateUrls(scheme: string, pathname: string, fromImport: boolean): string[] {
-  const lastSlash = pathname.lastIndexOf('/');
-  const dir = lastSlash <= 0 ? '' : pathname.slice(0, lastSlash);
-  const name = pathname.slice(lastSlash + 1);
-  const out: string[] = [];
-
-  if (fromImport) {
-    out.push(`${scheme}:${dir}/_${name}.import.scss`, `${scheme}:${dir}/${name}.import.scss`);
-  }
-
-  out.push(
-    `${scheme}:${dir}/_${name}.scss`,
-    `${scheme}:${dir}/${name}.scss`,
-    `${scheme}:${dir}/${name}/_index.scss`,
-    `${scheme}:${dir}/${name}/index.scss`
-  );
-
-  return out;
-}
-
-function createProbeImporter(): Sass.Importer<'sync'> {
-  return {
-    canonicalize(url, context) {
-      let scheme: string;
-      let pathname: string;
-
-      if (url.startsWith('nfs:') || url.startsWith('fnd:')) {
-        scheme = url.slice(0, 3);
-        pathname = url.slice(4);
-      } else {
-        scheme = 'nfs';
-        pathname = url.startsWith('/') ? url : `/${url}`;
-      }
-
-      if (!pathname.startsWith('/')) {
-        pathname = `/${pathname}`;
-      }
-
-      for (const candidate of candidateUrls(scheme, pathname, context.fromImport)) {
-        if (Object.prototype.hasOwnProperty.call(THEMING_SOURCES, candidate)) {
-          return new URL(candidate);
-        }
-      }
-
-      return null;
-    },
-
-    load(canonicalUrl) {
-      return { contents: THEMING_SOURCES[canonicalUrl.toString()], syntax: 'scss' };
-    },
-  };
-}
-
 function buildPresets(raw: RawProbeValues): readonly NfsPreset[] {
   const wcagTheme = WCAG_KEYS.reduce<NfsTheme>((acc, key) => {
     const value = raw.wcagPalette[key];
@@ -263,7 +204,7 @@ async function runProbe(): Promise<PresetProbeResult> {
   let captured: RawProbeValues | null = null;
 
   sassNs.compileString(buildProbeEntryScss(), {
-    importers: [createProbeImporter()],
+    importers: [createSourcesImporter()],
     functions: createProbeFunctions(sassNs, (raw) => {
       captured = raw;
     }),

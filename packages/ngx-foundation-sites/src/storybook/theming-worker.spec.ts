@@ -24,6 +24,7 @@ import * as sass from 'sass';
 import eslintConfig from '../../eslint.config.mjs';
 import type { ThemingCompileState } from '../../.storybook/theming-inject';
 import { THEMING_SOURCES } from '../../.storybook/theming-sources.generated';
+import { createSourcesImporter } from '../../.storybook/theming-sources-importer';
 import type { NfsTheme } from '../../.storybook/theming-panel';
 import type { ThemeCompileResponse } from '../../.storybook/theming-worker';
 
@@ -389,6 +390,50 @@ describe('theming-inject coalescer state machine (T8, driven against a fake work
     requestTheme({ primary: '#ff0000' });
 
     expect(worker.postMessage).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('shared sources importer -- the drift guard (T11)', () => {
+  // theming-worker.ts and theming-presets.ts each carried their own copy of
+  // this resolver, and the copies had already diverged: the probe's lacked the
+  // `foundation-sites/scss/` -> `fnd:` rewrite. That was latent rather than
+  // broken only because the probe entry happens to reach no Foundation-derived
+  // variable. Both now share one importer, and this pins the behaviour that
+  // was missing from one of them.
+  it('T11a: re-schemes a foundation-sites path onto fnd: and resolves it', () => {
+    const importer = createSourcesImporter();
+    // Extensionless, as Sass hands it to an importer -- `candidateUrls` is what
+    // adds the `_` prefix and `.scss` suffix.
+    const resolved = importer.canonicalize('../../node_modules/foundation-sites/scss/util/color', {
+      fromImport: true,
+      containingUrl: null,
+    });
+
+    expect(resolved?.toString()).toBe('fnd:/scss/util/_color.scss');
+  });
+
+  it('T11b: still resolves the nfs: scheme, and returns null for an unknown url', () => {
+    const importer = createSourcesImporter();
+
+    expect(
+      importer
+        .canonicalize('nfs:/theme', { fromImport: false, containingUrl: null })
+        ?.toString()
+    ).toBe('nfs:/_theme.scss');
+    expect(
+      importer.canonicalize('nfs:/definitely-not-a-module', {
+        fromImport: false,
+        containingUrl: null,
+      })
+    ).toBeNull();
+  });
+
+  it('T11c: load() throws a named error rather than handing Sass `contents: undefined`', () => {
+    const importer = createSourcesImporter();
+
+    expect(() => importer.load(new URL('nfs:/never-generated.scss'))).toThrow(
+      /canonicalize\(\) accepted/
+    );
   });
 });
 
