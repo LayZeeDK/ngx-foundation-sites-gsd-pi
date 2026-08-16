@@ -18,6 +18,9 @@ export default [
             // ships only src/scss/**/*.scss), so its postcss/sass imports are
             // not part of the package's dependency contract.
             '{projectRoot}/scripts/**/*.mjs',
+            // test-browser's Vitest runner config (R021 lane 2). Never
+            // published, same as the eslint config itself.
+            '{projectRoot}/vitest.browser.config.ts',
           ],
         },
       ],

@@ -62,7 +62,8 @@
       "options": {
         "watch": false,
         "browsers": ["ChromiumHeadless"],
-        "include": ["**/*.browser.spec.ts"]
+        "include": ["**/*.browser.spec.ts"],
+        "runnerConfig": "packages/ngx-foundation-sites/vitest.browser.config.ts"
       }
     },
     "lint": {
