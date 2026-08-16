@@ -55,7 +55,13 @@ function fail(message, cause) {
   failures.push({ message, cause });
 }
 
-function report() {
+/**
+ * Prints every accumulated failure and exits 1, or returns silently when there
+ * are none. Named for the exit, not the printing: every call site relies on it
+ * aborting, and several dereference values on the next line that only exist
+ * because the check above passed.
+ */
+function failFast() {
   if (failures.length > 0) {
     console.error('Theming bundle verification FAILED:');
 
@@ -107,7 +113,7 @@ if (!existsSync(DIST_DIR)) {
     'build output present',
     `Expected a Storybook build at ${DIST_DIR} but the directory does not exist.`,
   );
-  report();
+  failFast();
 }
 
 const jsFiles = listJsFiles(DIST_DIR).map((file) => ({
@@ -124,7 +130,7 @@ if (jsFiles.length < 5) {
     `Expected at least 5 emitted .js files under ${DIST_DIR} but found ${jsFiles.length}. ` +
       'The Storybook build output looks incomplete or the glob is broken.',
   );
-  report();
+  failFast();
 }
 
 const mainBundle = jsFiles.find((file) => /^main\..+\.iframe\.bundle\.js$/.test(file.rel));
@@ -133,7 +139,7 @@ if (!mainBundle) {
     'main preview bundle present',
     'Expected a main.*.iframe.bundle.js entry bundle under the build output but none was found.',
   );
-  report();
+  failFast();
 }
 
 const indexHtmlPath = join(DIST_DIR, 'index.html');
@@ -143,7 +149,7 @@ if (!existsSync(indexHtmlPath) || !existsSync(iframeHtmlPath)) {
     'manager/preview HTML present',
     `Expected both index.html (manager) and iframe.html (preview) under ${DIST_DIR}.`,
   );
-  report();
+  failFast();
 }
 const indexHtml = readFileSync(indexHtmlPath, 'utf8');
 const iframeHtml = readFileSync(iframeHtmlPath, 'utf8');
@@ -160,7 +166,7 @@ if (managerBundles.length === 0) {
     'manager addon bundle present',
     'Expected at least one sb-addons/*/manager-bundle.js under the build output but none was found.',
   );
-  report();
+  failFast();
 }
 
 const addonMatches = managerBundles.filter((file) => file.content.includes(ADDON_ID));
@@ -199,7 +205,7 @@ if (addonMatches.length !== 1) {
 // re-parsed independently and only the first carried the control -- and that
 // one sat inside an `else`, so whenever the sources-marker check had already
 // failed the guard never ran at all and the `sass`-leak check was left
-// genuinely unguarded. `report()` hard-exits rather than falling through: an
+// genuinely unguarded. `failFast()` hard-exits rather than falling through: an
 // absence check must not run on a parse we cannot trust.
 const iframeSpecifiers = parseModuleImportSpecifiers(iframeHtml);
 if (iframeSpecifiers.length < 3) {
@@ -210,7 +216,7 @@ if (iframeSpecifiers.length < 3) {
       'neither was run. Likely cause: Storybook changed the preview entry markup (e.g. an added ' +
       'attribute on the opening tag, or imports split across two blocks).',
   );
-  report();
+  failFast();
 }
 
 // A marker from the generated source closure must appear in at least one
@@ -323,7 +329,7 @@ if (!themeableModulesFile) {
   );
 }
 
-report();
+failFast();
 
 console.log(
   [

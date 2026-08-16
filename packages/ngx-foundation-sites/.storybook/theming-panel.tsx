@@ -4,9 +4,7 @@ import { useChannel, useGlobals } from 'storybook/manager-api';
 // calls regardless of tsconfig's `"jsx": "react-jsx"` (that setting only
 // governs `tsc`'s own type-checking pass here, not the manager bundle's real
 // transform). Without this import the panel throws `ReferenceError: React is
-// not defined` the instant it renders -- confirmed live: the panel has never
-// actually rendered in a real browser before this fix, only compiled and
-// unit-tested in isolation.
+// not defined` the instant it renders.
 import React, { useEffect, useRef, useState, type FC } from 'react';
 import {
   NFS_THEMING_STATE_EVENT,
@@ -62,24 +60,14 @@ export const ThemingPanel: FC = () => {
   const [radiusError, setRadiusError] = useState(false);
   const [defaults, setDefaults] = useState<NfsThemeDefaults | null>(null);
 
-  // D035 part c's preset model, wired up here. Until the probe resolves the
-  // panel stays in `loading` and the preset select is disabled, while the six
-  // value controls are not rendered at all (they have no defaults to show
-  // until the probe resolves) -- "the panel
-  // loads asynchronously on first open, by design" (R009), not a defect to
-  // race past with a timeout.
+  // D035 part c's preset model. Until the probe resolves the panel stays in
+  // `loading`, the preset select is disabled, and the six value controls are
+  // not rendered -- they have no defaults to show yet. "The panel loads
+  // asynchronously on first open, by design" (R009), not a defect to race past
+  // with a timeout.
   //
-  // Calls `computePresets()` directly rather than `runPresetProbe()`'s
-  // self-referencing-Worker wrapper: confirmed live (real Storybook manager,
-  // real browser) that `new Worker(new URL('./theming-presets.ts',
-  // import.meta.url))` fails silently from the MANAGER bundle -- the manager
-  // builder (esbuild) does not split/serve it as its own chunk the way
-  // webpack does for theming-worker.ts's identical pattern on the PREVIEW
-  // side (D035's verified Worker-in-webpack finding does not transfer to
-  // esbuild). `computePresets()` is exported for exactly this reason --
-  // its own doc comment says "so a future Vitest test (jsdom) lane can
-  // exercise it without a real Worker" -- and its real compile cost is the
-  // same ~1.1ms the design already measured, negligible on the main thread.
+  // `computePresets()` runs here on the manager main thread, at a measured
+  // ~1.1 ms. theming-presets.ts's header owns why it is not in a Worker.
   const [probeState, setProbeState] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [probeError, setProbeError] = useState<string | null>(null);
   const [presets, setPresets] = useState<readonly NfsPreset[]>([]);

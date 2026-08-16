@@ -151,6 +151,8 @@ Invalid input (an unparsable color, or a radius that is not a whole number from 
 
 ### Internals
 
+> **`.scratch/` is load-bearing documentation, not scratch space.** Source comments across the theming addon cite `research/NN` notes that live in `.scratch/m002-storybook-theming-addon/research/`; those 108 files are tracked in git deliberately. Deleting the directory because of its name turns every one of those citations into a dangling pointer.
+
 Anything under `ngx-foundation-sites/scss/internal/` is unsupported: treat it as private and expect it to change or move in any release. Theme through the mixin's named arguments instead; nothing under `internal/` is part of the public API.
 
 The boundary is **enforced wherever `exports` is enforced, and a signal everywhere else**, so it is worth knowing which side your toolchain is on. `./scss/internal/*` is mapped to `null` in the published `exports` map, so Node's own resolver and bundler resolvers that read `exports` (webpack's `enhanced-resolve`, Vite, esbuild) reject `ngx-foundation-sites/scss/internal/foundation-button` outright with `ERR_PACKAGE_PATH_NOT_EXPORTED`. What still reaches it is Sass load-path resolution -- including Dart Sass's own `pkg:` package importer, which was measured to ignore `exports` for subpaths entirely (1.102.0: even an `exports` entry pointing at a nonexistent target still resolves the real file). That reachability is deliberate and cannot be closed: the SCSS source has to stay fetchable and compilable for the planned in-browser runtime-theming addon.
