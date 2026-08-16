@@ -8,8 +8,8 @@
 //
 // `theming-worker.ts` has no exported `compile`/`serializeError` -- both are
 // reached the same way production reaches them: importing the module sets
-// `globalThis.onmessage` unconditionally (no `importScripts` guard, unlike
-// theming-presets.ts), so a spec can stub `globalThis.postMessage`, import
+// `globalThis.onmessage` unconditionally -- there is no environment guard on
+// that registration -- so a spec can stub `globalThis.postMessage`, import
 // the module, and drive the real handler directly. Verified empirically
 // against the real `nx test ngx-foundation-sites` pipeline (not just a bare
 // Vitest run) before writing these assertions: the jsdom lane resolves the

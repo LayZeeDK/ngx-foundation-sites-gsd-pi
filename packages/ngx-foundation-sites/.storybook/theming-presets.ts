@@ -5,20 +5,25 @@ import type * as Sass from 'sass';
 // D035 part c: the two-preset model, read from Sass at runtime via a custom
 // Sass function registered on a dedicated probe `compileString` call -- never
 // a TypeScript copy of the six Foundation-global values or the three WCAG
-// overrides. This file has NO static top-level `import ... from 'sass'`: the
-// compiler only ever loads behind `computePresets()`'s dynamic `import('sass')`,
-// which fires only once code inside the Worker this module spawns actually
-// runs. That keeps this module safe to import statically from the manager's
-// main bundle (a future panel wiring) without dragging the ~800 KiB gzip sass
-// payload into that bundle, mirroring theming-worker.ts/theming-inject.ts's
-// split for the compile pipeline (D034) -- folded into one file here because
-// T03's scope is this file alone. The Worker is self-referencing
-// (`new URL('./theming-presets.ts', import.meta.url)`): webpack's native
-// Worker support recognises the `new Worker(new URL(...))` shape regardless
-// of whether it names the current file or another, so one file can be both
-// the requester (called from the panel) and the worker entry (its own
-// `onmessage`, gated on an `importScripts` check since only a real Worker
-// global has it).
+// overrides. That property is load-bearing and now covers the defaults too:
+// `computePresets` returns them (see NfsThemeDefaults) so the panel has no
+// literals of its own.
+//
+// This file has NO static top-level `import ... from 'sass'`. The compiler
+// loads only behind `computePresets()`'s dynamic `import('sass')`, which keeps
+// the ~800 KiB gzip payload out of the manager's ENTRY chunk -- that is the
+// surviving benefit, and `verify-theming-bundle` is what holds it.
+//
+// It does, however, load on the manager MAIN THREAD on first panel open. The
+// design originally put this probe in a self-referencing Worker
+// (`new Worker(new URL('./theming-presets.ts', import.meta.url))`), on the
+// strength of D035's verified webpack finding. T02 measured that this does not
+// transfer: the manager builder (esbuild) does not split or serve that shape as
+// its own chunk, and the Worker failed silently. The panel therefore calls
+// `computePresets()` directly, at a measured cost of roughly 1 ms, and the
+// Worker requester/entry plumbing has been removed rather than left in place
+// as unreachable code. The webpack finding still holds for theming-worker.ts
+// on the PREVIEW side, which is a different bundler.
 
 export interface NfsPreset {
   readonly name: string;
@@ -50,9 +55,13 @@ export const NFS_CUSTOM_PRESET_NAME = 'Custom';
 export const NFS_PRESET_SELECT_ID = 'nfs-preset-select';
 
 // Computed inside a function rather than as a module-top-level constant: the
-// panel now imports this module statically (to call `runPresetProbe` at
-// init), which makes this module part of a real import cycle back to
-// theming-panel.ts. A top-level `[...NFS_COLOR_KEYS, 'radius']` would read
+// panel imports this module statically (`computePresets`,
+// `deriveSelectedPreset`, `NFS_CUSTOM_PRESET_NAME`, `NFS_PRESET_SELECT_ID`),
+// which makes this module part of a real import cycle back to
+// theming-panel.tsx. The cycle is a property of that static import, not of
+// which particular symbol is used, so removing any one of them does not make
+// it safe to inline this back to the top level.
+// A top-level `[...NFS_COLOR_KEYS, 'radius']` would read
 // NFS_COLOR_KEYS while theming-panel.ts's own module body is still mid-
 // evaluation (whichever side of the cycle loads first), which is a TDZ
 // ReferenceError under real ESM/webpack semantics -- deferring the read into
@@ -234,11 +243,11 @@ function buildPresets(raw: RawProbeValues): readonly NfsPreset[] {
 }
 
 /**
- * The pure, directly-callable probe compile -- exported separately from the
- * Worker plumbing below so a future Vitest `test` (jsdom) lane can exercise
- * it without a real Worker (R021 lane 1: "the preset baseline probe
+ * The probe compile. Called directly by the panel (see the file header on why
+ * the Worker route was dropped) and by the Vitest `test` (jsdom) lane, which
+ * needs no Worker to exercise it -- R021 lane 1: "the preset baseline probe
  * returning Foundation's six global defaults and $wcag-palette's three
- * overrides by exact key set").
+ * overrides by exact key set".
  */
 export async function computePresets(): Promise<PresetProbeResult> {
   const sassNs = await import('sass');
@@ -259,84 +268,4 @@ export async function computePresets(): Promise<PresetProbeResult> {
 
   const raw: RawProbeValues = captured;
   return { presets: buildPresets(raw), defaults: raw.defaults };
-}
-
-// ---------------------------------------------------------------------------
-// Worker plumbing: requester (called from the panel) + worker entry (self).
-// ---------------------------------------------------------------------------
-
-interface PresetProbeRequest {
-  readonly kind: 'nfs-preset-probe-request';
-}
-
-type PresetProbeResponse =
-  | { readonly kind: 'nfs-preset-probe-response'; readonly ok: true; readonly result: PresetProbeResult }
-  | { readonly kind: 'nfs-preset-probe-response'; readonly ok: false; readonly error: string };
-
-// No "webworker" lib, same reason as theming-worker.ts: this tsconfig is
-// shared with DOM-typed manager/preview files, and DOM + webworker libs
-// declare conflicting globals.
-const workerScope = globalThis as unknown as {
-  onmessage: ((event: MessageEvent<PresetProbeRequest>) => void) | null;
-  postMessage(message: PresetProbeResponse): void;
-  importScripts?: unknown;
-};
-
-// Only a real DedicatedWorkerGlobalScope has `importScripts`; on the main
-// thread (when this module is imported normally to reach `runPresetProbe`)
-// this branch never runs, so registering `onmessage` here never happens
-// outside an actual Worker.
-if (typeof workerScope.importScripts === 'function') {
-  workerScope.onmessage = () => {
-    computePresets()
-      .then((result) => {
-        workerScope.postMessage({ kind: 'nfs-preset-probe-response', ok: true, result });
-      })
-      .catch((error: unknown) => {
-        workerScope.postMessage({
-          kind: 'nfs-preset-probe-response',
-          ok: false,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      });
-  };
-}
-
-let cachedProbe: Promise<PresetProbeResult> | null = null;
-
-function requestProbe(): Promise<PresetProbeResult> {
-  return new Promise((resolvePromise, rejectPromise) => {
-    const worker = new Worker(new URL('./theming-presets.ts', import.meta.url), { type: 'module' });
-
-    worker.onmessage = (event: MessageEvent<PresetProbeResponse>) => {
-      worker.terminate();
-      const message = event.data;
-      if (message.ok) {
-        resolvePromise(message.result);
-      } else {
-        rejectPromise(new Error(message.error));
-      }
-    };
-
-    worker.onerror = (event: ErrorEvent) => {
-      worker.terminate();
-      rejectPromise(new Error(event.message || 'nfs theming preset probe worker failed'));
-    };
-
-    const request: PresetProbeRequest = { kind: 'nfs-preset-probe-request' };
-    worker.postMessage(request);
-  });
-}
-
-/**
- * One compile at panel init (D035 part c): constructs a dedicated Worker on
- * first call, lazily fetching the same split sass chunk theming-worker.ts's
- * compile pipeline uses, and caches the resulting promise so a panel remount
- * never re-probes.
- */
-export function runPresetProbe(): Promise<PresetProbeResult> {
-  if (cachedProbe === null) {
-    cachedProbe = requestProbe();
-  }
-  return cachedProbe;
 }
