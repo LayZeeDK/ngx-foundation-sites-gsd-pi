@@ -155,6 +155,39 @@ test.describe('Theming addon panel (R009/R021 lane 3)', () => {
     expect(sb.currentGlobals() || '').toBe('');
   });
 
+  test('P7: a theme that fails to compile surfaces a visible error, and the last good CSS survives', async ({
+    page,
+  }) => {
+    // The panel is the validation boundary (R009), so an invalid value cannot
+    // be typed into a control -- but a hand-edited or stale shared link
+    // bypasses it, which is the real-world route to a failed compile. Storybook
+    // decodes this to the bare string `notacolor`, which reaches
+    // `$background:` and produces the same Sass error T6 pins in lane 1.
+    const sb = new SbPage(page);
+    await sb.gotoStory('nfsbutton--primary', 'nfsTheme.primary:notacolor');
+    await sb.disablePreviewTransitions();
+
+    // R009: "the panel shows sassMessage plus a friendly source name derived
+    // from span.url". Before the compile state was wired through the channel,
+    // every one of these assertions was unsatisfiable -- the error was
+    // computed, serialised across the Worker boundary, and handed to an empty
+    // listener set, so the addon simply appeared to do nothing.
+    await expect(sb.themingPanelRoot()).toHaveAttribute('data-nfs-panel-state', 'error');
+
+    const errorBox = page.locator('[data-testid="nfs-theming-error"]');
+    await expect(errorBox).toBeVisible();
+    await expect(errorBox).toContainText('is not a color');
+    await expect(errorBox).toContainText('_button.scss');
+
+    // D035 part e: the last good CSS is never cleared on error. Foundation's
+    // default primary must still be on screen -- the preview neither goes
+    // blank nor silently keeps a half-applied theme.
+    await expect(sb.previewRoot().getByRole('button', { name: 'Primary button' })).toHaveCSS(
+      'background-color',
+      'rgb(23, 121, 186)',
+    );
+  });
+
   test('P8: an autodocs page renders under the selected theme and exposes no Theming panel', async ({ page }) => {
     const sb = new SbPage(page);
     await sb.gotoStory('nfsbutton--primary', 'nfsTheme.primary:!hex(cb4b37)');
