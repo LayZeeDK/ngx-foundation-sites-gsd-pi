@@ -120,6 +120,8 @@ The `rtlcss`-mirrored `css/nfs-button.rtl.css` twin is no longer published; the 
 
 For a live preview of the mixin above, `packages/ngx-foundation-sites/.storybook/` ships a workspace-local `Theming` panel that compiles the library's real Foundation Sass in the browser. This is a Storybook-only development aid, not a new API: there is still no CSS custom property theming surface and no runtime override mechanism in your app.
 
+Run it with `nx run ngx-foundation-sites:storybook`, open any story, and select the **Theming** tab.
+
 **Six curated controls**, one for each of the theme mixin's `$background` / `$palette` keys / `$radius`:
 
 | Control     | Wire format                          | Range/units       | Foundation default |
@@ -131,7 +133,11 @@ For a live preview of the mixin above, `packages/ngx-foundation-sites/.storybook
 | `alert`     | `#rgb` or `#rrggbb`, normalized lowercase | any hex color   | `#cc4b37`            |
 | `radius`    | integer                               | `0`-`32` px         | `0`                  |
 
-Invalid input (an unparsable color, or a radius outside `0`-`32`) is marked in the control and is never written to Storybook's globals, so every reachable control state is guaranteed URL-shareable (see below).
+The `Foundation default` column tracks `foundation-sites` 6.9.0. The panel does not hard-code these values: it reads them from your installed Foundation at runtime, in the same probe compile that builds the presets, so they follow a dependency bump rather than drifting from it.
+
+Invalid input (an unparsable color, or a radius that is not a whole number from `0` to `32`) is marked in the control and is never written to Storybook's globals, so every reachable control state is guaranteed URL-shareable (see below).
+
+**Panel states.** The panel reports its state on `data-nfs-panel-state`. It opens in `loading` for the one probe compile that reads Foundation's defaults and presets (roughly a millisecond), then sits at `ready`. A compile still running after 300 ms shows `compiling`. If a theme fails to compile -- which the controls themselves prevent, but a hand-edited `?globals=` link does not -- the panel goes to `error` and shows Sass's own message plus the file it came from, while the preview keeps the last theme that compiled cleanly rather than going blank.
 
 **Two presets** ship: `Foundation default` (no overrides) and `WCAG-compliant` (`success: #238648`, `warning: #9e6c00`, `alert: #cb4b37`, inheriting Foundation's `primary`/`secondary`/`radius`) -- the same compliant theme documented under [Accessibility](#accessibility) above. The panel's preset dropdown reads as selected **only on an exact match**: it compares the live theme's sparse override map against each preset's, so a control left untouched and a control explicitly set to Foundation's own default value are the same state, not two. Editing any control after choosing a preset flips the dropdown to `Custom`; setting every control back to a preset's exact values flips it back.
 
