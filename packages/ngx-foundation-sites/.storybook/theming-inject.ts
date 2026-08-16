@@ -64,7 +64,15 @@ let compiling = false;
 let discardCurrentResult = false;
 let pendingTheme: NfsTheme | null = null;
 let compilingIndicatorTimer: ReturnType<typeof setTimeout> | null = null;
+// Set ONLY once CSS has actually landed in the style node (or been cleared
+// back to the default theme). A compile that errors leaves this untouched, so
+// re-requesting the same theme -- which `withNfsTheming` does on every story
+// render, and which is also how a user retries -- dispatches a fresh compile
+// instead of short-circuiting on a theme that was never applied.
 let lastAppliedThemeKey: string | null = null;
+// The theme `startCompile` last handed to the Worker, promoted to
+// `lastAppliedThemeKey` only on a successful, non-discarded response.
+let inFlightThemeKey: string | null = null;
 
 const listeners = new Set<ThemingStateListener>();
 
@@ -114,6 +122,9 @@ function handleWorkerMessage(response: ThemeCompileResponse): void {
   }
   compiling = false;
 
+  const compiledThemeKey = inFlightThemeKey;
+  inFlightThemeKey = null;
+
   const shouldApply = response.seq === workerSeq && !discardCurrentResult;
   discardCurrentResult = false;
 
@@ -122,6 +133,7 @@ function handleWorkerMessage(response: ThemeCompileResponse): void {
       // D035 part e: the last good CSS is never cleared on error -- achieved
       // here simply by never overwriting the style node on the error branch.
       injectCss(response.css);
+      lastAppliedThemeKey = compiledThemeKey;
       notify({ kind: 'idle' });
     } else {
       notify({
@@ -142,6 +154,7 @@ function handleWorkerMessage(response: ThemeCompileResponse): void {
 function startCompile(theme: NfsTheme): void {
   compiling = true;
   workerSeq += 1;
+  inFlightThemeKey = themeKey(theme);
   const request: ThemeCompileRequest = { seq: workerSeq, theme };
 
   compilingIndicatorTimer = setTimeout(() => {
@@ -161,10 +174,18 @@ function startCompile(theme: NfsTheme): void {
  */
 export function requestTheme(theme: NfsTheme): void {
   const key = themeKey(theme);
-  if (key === lastAppliedThemeKey) {
+
+  // Already on screen, already compiling, or already queued -- `withNfsTheming`
+  // re-requests on every story render, so this is the hot path. Checking all
+  // three states (rather than one "last requested" key) is what lets an errored
+  // theme be retried: it reaches none of them.
+  if (
+    key === lastAppliedThemeKey ||
+    key === inFlightThemeKey ||
+    (pendingTheme !== null && themeKey(pendingTheme) === key)
+  ) {
     return;
   }
-  lastAppliedThemeKey = key;
 
   if (key === '') {
     // D038: the default theme is never compiled -- it is already on screen
@@ -174,8 +195,10 @@ export function requestTheme(theme: NfsTheme): void {
     pendingTheme = null;
     if (compiling) {
       discardCurrentResult = true;
+      inFlightThemeKey = null;
     }
     clearInjectedCss();
+    lastAppliedThemeKey = key;
     notify({ kind: 'idle' });
     return;
   }

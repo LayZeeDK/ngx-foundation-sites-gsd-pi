@@ -300,6 +300,37 @@ describe('theming-inject coalescer state machine (T8, driven against a fake work
 
     expect(states.at(-1)).toEqual({ kind: 'error', message: 'bad', sourceName: 'the compiled theme' });
   });
+
+  it('T8e: a theme whose compile FAILED is recompiled when requested again, not swallowed by the applied-key cache', () => {
+    requestTheme({ primary: '#ff0000' });
+    const worker = fakeWorkerInstances[0];
+    const firstRequest = worker.postMessage.mock.calls[0][0];
+
+    worker.respond({
+      seq: firstRequest.seq,
+      ok: false,
+      error: { sassMessage: 'bad', sassStack: '', sourceUrl: null },
+    });
+
+    // `withNfsTheming` re-requests the same theme on every story render; a
+    // reload or a user retry does the same. The failed theme never reached
+    // the style node, so it must dispatch a real second compile.
+    requestTheme({ primary: '#ff0000' });
+
+    expect(worker.postMessage).toHaveBeenCalledTimes(2);
+    expect(worker.postMessage.mock.calls[1][0].theme).toEqual({ primary: '#ff0000' });
+  });
+
+  it('T8f: a theme that WAS applied is not recompiled on a repeat request', () => {
+    requestTheme({ primary: '#ff0000' });
+    const worker = fakeWorkerInstances[0];
+    const firstRequest = worker.postMessage.mock.calls[0][0];
+
+    worker.respond({ seq: firstRequest.seq, ok: true, css: '.a{color:red}' });
+    requestTheme({ primary: '#ff0000' });
+
+    expect(worker.postMessage).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('R026 path-spelling divergence guard (T9)', () => {
