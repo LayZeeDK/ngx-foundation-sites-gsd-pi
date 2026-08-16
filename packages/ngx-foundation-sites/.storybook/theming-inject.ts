@@ -66,14 +66,23 @@ let compiling = false;
 let discardCurrentResult = false;
 let pendingTheme: NfsTheme | null = null;
 let compilingIndicatorTimer: ReturnType<typeof setTimeout> | null = null;
-// Set ONLY once CSS has actually landed in the style node (or been cleared
-// back to the default theme). A compile that errors leaves this untouched, so
-// re-requesting the same theme -- which `withNfsTheming` does on every story
-// render, and which is also how a user retries -- dispatches a fresh compile
-// instead of short-circuiting on a theme that was never applied.
-let lastAppliedThemeKey: string | null = null;
-// The theme `startCompile` last handed to the Worker, promoted to
-// `lastAppliedThemeKey` only on a successful, non-discarded response.
+// The last theme `requestTheme` accepted -- set at REQUEST time, which is what
+// makes the coalescer's latest-wins property hold. `withNfsTheming` re-requests
+// on every story render, so this is the guard that stops a render storm from
+// queueing redundant compiles.
+//
+// It must be set at request time, not on apply: a request that arrives while a
+// different theme is mid-compile has to compare against what was last ASKED
+// for, otherwise reverting to the currently-applied theme mid-compile compares
+// equal, returns early, and the in-flight theme lands on top of it.
+//
+// The one case where that is wrong is a theme that never made it to the screen,
+// so `clearRequestedThemeKeyOn` releases it when a compile fails or the Worker
+// dies -- and only when it still names the theme that failed, so a newer
+// request already queued behind it is not recompiled.
+let lastRequestedThemeKey: string | null = null;
+// Bookkeeping only, never a guard: which theme the Worker is currently
+// compiling, so a failure knows which key to release.
 let inFlightThemeKey: string | null = null;
 
 const listeners = new Set<ThemingStateListener>();
@@ -114,8 +123,25 @@ function themeKey(theme: NfsTheme): string {
  * at all (a 404'd chunk, a CSP `worker-src` refusal), retrying it here would
  * spin. The next control change constructs a fresh Worker and tries again.
  */
+/**
+ * Releases `lastRequestedThemeKey` when the theme it names never reached the
+ * screen, so an identical re-request retries instead of short-circuiting. Only
+ * when it still names `failedKey`: if a newer theme was requested meanwhile it
+ * is already queued, and clearing would compile it twice.
+ */
+function clearRequestedThemeKeyOn(failedKey: string | null): void {
+  if (failedKey !== null && lastRequestedThemeKey === failedKey) {
+    lastRequestedThemeKey = null;
+  }
+}
+
 function failWorker(detail: string): void {
+  // `onmessageerror` fires on a Worker that is still alive, unlike `onerror`;
+  // without this the handle is dropped while the thread keeps running, and the
+  // next control change spawns a second one carrying its own sass payload.
+  worker?.terminate();
   worker = null;
+  clearRequestedThemeKeyOn(inFlightThemeKey);
 
   if (compilingIndicatorTimer !== null) {
     clearTimeout(compilingIndicatorTimer);
@@ -192,9 +218,9 @@ function handleWorkerMessage(response: ThemeCompileResponse): void {
       // D035 part e: the last good CSS is never cleared on error -- achieved
       // here simply by never overwriting the style node on the error branch.
       injectCss(response.css);
-      lastAppliedThemeKey = compiledThemeKey;
       notify({ kind: 'idle' });
     } else {
+      clearRequestedThemeKeyOn(compiledThemeKey);
       notify({
         kind: 'error',
         message: response.error.sassMessage,
@@ -242,17 +268,10 @@ function startCompile(theme: NfsTheme): void {
 export function requestTheme(theme: NfsTheme): void {
   const key = themeKey(theme);
 
-  // Already on screen, already compiling, or already queued -- `withNfsTheming`
-  // re-requests on every story render, so this is the hot path. Checking all
-  // three states (rather than one "last requested" key) is what lets an errored
-  // theme be retried: it reaches none of them.
-  if (
-    key === lastAppliedThemeKey ||
-    key === inFlightThemeKey ||
-    (pendingTheme !== null && themeKey(pendingTheme) === key)
-  ) {
+  if (key === lastRequestedThemeKey) {
     return;
   }
+  lastRequestedThemeKey = key;
 
   if (key === '') {
     // D038: the default theme is never compiled -- it is already on screen
@@ -265,7 +284,6 @@ export function requestTheme(theme: NfsTheme): void {
       inFlightThemeKey = null;
     }
     clearInjectedCss();
-    lastAppliedThemeKey = key;
     notify({ kind: 'idle' });
     return;
   }

@@ -363,6 +363,23 @@ describe('theming-inject coalescer state machine (T8, driven against a fake work
     expect(fakeWorkerInstances[0].onmessageerror).toBeTypeOf('function');
   });
 
+  it('T8j: A -> B -> A while B is in flight ends with A on screen, not B', () => {
+    // Reverting a control to a value that is currently applied, while a
+    // compile for the intermediate value is still running. The style node
+    // must end up holding A: globals say A and the panel shows A.
+    requestTheme({ primary: '#aaaaaa' });
+    const worker = fakeWorkerInstances[0];
+    worker.respond({ seq: worker.postMessage.mock.calls[0][0].seq, ok: true, css: '.a{}' });
+
+    requestTheme({ primary: '#bbbbbb' });
+    requestTheme({ primary: '#aaaaaa' });
+
+    worker.respond({ seq: worker.postMessage.mock.calls[1][0].seq, ok: true, css: '.b{}' });
+
+    expect(worker.postMessage).toHaveBeenCalledTimes(3);
+    expect(worker.postMessage.mock.calls[2][0].theme).toEqual({ primary: '#aaaaaa' });
+  });
+
   it('T8f: a theme that WAS applied is not recompiled on a repeat request', () => {
     requestTheme({ primary: '#ff0000' });
     const worker = fakeWorkerInstances[0];
