@@ -94,14 +94,64 @@ function themeKey(theme: NfsTheme): string {
     .join('|');
 }
 
-function ensureWorker(): Worker {
+/**
+ * Releases the coalescer after the Worker itself dies, rather than after a
+ * reply. `compiling` is otherwise cleared only in `handleWorkerMessage`, which
+ * a dead Worker never reaches -- so without this every later `requestTheme`
+ * parks in the `if (compiling)` queue forever and the addon is silently inert
+ * for the rest of the session.
+ *
+ * The queued theme is dropped rather than retried: if the Worker cannot start
+ * at all (a 404'd chunk, a CSP `worker-src` refusal), retrying it here would
+ * spin. The next control change constructs a fresh Worker and tries again.
+ */
+function failWorker(detail: string): void {
+  worker = null;
+
+  if (compilingIndicatorTimer !== null) {
+    clearTimeout(compilingIndicatorTimer);
+    compilingIndicatorTimer = null;
+  }
+
+  compiling = false;
+  discardCurrentResult = false;
+  inFlightThemeKey = null;
+  pendingTheme = null;
+
+  notify({
+    kind: 'error',
+    message: `${detail} Live theming is unavailable until you change a control to retry, or reload the page.`,
+    sourceName: 'the theme compiler',
+  });
+}
+
+function ensureWorker(): Worker | null {
   if (worker) {
     return worker;
   }
 
-  const created = new Worker(new URL('./theming-worker.ts', import.meta.url), { type: 'module' });
+  let created: Worker;
+  try {
+    created = new Worker(new URL('./theming-worker.ts', import.meta.url), { type: 'module' });
+  } catch (error) {
+    // `new Worker()` throws synchronously on a SecurityError (a restrictive
+    // CSP, a cross-origin script URL). This runs inside the `withNfsTheming`
+    // decorator, so an uncaught throw here takes down the whole story render,
+    // not just theming -- degrade to "theme unavailable" instead.
+    failWorker(
+      `The theme compiler could not be created (${error instanceof Error ? error.message : String(error)}).`
+    );
+    return null;
+  }
+
   created.onmessage = (event: MessageEvent<ThemeCompileResponse>) => {
     handleWorkerMessage(event.data);
+  };
+  created.onerror = (event: ErrorEvent) => {
+    failWorker(`The theme compiler crashed (${event.message || 'no error message'}).`);
+  };
+  created.onmessageerror = () => {
+    failWorker('The theme compiler sent a reply that could not be deserialised.');
   };
   worker = created;
   return created;
@@ -152,6 +202,14 @@ function handleWorkerMessage(response: ThemeCompileResponse): void {
 }
 
 function startCompile(theme: NfsTheme): void {
+  // Resolved before any state is mutated: a Worker that cannot be constructed
+  // must leave the coalescer exactly as it found it (`failWorker` has already
+  // reported and reset).
+  const activeWorker = ensureWorker();
+  if (activeWorker === null) {
+    return;
+  }
+
   compiling = true;
   workerSeq += 1;
   inFlightThemeKey = themeKey(theme);
@@ -163,7 +221,7 @@ function startCompile(theme: NfsTheme): void {
     }
   }, COMPILING_INDICATOR_DELAY_MS);
 
-  ensureWorker().postMessage(request);
+  activeWorker.postMessage(request);
 }
 
 /**

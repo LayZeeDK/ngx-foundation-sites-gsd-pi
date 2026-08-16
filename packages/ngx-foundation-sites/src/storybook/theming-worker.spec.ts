@@ -205,11 +205,20 @@ describe('theming-inject coalescer state machine (T8, driven against a fake work
     readonly postMessage = vi.fn();
     readonly terminate = vi.fn();
 
+    onmessageerror: ((event: MessageEvent) => void) | null = null;
+
     respond(response: ThemeCompileResponse): void {
       if (!this.onmessage) {
         throw new Error('theming-inject never assigned worker.onmessage');
       }
       this.onmessage({ data: response } as MessageEvent<ThemeCompileResponse>);
+    }
+
+    crash(message = 'boom'): void {
+      if (!this.onerror) {
+        throw new Error('theming-inject never assigned worker.onerror');
+      }
+      this.onerror({ message } as ErrorEvent);
     }
   }
 
@@ -319,6 +328,39 @@ describe('theming-inject coalescer state machine (T8, driven against a fake work
 
     expect(worker.postMessage).toHaveBeenCalledTimes(2);
     expect(worker.postMessage.mock.calls[1][0].theme).toEqual({ primary: '#ff0000' });
+  });
+
+  it('T8g: a Worker that dies notifies "error" instead of latching the coalescer', () => {
+    requestTheme({ primary: '#ff0000' });
+    fakeWorkerInstances[0].crash('chunk 404');
+
+    const last = states.at(-1);
+    expect(last?.kind).toBe('error');
+    if (last?.kind !== 'error') {
+      throw new Error('unreachable');
+    }
+    expect(last.message).toContain('chunk 404');
+    expect(last.sourceName).toBe('the theme compiler');
+  });
+
+  it('T8h: after a Worker death the next theme change builds a fresh Worker and compiles -- the addon is not inert', () => {
+    requestTheme({ primary: '#ff0000' });
+    fakeWorkerInstances[0].crash();
+
+    // Before the fix `compiling` stayed true forever, so this parked in the
+    // pending slot and never posted.
+    requestTheme({ primary: '#00ff00' });
+
+    expect(fakeWorkerInstances).toHaveLength(2);
+    expect(fakeWorkerInstances[1].postMessage).toHaveBeenCalledTimes(1);
+    expect(fakeWorkerInstances[1].postMessage.mock.calls[0][0].theme).toEqual({ primary: '#00ff00' });
+  });
+
+  it('T8i: theming-inject assigns onmessageerror as well as onerror', () => {
+    requestTheme({ primary: '#ff0000' });
+
+    expect(fakeWorkerInstances[0].onerror).toBeTypeOf('function');
+    expect(fakeWorkerInstances[0].onmessageerror).toBeTypeOf('function');
   });
 
   it('T8f: a theme that WAS applied is not recompiled on a repeat request', () => {
