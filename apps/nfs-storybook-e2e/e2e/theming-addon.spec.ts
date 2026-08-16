@@ -186,6 +186,19 @@ test.describe('Theming addon panel (R009/R021 lane 3)', () => {
       'background-color',
       'rgb(23, 121, 186)',
     );
+
+    // The panel is mounted only while its tab is active, so a switch away
+    // destroys its React state. The error must survive the round trip -- the
+    // preview holds it and replays it on remount. Without that, the four-state
+    // contract stops holding after one tab switch and a compile that failed
+    // while the user was on another tab is never reported at all.
+    await sb.panelTab(/^Controls/).click();
+    await expect(sb.themingPanelTab()).toHaveAttribute('aria-selected', 'false');
+
+    await sb.themingPanelTab().click();
+    await expect(sb.themingPanelTab()).toHaveAttribute('aria-selected', 'true');
+    await expect(sb.themingPanelRoot()).toHaveAttribute('data-nfs-panel-state', 'error');
+    await expect(page.locator('[data-testid="nfs-theming-error"]')).toContainText('is not a color');
   });
 
   test('P8: an autodocs page renders under the selected theme and exposes no Theming panel', async ({ page }) => {

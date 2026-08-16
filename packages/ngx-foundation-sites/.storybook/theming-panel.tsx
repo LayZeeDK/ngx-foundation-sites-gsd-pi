@@ -8,7 +8,11 @@ import { useChannel, useGlobals } from 'storybook/manager-api';
 // actually rendered in a real browser before this fix, only compiled and
 // unit-tested in isolation.
 import React, { useEffect, useRef, useState, type FC } from 'react';
-import { NFS_THEMING_STATE_EVENT, type ThemingCompileState } from './theming-channel';
+import {
+  NFS_THEMING_STATE_EVENT,
+  NFS_THEMING_STATE_REQUEST_EVENT,
+  type ThemingCompileState,
+} from './theming-channel';
 import {
   computePresets,
   deriveSelectedPreset,
@@ -151,11 +155,30 @@ export const ThemingPanel: FC = () => {
   // compile runs in the preview iframe, so the state arrives over Storybook's
   // channel (see theming-channel.ts).
   const [compileState, setCompileState] = useState<ThemingCompileState>({ kind: 'idle' });
-  useChannel({
+  const emitToPreview = useChannel({
     [NFS_THEMING_STATE_EVENT]: (state: ThemingCompileState) => {
       setCompileState(state);
     },
   });
+
+  // manager.ts mounts this panel only while its tab is active, so switching to
+  // Controls and back destroys `compileState` and remounts at `idle`. Ask the
+  // preview -- which holds the authoritative state -- to replay it, otherwise a
+  // standing error silently disappears on a tab switch, and an error raised
+  // while the user was on another tab is never shown at all.
+  // Guarded rather than relying on `useChannel`'s emitter being referentially
+  // stable: exactly one request per mount, which is the semantic wanted, and an
+  // unstable emitter would otherwise re-request on every render -- each reply
+  // setting state and provoking the next render.
+  const replayRequested = useRef(false);
+  useEffect(() => {
+    if (replayRequested.current) {
+      return;
+    }
+
+    replayRequested.current = true;
+    emitToPreview(NFS_THEMING_STATE_REQUEST_EVENT);
+  }, [emitToPreview]);
 
   useEffect(() => {
     let cancelled = false;

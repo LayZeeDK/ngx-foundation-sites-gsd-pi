@@ -15,6 +15,17 @@
 
 export const NFS_THEMING_STATE_EVENT = 'nfs/theming/compile-state';
 
+/**
+ * Panel -> preview: "re-send the current compile state".
+ *
+ * The panel is mounted only while its tab is active (manager.ts), so its React
+ * state is destroyed on every switch away. Without a replay the panel would
+ * remount at `idle` and silently drop a standing error -- and an error raised
+ * while the user was on another tab would never be seen at all, which breaks
+ * R009's four-state contract after a single tab switch.
+ */
+export const NFS_THEMING_STATE_REQUEST_EVENT = 'nfs/theming/compile-state-request';
+
 export type ThemingCompileState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'compiling' }

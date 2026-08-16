@@ -34,6 +34,11 @@ export class SbPage {
     return this.page.getByRole('tab', { name: /^Theming/ });
   }
 
+  /** Any addon tab by visible name, for exercising the panel's unmount/remount. */
+  panelTab(name: RegExp) {
+    return this.page.locator('#storybook-panel-root').getByRole('tab', { name });
+  }
+
   themingStyleElement() {
     return this.previewIframe().locator('#nfs-theming');
   }

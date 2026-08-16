@@ -1,6 +1,10 @@
 import type { Decorator } from '@storybook/angular';
 import { getChannel } from 'storybook/preview-api';
-import { NFS_THEMING_STATE_EVENT, type ThemingCompileState } from './theming-channel';
+import {
+  NFS_THEMING_STATE_EVENT,
+  NFS_THEMING_STATE_REQUEST_EVENT,
+  type ThemingCompileState,
+} from './theming-channel';
 import type { NfsTheme } from './theming-panel';
 import type { ThemeCompileRequest, ThemeCompileResponse } from './theming-worker';
 
@@ -87,7 +91,34 @@ let inFlightThemeKey: string | null = null;
 
 const listeners = new Set<ThemingStateListener>();
 
+// The panel unmounts on every addon-tab switch and remounts at `idle`, so the
+// preview holds the authoritative state and replays it on request.
+let currentState: ThemingCompileState = { kind: 'idle' };
+let stateReplayRegistered = false;
+
+/**
+ * Registers the replay responder once a channel exists. Called from the
+ * decorator rather than at module scope because `getChannel()` is null until
+ * Storybook has wired the preview up.
+ */
+function ensureStateReplay(): void {
+  if (stateReplayRegistered) {
+    return;
+  }
+
+  const channel = getChannel();
+  if (!channel) {
+    return;
+  }
+
+  channel.on(NFS_THEMING_STATE_REQUEST_EVENT, () => {
+    channel.emit(NFS_THEMING_STATE_EVENT, currentState);
+  });
+  stateReplayRegistered = true;
+}
+
 function notify(state: ThemingCompileState): void {
+  currentState = state;
   listeners.forEach((listener) => listener(state));
 
   // R009: the panel carries `compiling`/`error` in `data-nfs-panel-state` and
@@ -301,6 +332,7 @@ export function requestTheme(theme: NfsTheme): void {
 // already syncs the manager-side panel's writes (T01) to this preview
 // iframe's `context.globals`, so no custom channel messaging is needed here.
 export const withNfsTheming: Decorator = (storyFn, context) => {
+  ensureStateReplay();
   const theme = (context.globals as { nfsTheme?: NfsTheme }).nfsTheme ?? {};
   requestTheme(theme);
   return storyFn();
