@@ -125,7 +125,9 @@ export const ThemingPanel: FC = () => {
   const [defaults, setDefaults] = useState<NfsThemeDefaults | null>(null);
 
   // D035 part c's preset model, wired up here. Until the probe resolves the
-  // panel stays in `loading` and every control is disabled -- "the panel
+  // panel stays in `loading` and the preset select is disabled, while the six
+  // value controls are not rendered at all (they have no defaults to show
+  // until the probe resolves) -- "the panel
   // loads asynchronously on first open, by design" (R009), not a defect to
   // race past with a timeout.
   //
@@ -295,6 +297,10 @@ export const ThemingPanel: FC = () => {
   // Only the preset probe gates the controls. A compile that is in flight or
   // that errored must leave them live -- the whole point of the error state is
   // that the user can correct the value that caused it.
+  // Reaches the preset select in practice; the six value controls render only
+  // once `defaults` is non-null, which happens in the same commit as
+  // `probeState = 'ready'`, so it is always false by the time they exist. Kept
+  // on them so the gating stays correct if those two ever separate.
   const controlsDisabled = probeState !== 'ready';
 
   // R009's four-state contract. `compiling` is already 300 ms-gated upstream:
@@ -307,7 +313,7 @@ export const ThemingPanel: FC = () => {
         ? 'error'
         : compileState.kind === 'idle'
           ? 'ready'
-          : compileState.kind;
+          : 'compiling';
 
   // A dead probe is reported ahead of a compile error: without Foundation's
   // defaults the controls cannot render at all, so it is the more fundamental
@@ -376,6 +382,9 @@ export const ThemingPanel: FC = () => {
               <input
                 id={`nfs-color-${key}`}
                 type="color"
+                // The row's visible <label> points at the text field, so this
+                // swatch needs its own accessible name (WCAG 1.3.1 / 4.1.2).
+                aria-label={`${key} colour picker`}
                 value={theme[key] ?? defaults[key]}
                 disabled={controlsDisabled}
                 onChange={(event) => commitColor(key, event.target.value)}
@@ -408,6 +417,8 @@ export const ThemingPanel: FC = () => {
             <input
               id="nfs-radius-stepper"
               type="number"
+              // The visible <label> points at the range slider above.
+              aria-label="radius in pixels"
               min={0}
               max={32}
               step={1}

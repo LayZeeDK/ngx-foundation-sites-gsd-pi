@@ -9,12 +9,28 @@ import type * as Sass from 'sass';
 // `computePresets` returns them (see NfsThemeDefaults) so the panel has no
 // literals of its own.
 //
-// This file has NO static top-level `import ... from 'sass'`. The compiler
-// loads only behind `computePresets()`'s dynamic `import('sass')`, which keeps
-// the ~800 KiB gzip payload out of the manager's ENTRY chunk -- that is the
-// surviving benefit, and `verify-theming-bundle` is what holds it.
+// This file has NO static top-level `import ... from 'sass'`, but do NOT read
+// that as "sass stays out of the manager bundle". MEASURED against the real
+// build output: it does not.
 //
-// It does, however, load on the manager MAIN THREAD on first panel open. The
+//   dist/storybook/ngx-foundation-sites/sb-addons/
+//     packages-ngx-foundation-sites-storybook-3/manager-bundle.js
+//       3,418,604 bytes raw / 735,249 gzip, contains `compileStringAsync`,
+//       no sibling chunk files, statically imported by index.html
+//
+// The manager builder (esbuild, no `splitting`) flattens the dynamic
+// `import('sass')` into the single addon entry bundle, so dart-sass is fetched
+// eagerly on every Storybook manager boot, whether or not the Theming tab is
+// ever opened. `verify-theming-bundle` does NOT hold this: it deliberately
+// waives the manager side and guards only the preview, where D034's lazy
+// `new Worker(new URL(...))` split does work because webpack honours it.
+//
+// This is a known, unpaid cost rather than a protected invariant. The cheapest
+// route out is to move the probe back to the preview side and ship its result
+// over the manager<->preview channel (theming-channel.ts), which did not exist
+// when the probe was placed here.
+//
+// It also loads on the manager MAIN THREAD on first panel open. The
 // design originally put this probe in a self-referencing Worker
 // (`new Worker(new URL('./theming-presets.ts', import.meta.url))`), on the
 // strength of D035's verified webpack finding. T02 measured that this does not
