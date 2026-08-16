@@ -1,4 +1,6 @@
 import type { Decorator } from '@storybook/angular';
+import { getChannel } from 'storybook/preview-api';
+import { NFS_THEMING_STATE_EVENT, type ThemingCompileState } from './theming-channel';
 import type { NfsTheme } from './theming-panel';
 import type { ThemeCompileRequest, ThemeCompileResponse } from './theming-worker';
 
@@ -9,10 +11,10 @@ import type { ThemeCompileRequest, ThemeCompileResponse } from './theming-worker
 // theme, coalesces rapid changes into a single-slot latest-wins queue (no
 // debounce), and injects into one shared `<style id="nfs-theming">` node.
 
-export type ThemingCompileState =
-  | { readonly kind: 'idle' }
-  | { readonly kind: 'compiling' }
-  | { readonly kind: 'error'; readonly message: string; readonly sourceName: string };
+// Re-exported so existing importers (and the R021 lane-1/lane-2 specs) keep
+// resolving the state union from this module after it moved to the shared
+// manager<->preview contract.
+export type { ThemingCompileState } from './theming-channel';
 
 type ThemingStateListener = (state: ThemingCompileState) => void;
 
@@ -78,6 +80,13 @@ const listeners = new Set<ThemingStateListener>();
 
 function notify(state: ThemingCompileState): void {
   listeners.forEach((listener) => listener(state));
+
+  // R009: the panel carries `compiling`/`error` in `data-nfs-panel-state` and
+  // shows `sassMessage` on error. The panel is manager-side and this module is
+  // preview-side, so the channel is the only route. `getChannel()` is null
+  // outside a real preview (the jsdom lane drives `requestTheme` directly), so
+  // this degrades to a no-op there instead of throwing.
+  getChannel()?.emit(NFS_THEMING_STATE_EVENT, state);
 }
 
 export function subscribeThemingState(listener: ThemingStateListener): () => void {

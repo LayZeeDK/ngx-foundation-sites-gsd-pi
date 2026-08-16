@@ -1,4 +1,4 @@
-import { useGlobals } from 'storybook/manager-api';
+import { useChannel, useGlobals } from 'storybook/manager-api';
 // The default import is required at runtime, not just for types: Storybook's
 // manager builder (esbuild) compiles this file's JSX to `React.createElement`
 // calls regardless of tsconfig's `"jsx": "react-jsx"` (that setting only
@@ -8,6 +8,7 @@ import { useGlobals } from 'storybook/manager-api';
 // actually rendered in a real browser before this fix, only compiled and
 // unit-tested in isolation.
 import React, { useEffect, useRef, useState, type FC } from 'react';
+import { NFS_THEMING_STATE_EVENT, type ThemingCompileState } from './theming-channel';
 import {
   computePresets,
   deriveSelectedPreset,
@@ -151,8 +152,19 @@ export const ThemingPanel: FC = () => {
   // its own doc comment says "so a future Vitest test (jsdom) lane can
   // exercise it without a real Worker" -- and its real compile cost is the
   // same ~1.1ms the design already measured, negligible on the main thread.
-  const [panelState, setPanelState] = useState<'loading' | 'ready'>('loading');
+  const [probeState, setProbeState] = useState<'loading' | 'ready'>('loading');
   const [presets, setPresets] = useState<readonly NfsPreset[]>([]);
+
+  // R009's `data-nfs-panel-state="loading|ready|compiling|error"` contract and
+  // its "the panel shows sassMessage plus a friendly source name" clause. The
+  // compile runs in the preview iframe, so the state arrives over Storybook's
+  // channel (see theming-channel.ts).
+  const [compileState, setCompileState] = useState<ThemingCompileState>({ kind: 'idle' });
+  useChannel({
+    [NFS_THEMING_STATE_EVENT]: (state: ThemingCompileState) => {
+      setCompileState(state);
+    },
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +174,7 @@ export const ThemingPanel: FC = () => {
           return;
         }
         setPresets(result);
-        setPanelState('ready');
+        setProbeState('ready');
       })
       .catch(() => {
         // The probe failing must not surface as a manager console.error
@@ -173,7 +185,7 @@ export const ThemingPanel: FC = () => {
           return;
         }
         setPresets([]);
-        setPanelState('ready');
+        setProbeState('ready');
       });
     return () => {
       cancelled = true;
@@ -181,7 +193,7 @@ export const ThemingPanel: FC = () => {
   }, []);
 
   const selectedPresetName =
-    panelState === 'ready' ? deriveSelectedPreset(presets, theme) : NFS_CUSTOM_PRESET_NAME;
+    probeState === 'ready' ? deriveSelectedPreset(presets, theme) : NFS_CUSTOM_PRESET_NAME;
 
   const commitPreset = (presetName: string): void => {
     // "Seeding is not locking" (R009): applying a preset is a single
@@ -253,10 +265,40 @@ export const ThemingPanel: FC = () => {
     updateGlobals({ nfsTheme: withOverride(theme, 'radius', clamped, NFS_THEME_DEFAULTS.radius) });
   };
 
-  const controlsDisabled = panelState === 'loading';
+  // Only the preset probe gates the controls. A compile that is in flight or
+  // that errored must leave them live -- the whole point of the error state is
+  // that the user can correct the value that caused it.
+  const controlsDisabled = probeState === 'loading';
+
+  // R009's four-state contract. `compiling` is already 300 ms-gated upstream:
+  // theming-inject.ts only emits it for a compile still running past
+  // COMPILING_INDICATOR_DELAY_MS, so a fast compile never flickers here.
+  const panelState: 'loading' | 'ready' | 'compiling' | 'error' =
+    probeState === 'loading' ? 'loading' : compileState.kind === 'idle' ? 'ready' : compileState.kind;
 
   return (
     <div data-testid="nfs-theming-panel" data-nfs-panel-state={panelState} style={{ padding: 12 }}>
+      {compileState.kind === 'error' && (
+        <div
+          data-testid="nfs-theming-error"
+          role="alert"
+          style={{
+            marginBottom: 8,
+            padding: 8,
+            border: '1px solid crimson',
+            borderRadius: 3,
+            color: 'crimson',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {`Could not compile ${compileState.sourceName}: ${compileState.message}`}
+        </div>
+      )}
+      {compileState.kind === 'compiling' && (
+        <div data-testid="nfs-theming-compiling" style={{ marginBottom: 8 }}>
+          Compiling...
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <label htmlFor={NFS_PRESET_SELECT_ID} style={{ width: 84 }}>
           preset
