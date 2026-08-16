@@ -1,0 +1,219 @@
+Theming addon negative-control evidence (M002/S05/T04, R021 lane 4)
+====================================================================
+
+Five mandatory break-and-observe runs proving verify-theming-bundle and
+nx lint actually catch the regressions they claim to catch, per M002 handoff
+section 10.5. Each entry: the source mutation applied, the command run, the
+observed RED result, the revert, and the observed GREEN result. All five
+were exercised as real fresh nx runs against a real Storybook build (or a
+real Playwright run against a real static-storybook), never a synthetic
+dist/ edit.
+
+--------------------------------------------------------------------------
+1. Blank a generated source entry
+--------------------------------------------------------------------------
+Mutation: packages/ngx-foundation-sites/scripts/generate-theming-sources.mjs
+  THEMEABLE_MODULES changed from
+    [{ url: 'nfs:/button', namespace: 'nfs-button' }]
+  to
+    []
+  then regenerated via:
+    node packages/ngx-foundation-sites/scripts/generate-theming-sources.mjs
+
+  Note: an earlier attempt at this control blanked a single THEMING_SOURCES
+  map entry (fnd:/scss/components/_button.scss) directly. That did NOT
+  reproduce red -- the Sass import graph re-declares
+  $button-background-hover-lightness in two other closure entries
+  (nfs:/internal/_foundation-button.scss, nfs:/internal/_settings.scss), so
+  the marker survived. Blanking the THEMEABLE_MODULES entry point itself
+  (the actual "entry" the generator script's own comments name) is what
+  removes the marker from the generated closure entirely.
+
+RED:
+  $ nx run ngx-foundation-sites:verify-theming-bundle
+  Theming bundle verification FAILED:
+    expected the sources marker `$button-background-hover-lightness` in at
+    least one emitted .js file, found 0
+      likely cause: theming-sources.generated.ts was not regenerated, or the
+      generated closure no longer reaches the Worker chunk (verify
+      theming-worker.ts still imports THEMING_SOURCES).
+    THEMEABLE_MODULES-derived content reachable
+      No emitted file contains an intact THEMEABLE_MODULES entry for
+      nfs:/button (namespace "nfs-button"). Verify theming-sources.
+      generated.ts was not corrupted or stripped before bundling.
+  EXIT_VERIFY=1
+
+Revert: THEMEABLE_MODULES restored to
+  [{ url: 'nfs:/button', namespace: 'nfs-button' }], regenerated again.
+
+GREEN:
+  $ nx run ngx-foundation-sites:verify-theming-bundle
+  Theming bundle verification PASSED:
+    addon manager bundle content-matches `nfs/theming` exactly once and is
+    imported by index.html
+    sources marker `$button-background-hover-lightness` is present but
+    absent from iframe.html's own import list (preview boot stays lazy)
+    Worker split, #nfs-theming injection target, and the R026-exempted
+    injection file are all present
+  EXIT_VERIFY=0
+
+--------------------------------------------------------------------------
+2. Rename ADDON_ID
+--------------------------------------------------------------------------
+Mutation: packages/ngx-foundation-sites/.storybook/manager.ts
+  addons.register('nfs/theming', ...) / addons.add('nfs/theming/panel', ...)
+  renamed to
+  addons.register('workspace/theme-panel', ...) / addons.add
+  ('workspace/theme-panel/panel', ...)
+
+  Note: a first attempt renamed to 'nfs/theming-renamed', which still
+  content-matched `nfs/theming` as a substring and stayed green. The id must
+  not contain the original id as a substring for this control to fire.
+
+RED:
+  $ nx run ngx-foundation-sites:verify-theming-bundle
+  Theming bundle verification FAILED:
+    expected exactly one manager bundle to content-match `nfs/theming`,
+    found 0
+      likely cause: `nfs/theming` was renamed or removed from the
+      addons.register(...) call in .storybook/manager.ts, so the addon
+      never registers its panel.
+  EXIT_VERIFY=1
+
+Revert: manager.ts restored to addons.register('nfs/theming', ...) /
+  addons.add('nfs/theming/panel', ...).
+
+GREEN:
+  $ nx run ngx-foundation-sites:verify-theming-bundle
+  Theming bundle verification PASSED (all three checks) -- EXIT_VERIFY=0
+
+--------------------------------------------------------------------------
+3. Add a static `import 'sass'` to preview.ts
+--------------------------------------------------------------------------
+Mutation: packages/ngx-foundation-sites/.storybook/preview.ts
+  added `import 'sass';` as the first line.
+
+Finding: the T03 verify-theming-bundle gate, as committed, did NOT catch
+this. The build's entrypoint size jumped from 2.09 MiB to 6.04 MiB (sass's
+compiler was pulled into a statically-imported preview chunk,
+855.<hash>.iframe.bundle.js, confirmed to contain sass's own
+`compileStringAsync` export and to be a static `import` target of
+iframe.html's module script) -- but SOURCES_MARKER
+($button-background-hover-lightness, this project's own scss text) never
+appears in sass's compiled output, so the existing marker-based check
+passed vacuously. This is a real gap in the D034 lazy-loading guarantee as
+gated by T03.
+
+Fix applied (in scope for this task, since a negative control that cannot
+go red is not a negative control): added a second guard to
+verify-theming-bundle.mjs, symmetric to the SOURCES_MARKER check --
+SASS_PACKAGE_MARKER = 'compileStringAsync' (part of `sass`'s public API,
+never called by theming-worker.ts, which only calls the sync
+`compileString`). Asserts presence in at least one emitted file (positive
+control) and absence from iframe.html's own static import list.
+
+RED (after adding the guard, with the mutation still applied):
+  $ nx run ngx-foundation-sites:verify-theming-bundle
+  Theming bundle verification FAILED:
+    855.7723cd7b.iframe.bundle.js (bundles the `sass` package itself) is
+    imported directly by iframe.html
+      likely cause: something outside theming-worker.ts (e.g. a stray
+      `import 'sass'` in .storybook/preview.ts) statically imports the
+      `sass` package, pulling its ~800 KiB payload into preview boot
+      instead of behind the lazy `new Worker(new URL(...))` split (D034).
+  EXIT_VERIFY=1
+
+Revert: `import 'sass';` removed from preview.ts.
+
+GREEN:
+  $ nx run ngx-foundation-sites:verify-theming-bundle
+  Theming bundle verification PASSED:
+    addon manager bundle content-matches `nfs/theming` exactly once and is
+    imported by index.html
+    sources marker `$button-background-hover-lightness` is present but
+    absent from iframe.html's own import list (preview boot stays lazy)
+    `sass` package marker `compileStringAsync` is present but absent from
+    iframe.html's own import list (sass payload stays out of preview boot)
+    Worker split, #nfs-theming injection target, and the R026-exempted
+    injection file are all present
+  EXIT_VERIFY=0
+
+--------------------------------------------------------------------------
+4. Change the R026 `ignores` glob to config-dir-relative spelling
+--------------------------------------------------------------------------
+Mutation: packages/ngx-foundation-sites/eslint.config.mjs
+  ignores: ['**/*.spec.ts', '**/.storybook/theming-inject.ts']
+  changed to
+  ignores: ['**/*.spec.ts', '.storybook/theming-inject.ts']
+
+RED:
+  $ nx run ngx-foundation-sites:lint
+  D:\...\packages\ngx-foundation-sites\.storybook\theming-inject.ts
+    36:42  error  R026: creating a <style> element at runtime is banned
+           (no hand-fed CSS-in-JS)...  no-restricted-syntax
+    47:3   error  R026: assigning a CSS string to a DOM node is banned
+           (no hand-fed CSS-in-JS)...  no-restricted-syntax
+    57:3   error  R026: assigning a CSS string to a DOM node is banned
+           (no hand-fed CSS-in-JS)...  no-restricted-syntax
+  3 problems (3 errors, 0 warnings)
+  EXIT_LINT=1
+
+  Confirms the handoff's predicted mechanism: @nx/eslint:lint's
+  process.chdir(systemRoot) makes the config-dir-relative glob spelling
+  inert (it no longer matches the file from the workspace-root cwd), so the
+  R026 exemption silently stops applying and the rule fires on the addon's
+  own injection code.
+
+Revert: ignores glob restored to
+  ['**/*.spec.ts', '**/.storybook/theming-inject.ts'].
+
+GREEN:
+  $ nx run ngx-foundation-sites:lint
+  Linting "ngx-foundation-sites"...
+  All files pass linting
+  EXIT_LINT=0
+
+--------------------------------------------------------------------------
+5. Comment out the textContent assignment
+--------------------------------------------------------------------------
+Mutation: packages/ngx-foundation-sites/.storybook/theming-inject.ts,
+  injectCss(): `element.textContent = css;` commented out (the
+  `data-nfs-seq` setAttribute call beside it was left intact, so the
+  addon's own readiness signal still advances even though the CSS never
+  actually applies -- this is exactly the silently-green failure mode the
+  control targets, since a naive check on data-nfs-seq alone would not
+  catch it).
+
+  This control is NOT visible to verify-theming-bundle or lint (R026
+  exempts this exact assignment in this exact file) -- it is only visible
+  to the runtime Playwright lane (R021 lane 3), which is the intended
+  observation point.
+
+RED:
+  $ nx run nfs-storybook-e2e:e2e -- --grep P2
+  P2: driving the primary control changes the button's computed
+  background-colour, with a pre/post differential -- FAILED
+    Error: expect(locator).toHaveCSS(expected) failed
+    Expected: "rgb(17, 34, 51)"
+    Received: "rgb(23, 121, 186)"
+  1 failed
+  EXIT_E2E=1
+
+Revert: `element.textContent = css;` restored.
+
+GREEN:
+  $ nx run nfs-storybook-e2e:e2e -- --grep P2
+  P2: driving the primary control changes the button's computed
+  background-colour, with a pre/post differential -- passed (6.0s)
+  1 passed
+  EXIT_E2E=0
+
+--------------------------------------------------------------------------
+Net repository state after all five controls
+--------------------------------------------------------------------------
+Every mutation above was reverted. The only surviving code change from this
+exercise is the SASS_PACKAGE_MARKER guard added to
+scripts/verify-theming-bundle.mjs (control 3's finding) -- a genuine
+strengthening of the T03 gate, not a leftover mutation. Confirmed via
+`git status --short` immediately before writing this file:
+  M packages/ngx-foundation-sites/scripts/verify-theming-bundle.mjs

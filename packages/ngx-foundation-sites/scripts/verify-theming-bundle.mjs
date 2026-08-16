@@ -236,6 +236,41 @@ if (markerFiles.length === 0) {
   }
 }
 
+// --- D034 preview-boot guard: the `sass` package itself must stay lazy -----
+// SOURCES_MARKER only proves OUR scss text stays lazy -- it says nothing
+// about a regression that pulls the whole `sass` package into a statically
+// imported preview chunk (e.g. a stray `import 'sass'` in preview.ts), since
+// `sass`'s own compiled output carries none of our scss source text.
+// `compileStringAsync` is part of `sass`'s public API surface but is never
+// called by theming-worker.ts (which only calls the sync `compileString`),
+// so its presence in a chunk statically imported by iframe.html can only
+// mean the whole `sass` package -- not just theming-worker.ts's own code --
+// was pulled into preview boot instead of staying behind the lazy `new
+// Worker(new URL(...))` split.
+const SASS_PACKAGE_MARKER = 'compileStringAsync';
+const sassCarryingFiles = jsFiles.filter((file) => file.content.includes(SASS_PACKAGE_MARKER));
+if (sassCarryingFiles.length === 0) {
+  fail(
+    `expected the \`sass\` package marker \`${SASS_PACKAGE_MARKER}\` in at least one emitted .js file, found 0`,
+    'likely cause: theming-worker.ts no longer imports `sass`, or its Worker chunk was not emitted -- verify ' +
+      'the compile call still runs.',
+  );
+} else {
+  const iframeSpecifiersForSass = parseModuleImportSpecifiers(iframeHtml);
+  const sassLeakedIntoPreview = sassCarryingFiles.filter((file) =>
+    iframeSpecifiersForSass.some((specifier) => specifier.endsWith(file.rel)),
+  );
+  if (sassLeakedIntoPreview.length > 0) {
+    fail(
+      `${sassLeakedIntoPreview.map((file) => file.rel).join(', ')} (bundles the \`sass\` package itself) ` +
+        `${sassLeakedIntoPreview.length === 1 ? 'is' : 'are'} imported directly by iframe.html`,
+      "likely cause: something outside theming-worker.ts (e.g. a stray `import 'sass'` in " +
+        '.storybook/preview.ts) statically imports the `sass` package, pulling its ~800 KiB payload into ' +
+        'preview boot instead of behind the lazy `new Worker(new URL(...))` split (D034).',
+    );
+  }
+}
+
 // --- Preview-side invariants carried from the original S03/T05 gate --------
 
 if (!/new Worker\(new URL\(/.test(mainBundle.content)) {
@@ -285,6 +320,7 @@ console.log(
     'Theming bundle verification PASSED:',
     `  addon manager bundle content-matches \`${ADDON_ID}\` exactly once and is imported by index.html`,
     `  sources marker \`${SOURCES_MARKER}\` is present but absent from iframe.html's own import list (preview boot stays lazy)`,
+    `  \`sass\` package marker \`${SASS_PACKAGE_MARKER}\` is present but absent from iframe.html's own import list (sass payload stays out of preview boot)`,
     '  Worker split, #nfs-theming injection target, and the R026-exempted injection file are all present',
   ].join('\n'),
 );
