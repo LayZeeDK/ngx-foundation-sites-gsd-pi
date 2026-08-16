@@ -32,10 +32,22 @@ export interface PresetProbeResult {
 export const NFS_CUSTOM_PRESET_NAME = 'Custom';
 export const NFS_PRESET_SELECT_ID = 'nfs-preset-select';
 
-const CANONICAL_KEYS = [...NFS_COLOR_KEYS, 'radius'] as const;
+// Computed inside a function rather than as a module-top-level constant: the
+// panel now imports this module statically (to call `runPresetProbe` at
+// init), which makes this module part of a real import cycle back to
+// theming-panel.ts. A top-level `[...NFS_COLOR_KEYS, 'radius']` would read
+// NFS_COLOR_KEYS while theming-panel.ts's own module body is still mid-
+// evaluation (whichever side of the cycle loads first), which is a TDZ
+// ReferenceError under real ESM/webpack semantics -- deferring the read into
+// a function body means it only ever runs after both modules have finished
+// evaluating.
+function canonicalKeys() {
+  return [...NFS_COLOR_KEYS, 'radius'] as const;
+}
 
 function canonicalSignature(theme: NfsTheme): string {
-  return CANONICAL_KEYS.filter((key) => theme[key] !== undefined)
+  return canonicalKeys()
+    .filter((key) => theme[key] !== undefined)
     .map((key) => `${key}:${theme[key]}`)
     .join('|');
 }

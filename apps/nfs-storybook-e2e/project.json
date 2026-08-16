@@ -1,0 +1,20 @@
+{
+  "name": "nfs-storybook-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/test-results"],
+      "dependsOn": [
+        "ngx-foundation-sites:verify-theming-bundle",
+        "ngx-foundation-sites:static-storybook"
+      ],
+      "parallelism": true,
+      "options": {
+        "cwd": "apps/nfs-storybook-e2e",
+        "command": "playwright test"
+      }
+    }
+  }
+}
