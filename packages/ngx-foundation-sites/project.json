@@ -95,12 +95,8 @@
       "dependsOn": ["build-storybook"],
       "inputs": [
         "{projectRoot}/scripts/verify-theming-bundle.mjs",
-        "{projectRoot}/.storybook/theming-worker.ts",
-        "{projectRoot}/.storybook/theming-inject.ts",
-        "{projectRoot}/.storybook/theming-presets.ts",
-        "{projectRoot}/.storybook/theming-panel.tsx",
-        "{projectRoot}/.storybook/manager.ts",
-        "{projectRoot}/.storybook/theming-sources.generated.ts"
+        "{projectRoot}/.storybook/**/*",
+        { "externalDependencies": ["sass", "storybook", "@storybook/angular"] }
       ],
       "options": {
         "command": "node packages/ngx-foundation-sites/scripts/verify-theming-bundle.mjs",

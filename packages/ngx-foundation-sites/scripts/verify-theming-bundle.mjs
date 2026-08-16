@@ -193,6 +193,26 @@ if (addonMatches.length !== 1) {
 }
 
 // --- G2c/G2d: lazy-loading proof --------------------------------------------
+// Both lazy-loading guards below assert an ABSENCE from iframe.html's own
+// module-import list, so a broken parse makes both pass vacuously. Parsed once
+// here, behind its own positive control, ahead of both. Previously each block
+// re-parsed independently and only the first carried the control -- and that
+// one sat inside an `else`, so whenever the sources-marker check had already
+// failed the guard never ran at all and the `sass`-leak check was left
+// genuinely unguarded. `report()` hard-exits rather than falling through: an
+// absence check must not run on a parse we cannot trust.
+const iframeSpecifiers = parseModuleImportSpecifiers(iframeHtml);
+if (iframeSpecifiers.length < 3) {
+  fail(
+    'iframe.html module-import parse',
+    `Expected at least 3 import specifiers inside iframe.html's <script type="module"> block, found ` +
+      `${iframeSpecifiers.length}. Both lazy-loading absence checks below would pass vacuously, so ` +
+      'neither was run. Likely cause: Storybook changed the preview entry markup (e.g. an added ' +
+      'attribute on the opening tag, or imports split across two blocks).',
+  );
+  report();
+}
+
 // A marker from the generated source closure must appear in at least one
 // emitted .js file (positive control -- a broken regeneration would make the
 // absence check below pass vacuously), and none of the file(s) that carry it
@@ -213,26 +233,17 @@ if (markerFiles.length === 0) {
       'longer reaches the Worker chunk (verify theming-worker.ts still imports THEMING_SOURCES).',
   );
 } else {
-  const iframeSpecifiers = parseModuleImportSpecifiers(iframeHtml);
-  if (iframeSpecifiers.length < 3) {
+  const leakedIntoPreview = markerFiles.filter((file) =>
+    iframeSpecifiers.some((specifier) => specifier.endsWith(file.rel)),
+  );
+  if (leakedIntoPreview.length > 0) {
     fail(
-      'iframe.html module-import parse',
-      `Expected at least 3 import specifiers inside iframe.html's <script type="module"> block, found ` +
-        `${iframeSpecifiers.length}. The parse itself may be broken, which would make the next check pass vacuously.`,
+      `${leakedIntoPreview.map((file) => file.rel).join(', ')} (carries the sources marker) ` +
+        `${leakedIntoPreview.length === 1 ? 'is' : 'are'} imported directly by iframe.html`,
+      'likely cause: the Worker split (D034) collapsed -- the file carrying the generated Sass sources ' +
+        'is now statically imported by the preview entry instead of lazily constructed via ' +
+        '`new Worker(new URL(...))`, so it loads on every story render instead of only when a compile runs.',
     );
-  } else {
-    const leakedIntoPreview = markerFiles.filter((file) =>
-      iframeSpecifiers.some((specifier) => specifier.endsWith(file.rel)),
-    );
-    if (leakedIntoPreview.length > 0) {
-      fail(
-        `${leakedIntoPreview.map((file) => file.rel).join(', ')} (carries the sources marker) ` +
-          `${leakedIntoPreview.length === 1 ? 'is' : 'are'} imported directly by iframe.html`,
-        'likely cause: the Worker split (D034) collapsed -- the file carrying the generated Sass sources ' +
-          'is now statically imported by the preview entry instead of lazily constructed via ' +
-          '`new Worker(new URL(...))`, so it loads on every story render instead of only when a compile runs.',
-      );
-    }
   }
 }
 
@@ -256,9 +267,8 @@ if (sassCarryingFiles.length === 0) {
       'the compile call still runs.',
   );
 } else {
-  const iframeSpecifiersForSass = parseModuleImportSpecifiers(iframeHtml);
   const sassLeakedIntoPreview = sassCarryingFiles.filter((file) =>
-    iframeSpecifiersForSass.some((specifier) => specifier.endsWith(file.rel)),
+    iframeSpecifiers.some((specifier) => specifier.endsWith(file.rel)),
   );
   if (sassLeakedIntoPreview.length > 0) {
     fail(
