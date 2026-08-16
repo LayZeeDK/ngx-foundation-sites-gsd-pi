@@ -72,8 +72,7 @@
         "@ngx-foundation-sites/source:verify-browserslist",
         "verify-foundation-parity",
         "verify-exports-map",
-        "verify-theming-sources",
-        "verify-theming-bundle"
+        "verify-theming-sources"
       ]
     },
     "verify-theming-sources": {
