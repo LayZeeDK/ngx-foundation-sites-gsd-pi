@@ -160,6 +160,14 @@ describe('computePresets -- preset baseline probe (T3)', () => {
     expect(Object.keys(compliant).sort()).toEqual(['alert', 'success', 'warning']);
   });
 
+  it('T3e: memoises the probe, so a panel remount reuses the one compile', () => {
+    // manager.ts mounts the panel only while its tab is active, so it
+    // unmounts on every switch away and remounts on every switch back.
+    // R009 specifies "one probe compile at panel init"; without the cache
+    // each reopen paid a fresh import('sass') plus a real compile.
+    expect(computePresets()).toBe(computePresets());
+  });
+
   it('T10: the compliant preset is byte-identical to the nfs-demo axe-proven palette', () => {
     // These three literals are the axe fixture's proof
     // (apps/nfs-demo/e2e/nfs-button-a11y.spec.ts's m002-compliant fixture) --

@@ -242,14 +242,7 @@ function buildPresets(raw: RawProbeValues): readonly NfsPreset[] {
   ];
 }
 
-/**
- * The probe compile. Called directly by the panel (see the file header on why
- * the Worker route was dropped) and by the Vitest `test` (jsdom) lane, which
- * needs no Worker to exercise it -- R021 lane 1: "the preset baseline probe
- * returning Foundation's six global defaults and $wcag-palette's three
- * overrides by exact key set".
- */
-export async function computePresets(): Promise<PresetProbeResult> {
+async function runProbe(): Promise<PresetProbeResult> {
   const sassNs = await import('sass');
   let captured: RawProbeValues | null = null;
 
@@ -268,4 +261,32 @@ export async function computePresets(): Promise<PresetProbeResult> {
 
   const raw: RawProbeValues = captured;
   return { presets: buildPresets(raw), defaults: raw.defaults };
+}
+
+let cachedProbe: Promise<PresetProbeResult> | null = null;
+
+/**
+ * The probe compile, memoised. Called directly by the panel (see the file
+ * header on why the Worker route was dropped) and by the Vitest `test` (jsdom)
+ * lane, which needs no Worker to exercise it -- R021 lane 1: "the preset
+ * baseline probe returning Foundation's six global defaults and
+ * $wcag-palette's three overrides by exact key set".
+ *
+ * The cache is what makes R009's "one probe compile at panel init" true. The
+ * panel is mounted only while its tab is active (manager.ts), so it unmounts
+ * on every switch to Controls or a11y and remounts on every switch back;
+ * without this, each reopen paid a fresh `import('sass')` plus a real compile
+ * and flashed `loading` with the controls gone.
+ */
+export function computePresets(): Promise<PresetProbeResult> {
+  cachedProbe ??= runProbe().catch((error: unknown) => {
+    // A rejection is deliberately not cached. `import('sass')` can fail
+    // transiently (a chunk-load hiccup), and since the panel remounts on every
+    // tab switch, the next open is a free retry. A deterministic Sass failure
+    // simply fails again and is reported again.
+    cachedProbe = null;
+    throw error;
+  });
+
+  return cachedProbe;
 }
