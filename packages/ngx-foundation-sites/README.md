@@ -116,6 +116,33 @@ The `rtlcss`-mirrored `css/nfs-button.rtl.css` twin is no longer published; the 
 
 `ngx-foundation-sites/css/nfs-button.css` works as a bare specifier: the published `exports` map declares `./css/*` and `./scss/*` alongside the package root, so a strictly `exports`-compliant resolver accepts it. That was not always true -- earlier builds published only the root, and the documented Sass and CSS subpaths resolved by accident of Angular's Sass importer using node_modules load paths rather than `exports`.
 
+### Storybook theming addon
+
+For a live preview of the mixin above, `packages/ngx-foundation-sites/.storybook/` ships a workspace-local `Theming` panel that compiles the library's real Foundation Sass in the browser. This is a Storybook-only development aid, not a new API: there is still no CSS custom property theming surface and no runtime override mechanism in your app.
+
+**Six curated controls**, one for each of the theme mixin's `$background` / `$palette` keys / `$radius`:
+
+| Control     | Wire format                          | Range/units       | Foundation default |
+| ----------- | ------------------------------------- | ------------------ | ------------------- |
+| `primary`   | `#rgb` or `#rrggbb`, normalized lowercase | any hex color   | `#1779ba`            |
+| `secondary` | `#rgb` or `#rrggbb`, normalized lowercase | any hex color   | `#767676`            |
+| `success`   | `#rgb` or `#rrggbb`, normalized lowercase | any hex color   | `#3adb76`            |
+| `warning`   | `#rgb` or `#rrggbb`, normalized lowercase | any hex color   | `#ffae00`            |
+| `alert`     | `#rgb` or `#rrggbb`, normalized lowercase | any hex color   | `#cc4b37`            |
+| `radius`    | integer                               | `0`-`32` px         | `0`                  |
+
+Invalid input (an unparsable color, or a radius outside `0`-`32`) is marked in the control and is never written to Storybook's globals, so every reachable control state is guaranteed URL-shareable (see below).
+
+**Two presets** ship: `Foundation default` (no overrides) and `WCAG-compliant` (`success: #238648`, `warning: #9e6c00`, `alert: #cb4b37`, inheriting Foundation's `primary`/`secondary`/`radius`) -- the same compliant theme documented under [Accessibility](#accessibility) above. The panel's preset dropdown reads as selected **only on an exact match**: it compares the live theme's sparse override map against each preset's, so a control left untouched and a control explicitly set to Foundation's own default value are the same state, not two. Editing any control after choosing a preset flips the dropdown to `Custom`; setting every control back to a preset's exact values flips it back.
+
+**Shareable via URL.** Panel state lives entirely in Storybook's `?globals=` query parameter -- there is no `localStorage` and no saved presets. The default theme's override map is empty, so it round-trips as an empty parameter; any other theme round-trips unchanged across reload and story navigation.
+
+**Story-mode only.** The panel is available only while viewing a story, not on a docs/autodocs page and not from the toolbar. An autodocs page still renders under whatever theme was last chosen -- it just has no panel to change it from; navigate to a story to retheme.
+
+**`$global-text-direction`: accepted and honoured by the library, inert today, and deliberately not a control.** Folding it into the panel would break the exact-match rule above and it cannot reach the theme mixin's compile path regardless. It remains an accepted, honoured part of the library's settings vocabulary: it sets the Sass-time direction for constructs that CSS logical properties cannot express (transforms, generated content, direction-conditional rules), and has no effect on the box-model/float properties this library already emits logically, which mirror at runtime from the document's `dir` in either setting. As of this release the shipped surface (`NfsButton`) contains no such construct, so setting `$global-text-direction` is currently a no-op -- by design, not an oversight to be wired up later.
+
+**Known limitation: unrecognized Foundation settings are silently ignored.** The theme mixin's four named arguments (`$selector`, `$background`, `$palette`, `$radius`) are the entire compile-time theming surface today. Declaring a bare Foundation `$variable` in your own stylesheet -- including a full, real `_settings.scss` pasted in with values changed -- has no effect on `NfsButton`'s output: it compiles byte-identically and emits no warning, because the mixin never reads any bare Foundation global. If you are migrating from stock Foundation and rely on `$variable` overrides, they will not carry over; move the values you care about into the mixin's named arguments instead.
+
 ### Internals
 
 Anything under `ngx-foundation-sites/scss/internal/` is unsupported: treat it as private and expect it to change or move in any release. Theme through the mixin's named arguments instead; nothing under `internal/` is part of the public API.
