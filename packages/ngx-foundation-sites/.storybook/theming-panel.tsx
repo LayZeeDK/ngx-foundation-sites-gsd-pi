@@ -267,7 +267,6 @@ export const ThemingPanel: FC = () => {
           disabled={controlsDisabled}
           onChange={(event) => commitPreset(event.target.value)}
         >
-          {panelState === 'loading' && <option value={NFS_CUSTOM_PRESET_NAME}>{NFS_CUSTOM_PRESET_NAME}</option>}
           {presets.map((preset) => (
             <option key={preset.name} value={preset.name}>
               {preset.name}
