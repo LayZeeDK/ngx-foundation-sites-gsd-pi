@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc/apps/nfs-storybook-e2e",
+    "types": ["node"]
+  },
+  "include": [
+    "playwright.config.ts",
+    "playwright-global-setup.ts",
+    "src/**/*.ts",
+    "e2e/**/*.ts"
+  ]
+}
