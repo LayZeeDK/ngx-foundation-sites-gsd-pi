@@ -20,7 +20,6 @@ import {
   type NfsTheme,
 } from '../../.storybook/theming-model';
 import {
-  computePresets,
   deriveSelectedPreset,
   NFS_CUSTOM_PRESET_NAME,
   type NfsPreset,
@@ -159,68 +158,11 @@ describe('sanitizeTheme -- the ?globals= trust boundary (T12)', () => {
   });
 });
 
-describe('computePresets -- preset baseline probe (T3)', () => {
-  let presets: readonly NfsPreset[];
-  let defaults: NfsThemeDefaults;
-
-  beforeAll(async () => {
-    const result = await computePresets();
-    presets = result.presets;
-    defaults = result.defaults;
-  });
-
-  it('T3d: returns Foundation\'s six global defaults, read from Sass, by exact key set and value', () => {
-    // R021 lane 1's "the preset baseline probe returning Foundation's six
-    // global defaults ... by exact key set". This is the standing guard on
-    // the drift that used to be undetectable: canonicalisation is defined
-    // against these values, so if a foundation-sites bump moves one and the
-    // addon does not follow, `withOverride` stops deleting the now-non-default
-    // key, every theme carries a spurious override, and `deriveSelectedPreset`
-    // reports `Custom` for the Foundation-default theme forever.
-    expect(Object.keys(defaults).sort()).toEqual([
-      'alert',
-      'primary',
-      'radius',
-      'secondary',
-      'success',
-      'warning',
-    ]);
-    expect(defaults).toEqual(FOUNDATION_DEFAULTS);
-  });
-
-  it('returns exactly two presets, keyed by exact name', () => {
-    expect(presets.map((preset) => preset.name)).toEqual(['Foundation default', 'WCAG-compliant']);
-  });
-
-  it("'Foundation default' is the empty theme", () => {
-    expect(presets[0].theme).toEqual({});
-  });
-
-  it("'WCAG-compliant' overrides exactly success/warning/alert, by exact key set", () => {
-    const compliant = presets[1].theme;
-    expect(Object.keys(compliant).sort()).toEqual(['alert', 'success', 'warning']);
-  });
-
-  it('T3e: memoises the probe, so a panel remount reuses the one compile', () => {
-    // manager.ts mounts the panel only while its tab is active, so it
-    // unmounts on every switch away and remounts on every switch back.
-    // R009 specifies "one probe compile at panel init"; without the cache
-    // each reopen paid a fresh import('sass') plus a real compile.
-    expect(computePresets()).toBe(computePresets());
-  });
-
-  it('T10: the compliant preset is byte-identical to the nfs-demo axe-proven palette', () => {
-    // These three literals are the axe fixture's proof
-    // (apps/nfs-demo/e2e/nfs-button-a11y.spec.ts's m002-compliant fixture) --
-    // duplicated here as hand-written literals, not read from the preset
-    // itself, so this assertion can actually fail if the preset regresses.
-    expect(presets[1].theme).toEqual({
-      success: '#238648',
-      warning: '#9e6c00',
-      alert: '#cb4b37',
-    });
-  });
-});
+// T3's content assertions (Foundation's six defaults, the two presets, T10's
+// byte-identical WCAG palette) moved to theming-probe.spec.ts (MEM101): the
+// probe runs via `runPresetProbe` now, not `computePresets`. Its memoisation
+// (the old T3e) moved to theming-inject.spec.ts, since memoisation is
+// `requestPresetProbe`'s job now, not the probe function's own.
 
 describe('deriveSelectedPreset -- preset equality (T4)', () => {
   const presetA: NfsPreset = { name: 'A', theme: { primary: '#111111' } };

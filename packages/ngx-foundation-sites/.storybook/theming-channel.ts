@@ -1,3 +1,5 @@
+import type { PresetProbeResult } from './theming-presets';
+
 // The manager <-> preview contract for the addon's compile state (R009): the
 // panel's `data-nfs-panel-state` carries `compiling` and `error` alongside
 // `loading`/`ready`, and on error it shows `sassMessage` plus a friendly
@@ -12,6 +14,14 @@
 // storybook/manager-api). Dependency-free and side-effect-free by design --
 // the same split theming-worker.ts/theming-inject.ts already keep for the
 // ~800 KiB sass payload (D034).
+//
+// MEM101 fix: also carries the preset-probe request/result. The probe used
+// to run directly on the manager (theming-presets.ts's old `computePresets`),
+// which measurably pulled `sass` into the manager bundle. It now runs in the
+// preview's compile Worker, requested over this same channel -- the type-only
+// import of `PresetProbeResult` below costs nothing at runtime and does not
+// pull `sass` into whichever bundle reads this file, since theming-presets.ts
+// itself no longer touches `sass`.
 
 export const NFS_THEMING_STATE_EVENT = 'nfs/theming/compile-state';
 
@@ -30,3 +40,19 @@ export type ThemingCompileState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'compiling' }
   | { readonly kind: 'error'; readonly message: string; readonly sourceName: string };
+
+/**
+ * Panel -> preview: "run the preset probe and tell me what it found".
+ *
+ * Fired once per panel mount (R009: "one probe compile at panel init").
+ * theming-inject.ts memoises the underlying compile, so a remount after the
+ * first one resolves instantly rather than re-running it.
+ */
+export const NFS_THEMING_PROBE_REQUEST_EVENT = 'nfs/theming/probe-request';
+
+/** Preview -> panel: the probe's result, or why it failed. */
+export const NFS_THEMING_PROBE_RESULT_EVENT = 'nfs/theming/probe-result';
+
+export type ThemingProbeResult =
+  | { readonly ok: true; readonly result: PresetProbeResult }
+  | { readonly ok: false; readonly message: string };

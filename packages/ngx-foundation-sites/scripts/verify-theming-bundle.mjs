@@ -20,11 +20,15 @@
 // attributes [VERIFIED] -- it loads everything via `import './...';` inside
 // one `<script type="module">` block, so a gate phrased against
 // `<script src>` would pass forever, including with `sass` statically
-// imported into the preview. This is scoped to the preview specifically:
-// the manager bundle legitimately also carries the marker (T02 wired the
-// panel to call `computePresets()` directly since the self-referencing
-// Worker doesn't function under the manager's esbuild bundler), which is a
-// separate, already-accepted trade-off outside this gate's stated goal.
+// imported into the preview.
+//
+// MEM101 fix: the manager bundle used to legitimately carry the `sass`
+// marker too (T02 wired the panel to call `computePresets()` directly since
+// the self-referencing Worker didn't function under the manager's esbuild
+// bundler) -- an accepted trade-off this gate deliberately did not cover.
+// The probe now runs in the preview's compile Worker instead (shared with
+// theme compiles, not a second payload), so the manager bundle must carry
+// NEITHER sass marker, and G2e below asserts that.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname as pathDirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +52,12 @@ const ADDON_ID = 'nfs/theming';
 // would turn an unrelated Sass addition into a red gate for the wrong
 // reason) -- this is one stable, already-present identifier instead.
 const SOURCES_MARKER = '$button-background-hover-lightness';
+
+// Part of `sass`'s public API surface but never called by theming-worker.ts
+// (which only calls the sync `compileString`) -- moved up here (was declared
+// only beside the D034 preview-boot guard) so G2e (manager side) and the
+// preview-boot guard below can share it.
+const SASS_PACKAGE_MARKER = 'compileStringAsync';
 
 const failures = [];
 
@@ -196,6 +206,29 @@ if (addonMatches.length !== 1) {
         "inside its <script type=\"module\"> block.",
     );
   }
+
+  // --- G2e: MEM101 fix -- the manager bundle must carry NEITHER sass marker -
+  // Before the fix, the preset probe ran directly on the manager
+  // (theming-presets.ts's old `computePresets`), so `compileStringAsync`
+  // legitimately reached this bundle -- an accepted trade-off this gate
+  // deliberately did not cover. The probe now runs in the preview's compile
+  // Worker instead (theming-inject.ts's `requestPresetProbe`), so this bundle
+  // must be as sass-free as any other manager addon's.
+  if (addonBundle.content.includes(SASS_PACKAGE_MARKER)) {
+    fail(
+      `manager bundle ${addonBundle.rel} contains the \`sass\` package marker \`${SASS_PACKAGE_MARKER}\``,
+      'likely cause: something on the manager side (theming-panel.tsx or theming-presets.ts) calls into ' +
+        '`sass` again directly instead of requesting the probe over the channel (theming-channel.ts) from ' +
+        "the preview's compile Worker (MEM101).",
+    );
+  }
+  if (addonBundle.content.includes(SOURCES_MARKER)) {
+    fail(
+      `manager bundle ${addonBundle.rel} contains the generated sources marker \`${SOURCES_MARKER}\``,
+      'likely cause: theming-sources.generated.ts (or theming-probe.ts, which reads it) is reachable from ' +
+        'the manager bundle again instead of only from the Worker chunk.',
+    );
+  }
 }
 
 // --- G2c/G2d: lazy-loading proof --------------------------------------------
@@ -225,12 +258,11 @@ if (iframeSpecifiers.length < 3) {
 // may be a static import target of iframe.html's own module-import list --
 // the *preview* entry point must reach it only through the lazy `new
 // Worker(new URL(...))` split, never a static import. This is deliberately
-// NOT an "exactly one file" count: since T02 wired the manager panel to call
-// `computePresets()` directly (the self-referencing Worker doesn't function
-// under the manager's esbuild bundler), the marker also legitimately reaches
-// the manager bundle -- a separate, already-accepted trade-off (D034's
-// stated goal is keeping the payload out of *preview* boot specifically).
-// What must never regress is the preview side.
+// NOT an "exactly one file" count: it may also (legitimately) appear in a
+// chunk shared by other code. What must never regress is the preview side
+// (D034's stated goal); G2e above separately covers the manager side
+// (MEM101 fix removed the marker's old, accepted route into the manager
+// bundle, so it is now a real assertion there too, not a waived one).
 const markerFiles = jsFiles.filter((file) => file.content.includes(SOURCES_MARKER));
 if (markerFiles.length === 0) {
   fail(
@@ -264,7 +296,6 @@ if (markerFiles.length === 0) {
 // mean the whole `sass` package -- not just theming-worker.ts's own code --
 // was pulled into preview boot instead of staying behind the lazy `new
 // Worker(new URL(...))` split.
-const SASS_PACKAGE_MARKER = 'compileStringAsync';
 const sassCarryingFiles = jsFiles.filter((file) => file.content.includes(SASS_PACKAGE_MARKER));
 if (sassCarryingFiles.length === 0) {
   fail(
@@ -338,5 +369,6 @@ console.log(
     `  sources marker \`${SOURCES_MARKER}\` is present but absent from iframe.html's own import list (preview boot stays lazy)`,
     `  \`sass\` package marker \`${SASS_PACKAGE_MARKER}\` is present but absent from iframe.html's own import list (sass payload stays out of preview boot)`,
     '  Worker split, #nfs-theming injection target, and the R026-exempted injection file are all present',
+    '  manager bundle carries neither sass marker (MEM101: the probe shares the preview compile Worker)',
   ].join('\n'),
 );

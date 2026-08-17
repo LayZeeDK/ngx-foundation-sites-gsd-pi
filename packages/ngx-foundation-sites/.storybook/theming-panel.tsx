@@ -7,9 +7,12 @@ import { useChannel, useGlobals } from 'storybook/manager-api';
 // not defined` the instant it renders.
 import React, { useEffect, useRef, useState, type FC } from 'react';
 import {
+  NFS_THEMING_PROBE_REQUEST_EVENT,
+  NFS_THEMING_PROBE_RESULT_EVENT,
   NFS_THEMING_STATE_EVENT,
   NFS_THEMING_STATE_REQUEST_EVENT,
   type ThemingCompileState,
+  type ThemingProbeResult,
 } from './theming-channel';
 import {
   clampRadius,
@@ -20,7 +23,6 @@ import {
   type NfsTheme,
 } from './theming-model';
 import {
-  computePresets,
   deriveSelectedPreset,
   NFS_CUSTOM_PRESET_NAME,
   NFS_PRESET_SELECT_ID,
@@ -66,8 +68,10 @@ export const ThemingPanel: FC = () => {
   // asynchronously on first open, by design" (R009), not a defect to race past
   // with a timeout.
   //
-  // `computePresets()` runs here on the manager main thread, at a measured
-  // ~1.1 ms. theming-presets.ts's header owns why it is not in a Worker.
+  // The probe runs in the preview's compile Worker (MEM101: moved off the
+  // manager to keep `sass` out of the manager bundle), reached over the
+  // channel -- see theming-inject.ts's header for why it shares that Worker
+  // rather than getting a second one.
   const [probeState, setProbeState] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [probeError, setProbeError] = useState<string | null>(null);
   const [presets, setPresets] = useState<readonly NfsPreset[]>([]);
@@ -80,6 +84,29 @@ export const ThemingPanel: FC = () => {
   const emitToPreview = useChannel({
     [NFS_THEMING_STATE_EVENT]: (state: ThemingCompileState) => {
       setCompileState(state);
+    },
+    // MEM101: the probe now runs in the preview's compile Worker rather than
+    // directly on the manager, so its result arrives over this channel too --
+    // see theming-inject.ts's `requestPresetProbe`/`ensureProbeResponder`.
+    [NFS_THEMING_PROBE_RESULT_EVENT]: (probeResult: ThemingProbeResult) => {
+      if (probeResult.ok) {
+        setPresets(probeResult.result.presets);
+        setDefaults(probeResult.result.defaults);
+        setProbeState('ready');
+        return;
+      }
+
+      // Deliberately loud -- see the removed effect's comment (still true):
+      // a probe failure predicts that live compiles are broken too, since
+      // both resolve the same THEMING_SOURCES map through the same Worker, so
+      // this is the earliest warning the addon gets.
+      console.error(
+        '[nfs-theming] the preset probe failed; presets and the six controls are unavailable.',
+        probeResult.message
+      );
+      setPresets([]);
+      setProbeError(probeResult.message);
+      setProbeState('failed');
     },
   });
 
@@ -102,48 +129,34 @@ export const ThemingPanel: FC = () => {
     emitToPreview(NFS_THEMING_STATE_REQUEST_EVENT);
   }, [emitToPreview]);
 
+  // MEM101: requests the probe over the channel instead of calling
+  // `computePresets()` in-process. Unlike the state-replay request above,
+  // this cannot be a single fire-and-forget emit: on first story load the
+  // manager panel and the preview iframe boot independently, and the panel
+  // routinely mounts (and fires this request) before the preview has
+  // evaluated `withNfsTheming` even once and registered its channel listener
+  // -- confirmed empirically, every P1-P8 Playwright case failed stuck in
+  // `loading` until this retried. `ensureStateReplay`'s fix for the same race
+  // is to broadcast proactively; that has no equivalent here since running
+  // the probe IS the cost being deferred, so instead this retries the
+  // request on an interval until a reply arrives. Retries are cheap and
+  // idempotent -- `requestPresetProbe` on the preview side is memoised, so a
+  // duplicate request after the first reply just replies again with the
+  // cached result, never recompiles.
   useEffect(() => {
-    let cancelled = false;
-    computePresets()
-      .then((result) => {
-        if (cancelled) {
-          return;
-        }
-        setPresets(result.presets);
-        setDefaults(result.defaults);
-        setProbeState('ready');
-      })
-      .catch((error: unknown) => {
-        if (cancelled) {
-          return;
-        }
-        // Deliberately loud. This catch previously discarded the error object
-        // entirely -- it did not even bind it -- so that a probe failure could
-        // not trip R021 P1's zero-console-error gate. That inverted the gate:
-        // it exists to DETECT breakage, and was instead satisfied by removing
-        // the detection. P1 still passes on a healthy build, because a healthy
-        // probe does not reach here.
-        //
-        // Five distinct causes collapse into this branch (a failed
-        // `import('sass')`, an unresolvable `nfs:/theme` or
-        // `internal/settings`, a renamed `$wcag-palette`, a type change in one
-        // of the six globals, and the explicit "never invoked the probe
-        // function" throw). All of them also predict that live compiles are
-        // broken, since computePresets() and the compile Worker resolve the
-        // same THEMING_SOURCES map -- so this is the earliest warning the
-        // addon gets, and it used to be thrown away.
-        console.error(
-          '[nfs-theming] the preset probe failed; presets and the six controls are unavailable.',
-          error
-        );
-        setPresets([]);
-        setProbeError(error instanceof Error ? error.message : String(error));
-        setProbeState('failed');
-      });
+    if (probeState !== 'loading') {
+      return;
+    }
+
+    emitToPreview(NFS_THEMING_PROBE_REQUEST_EVENT);
+    const retryId = setInterval(() => {
+      emitToPreview(NFS_THEMING_PROBE_REQUEST_EVENT);
+    }, 250);
+
     return () => {
-      cancelled = true;
+      clearInterval(retryId);
     };
-  }, []);
+  }, [emitToPreview, probeState]);
 
   const selectedPresetName =
     probeState === 'ready' ? deriveSelectedPreset(presets, theme) : NFS_CUSTOM_PRESET_NAME;

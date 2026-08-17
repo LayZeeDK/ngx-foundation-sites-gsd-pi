@@ -236,3 +236,26 @@ scripts/verify-theming-bundle.mjs (control 3's finding) -- a genuine
 strengthening of the T03 gate, not a leftover mutation. Confirmed via
 `git status --short` immediately before writing this file:
   M packages/ngx-foundation-sites/scripts/verify-theming-bundle.mjs
+
+--------------------------------------------------------------------------
+ADDENDUM (2026-08-16, post-completion audit MEM101): manager-bundle cost paid
+--------------------------------------------------------------------------
+This gate's own T03 checks (above, GREEN section) only ever asserted the
+PREVIEW side of D034's lazy-loading guarantee -- verify-theming-bundle.mjs
+explicitly waived the manager side, because the preset probe ran directly on
+the manager (theming-presets.ts's `computePresets`), pulling dart-sass's
+~800 KiB payload into the manager bundle on every Storybook boot regardless
+of usage (measured: 3,418,604 bytes raw / 735,249 gzip).
+
+Fixed: the probe now runs inside the preview's compile Worker
+(.storybook/theming-probe.ts, invoked from theming-worker.ts), requested over
+the manager<->preview channel by theming-inject.ts's `requestPresetProbe` and
+theming-panel.tsx. Sharing the Worker rather than a second `import('sass')`
+matters -- opening the panel and changing a colour still costs the ~800 KiB
+payload exactly once, not twice.
+
+verify-theming-bundle.mjs gained a G2e check asserting the manager bundle
+carries NEITHER sass marker; re-measured after the fix: 6,357 bytes raw /
+2,798 bytes gzip (was 3,418,604 / 735,249). Re-run against a real
+build-storybook + verify-theming-bundle + the full nfs-storybook-e2e:e2e
+suite (all 8 P1-P8 cases), twice from a clean dist/, both green.

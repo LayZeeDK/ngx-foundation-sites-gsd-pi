@@ -1,18 +1,24 @@
 import * as sass from 'sass';
 import { THEMEABLE_MODULES } from './theming-sources.generated';
 import { createSourcesImporter } from './theming-sources-importer';
+import { runPresetProbe } from './theming-probe';
 import type { NfsTheme } from './theming-model';
+import type { PresetProbeResult } from './theming-presets';
 
-// D035 part d/e: this module is the addon's ONLY import of `sass`, so
-// webpack's native worker split (`new Worker(new URL('./theming-worker.ts',
-// import.meta.url))` in theming-inject.ts) is the point at which the ~800
-// KiB gzip sass payload leaves preview boot (D034) -- lazily fetched only
-// once a non-default theme is requested. The Worker has no filesystem, so it
-// resolves against the committed, in-memory THEMING_SOURCES map instead of
-// disk, via the shared theming-sources-importer.ts.
+// D035 part d/e: this module (plus theming-probe.ts, which it imports) is the
+// addon's ONLY import of `sass`, so webpack's native worker split (`new
+// Worker(new URL('./theming-worker.ts', import.meta.url))` in
+// theming-inject.ts) is the point at which the ~800 KiB gzip sass payload
+// leaves preview boot (D034) -- lazily fetched on the first non-default theme
+// OR the first preset-probe request, whichever comes first (MEM101: the probe
+// now shares this Worker instead of running on the manager side, so opening
+// the panel and changing a colour still pays that payload only once, not
+// twice). The Worker has no filesystem, so it resolves against the
+// committed, in-memory THEMING_SOURCES map instead of disk, via the shared
+// theming-sources-importer.ts.
 //
-// "Only import of `sass`" is scoped to the PREVIEW side: theming-presets.ts
-// imports it too, on the manager side, which the bundle gate accounts for.
+// "Only import of `sass`" now holds workspace-wide, not just on the preview
+// side: theming-presets.ts (manager-side) no longer touches `sass` at all.
 
 export interface ThemeCompileRequest {
   readonly seq: number;
@@ -28,6 +34,22 @@ export interface SassErrorLike {
 export type ThemeCompileResponse =
   | { readonly seq: number; readonly ok: true; readonly css: string }
   | { readonly seq: number; readonly ok: false; readonly error: SassErrorLike };
+
+// MEM101 fix: the preset probe shares this Worker rather than getting its own
+// -- a second Worker (or a second main-thread `import('sass')`) would fetch
+// the ~800 KiB sass payload a second time. Structurally distinguished from
+// `ThemeCompileRequest`/`ThemeCompileResponse` by the `probe: true` tag rather
+// than a shared discriminant, so the existing compile wire shape -- asserted
+// verbatim across theming-worker.spec.ts, theming-worker.browser.spec.ts, and
+// theming-inject.spec.ts -- needed no change.
+export interface ThemePresetProbeRequest {
+  readonly seq: number;
+  readonly probe: true;
+}
+
+export type ThemePresetProbeResponse =
+  | { readonly seq: number; readonly probe: true; readonly ok: true; readonly result: PresetProbeResult }
+  | { readonly seq: number; readonly probe: true; readonly ok: false; readonly error: SassErrorLike };
 
 
 // D035 part d: no `$selector` is passed -- each module emits under its own
@@ -110,12 +132,25 @@ function compile(theme: NfsTheme): string {
 // globals. `globalThis` is typed under `dom` too, so it is cast narrowly
 // here instead of relying on an ambient `self` redeclaration.
 const workerScope = globalThis as unknown as {
-  onmessage: ((event: MessageEvent<ThemeCompileRequest>) => void) | null;
-  postMessage(message: ThemeCompileResponse): void;
+  onmessage: ((event: MessageEvent<ThemeCompileRequest | ThemePresetProbeRequest>) => void) | null;
+  postMessage(message: ThemeCompileResponse | ThemePresetProbeResponse): void;
 };
 
 workerScope.onmessage = (event) => {
-  const { seq, theme } = event.data;
+  const request = event.data;
+
+  if ('probe' in request) {
+    const { seq } = request;
+    try {
+      const result = runPresetProbe();
+      workerScope.postMessage({ seq, probe: true, ok: true, result });
+    } catch (error) {
+      workerScope.postMessage({ seq, probe: true, ok: false, error: serializeError(error) });
+    }
+    return;
+  }
+
+  const { seq, theme } = request;
 
   try {
     const css = compile(theme);

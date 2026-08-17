@@ -1,19 +1,28 @@
 import type { Decorator } from '@storybook/angular';
 import { getChannel } from 'storybook/preview-api';
 import {
+  NFS_THEMING_PROBE_REQUEST_EVENT,
+  NFS_THEMING_PROBE_RESULT_EVENT,
   NFS_THEMING_STATE_EVENT,
   NFS_THEMING_STATE_REQUEST_EVENT,
   type ThemingCompileState,
 } from './theming-channel';
 import { sanitizeTheme, type NfsTheme } from './theming-model';
-import type { ThemeCompileRequest, ThemeCompileResponse } from './theming-worker';
+import type { PresetProbeResult } from './theming-presets';
+import type {
+  ThemeCompileRequest,
+  ThemeCompileResponse,
+  ThemePresetProbeRequest,
+  ThemePresetProbeResponse,
+} from './theming-worker';
 
 // D035 part d/e: this module runs in the PREVIEW iframe (via the
 // `withNfsTheming` decorator wired into preview.ts), never in the manager --
 // that is where the story's real DOM lives and where the compiled CSS must
 // apply. It lazily constructs a single Web Worker on the first non-default
-// theme, coalesces rapid changes into a single-slot latest-wins queue (no
-// debounce), and injects into one shared `<style id="nfs-theming">` node.
+// theme OR the first preset-probe request (MEM101), coalesces rapid theme
+// changes into a single-slot latest-wins queue (no debounce), and injects
+// into one shared `<style id="nfs-theming">` node.
 
 // Re-exported so existing importers (and the R021 lane-1/lane-2 specs) keep
 // resolving the state union from this module after it moved to the shared
@@ -89,6 +98,20 @@ let lastRequestedThemeKey: string | null = null;
 // compiling, so a failure knows which key to release.
 let inFlightThemeKey: string | null = null;
 
+// MEM101 fix: the preset probe's own request bookkeeping, entirely separate
+// from the theme-compile coalescer above -- a probe reply must never touch
+// `compiling`/`pendingTheme`/etc., and a compile reply must never resolve a
+// probe promise. Probes are one-shot (no coalescing): each `requestPresetProbe`
+// call that isn't served by the cache gets its own sequence number and its own
+// resolver, tracked here until the matching reply (or a Worker death) settles
+// it.
+let probeSeq = 0;
+const pendingProbeRequests = new Map<
+  number,
+  { resolve: (result: PresetProbeResult) => void; reject: (error: unknown) => void }
+>();
+let cachedProbeResult: Promise<PresetProbeResult> | null = null;
+
 const listeners = new Set<ThemingStateListener>();
 
 // The panel unmounts on every addon-tab switch and remounts at `idle`, so the
@@ -122,6 +145,37 @@ function ensureStateReplay(): void {
   // `withNfsTheming` validates `?globals=` on its very first run. Emitting here
   // covers both orderings; a redundant `idle` costs nothing.
   channel.emit(NFS_THEMING_STATE_EVENT, currentState);
+}
+
+// MEM101 fix: the manager-side responder half of `requestPresetProbe`.
+// Registered the same way as `ensureStateReplay` (lazily, once a channel
+// exists) and for the same reason: `getChannel()` is null until Storybook has
+// wired the preview up.
+let probeResponderRegistered = false;
+
+function ensureProbeResponder(): void {
+  if (probeResponderRegistered) {
+    return;
+  }
+
+  const channel = getChannel();
+  if (!channel) {
+    return;
+  }
+
+  channel.on(NFS_THEMING_PROBE_REQUEST_EVENT, () => {
+    requestPresetProbe()
+      .then((result) => {
+        channel.emit(NFS_THEMING_PROBE_RESULT_EVENT, { ok: true, result });
+      })
+      .catch((error: unknown) => {
+        channel.emit(NFS_THEMING_PROBE_RESULT_EVENT, {
+          ok: false,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      });
+  });
+  probeResponderRegistered = true;
 }
 
 function notify(state: ThemingCompileState): void {
@@ -191,6 +245,14 @@ function failWorker(detail: string): void {
   inFlightThemeKey = null;
   pendingTheme = null;
 
+  // Any probe still awaiting a reply from this Worker never will. Reject
+  // rather than leave it hanging, and drop the cache so the next
+  // `requestPresetProbe` call actually retries against a fresh Worker instead
+  // of returning an already-rejected promise forever.
+  pendingProbeRequests.forEach(({ reject }) => reject(new Error(detail)));
+  pendingProbeRequests.clear();
+  cachedProbeResult = null;
+
   notify({
     kind: 'error',
     message: `${detail} Live theming is unavailable until you change a control to retry, or reload the page.`,
@@ -217,8 +279,15 @@ function ensureWorker(): Worker | null {
     return null;
   }
 
-  created.onmessage = (event: MessageEvent<ThemeCompileResponse>) => {
-    handleWorkerMessage(event.data);
+  created.onmessage = (event: MessageEvent<ThemeCompileResponse | ThemePresetProbeResponse>) => {
+    const response = event.data;
+
+    if ('probe' in response) {
+      handleProbeResponse(response);
+      return;
+    }
+
+    handleWorkerMessage(response);
   };
   created.onerror = (event: ErrorEvent) => {
     failWorker(`The theme compiler crashed (${event.message || 'no error message'}).`);
@@ -228,6 +297,57 @@ function ensureWorker(): Worker | null {
   };
   worker = created;
   return created;
+}
+
+function handleProbeResponse(response: ThemePresetProbeResponse): void {
+  const pending = pendingProbeRequests.get(response.seq);
+  pendingProbeRequests.delete(response.seq);
+  if (!pending) {
+    // Already settled by `failWorker` (Worker died before this reply landed).
+    return;
+  }
+
+  if (response.ok) {
+    pending.resolve(response.result);
+  } else {
+    pending.reject(new Error(response.error.sassMessage));
+  }
+}
+
+function runProbeViaWorker(): Promise<PresetProbeResult> {
+  const activeWorker = ensureWorker();
+  if (activeWorker === null) {
+    return Promise.reject(new Error('The theme compiler could not be created.'));
+  }
+
+  probeSeq += 1;
+  const seq = probeSeq;
+  const request: ThemePresetProbeRequest = { seq, probe: true };
+
+  return new Promise<PresetProbeResult>((resolve, reject) => {
+    pendingProbeRequests.set(seq, { resolve, reject });
+    activeWorker.postMessage(request);
+  });
+}
+
+/**
+ * Requests the preset probe over the shared compile Worker, memoised so a
+ * panel remount reuses the one compile (R009: "one probe compile at panel
+ * init") -- the same caching contract theming-presets.ts's old
+ * `computePresets` made, just running through the Worker now (MEM101).
+ *
+ * A rejection is deliberately not cached: `ensureWorker()`/the Worker's first
+ * message can fail transiently (a chunk-load hiccup), and since the panel
+ * remounts on every tab switch, the next open is a free retry. A
+ * deterministic Sass failure simply fails again and is reported again.
+ */
+export function requestPresetProbe(): Promise<PresetProbeResult> {
+  cachedProbeResult ??= runProbeViaWorker().catch((error: unknown) => {
+    cachedProbeResult = null;
+    throw error;
+  });
+
+  return cachedProbeResult;
 }
 
 function friendlySourceName(sourceUrl: string | null): string {
@@ -374,5 +494,6 @@ export const withNfsTheming: Decorator = (storyFn, context) => {
   // Last, so a first-run registration publishes the settled state rather than
   // a stale `idle`.
   ensureStateReplay();
+  ensureProbeResponder();
   return storyFn();
 };
