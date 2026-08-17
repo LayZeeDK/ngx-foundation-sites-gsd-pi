@@ -33,6 +33,24 @@
 // `.inspect`, crashing `sass.dart.js`'s custom-inspect setup on import) --
 // that fix does not reach the separate worker-bundling resolution path.
 //
+// MEM102 (post-completion audit) re-investigated this in depth: the specific
+// "hangs indefinitely" finding above was itself an artifact of a repro that
+// never sent the worker a `postMessage` (theming-worker.ts's `onmessage` does
+// nothing until it receives one). Once a request is actually posted, a real
+// `new Worker(...)` DOES round-trip correctly -- but only the first `sass`
+// resolution attempted per test-file run, across any execution context
+// (main-thread or Worker): a second attempt in the same file reliably fails
+// with a muted, zero-detail `onerror`, regardless of caching, module-vs-test
+// timing, retries, or the file's name (all tried and ruled out as the cause).
+// Since this file's own B1 test already performs one main-thread `import
+// 'sass')`, and B2/B3/B4 would each need the Worker's own, that is at least
+// two resolutions in one file -- exactly the failing shape. Splitting B1 into
+// its own file did not fix it either (still failed on B4's first real Worker
+// call), so the constraint is narrower or different from "one per file" in a
+// way not fully isolated. D036/D047 records this as an accepted deviation
+// pending further Vite/Vitest investigation -- restore this file's approach
+// to real Workers only after reproducing success outside a one-off repro.
+//
 // So: every assertion below that needs the addon's real compiled CSS drives
 // `.storybook/theming-worker.ts`'s REAL exported compile pipeline via a
 // direct import (identical technique to T01's jsdom spec: stub
